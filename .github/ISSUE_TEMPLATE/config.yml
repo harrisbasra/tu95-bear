@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and discussion
+    url: https://github.com/harrisbasra/tu95-bear/discussions
+    about: Ask questions, share high scores or talk about ideas before opening an issue.

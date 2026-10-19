@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node (only used for local tooling)
+node_modules/
+npm-debug.log*
+
+# Deploy tooling
+.vercel/
+_site/

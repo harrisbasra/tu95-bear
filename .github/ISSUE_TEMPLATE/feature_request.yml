@@ -1,0 +1,36 @@
+name: Feature or content idea
+description: Suggest a new mission, aircraft, mechanic or improvement
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of idea is it?
+      options:
+        - New mission
+        - New aircraft
+        - Gameplay / flight model
+        - Graphics or sound
+        - Controls / mobile
+        - Accessibility
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Describe the idea
+      description: What should it do, and why would it make the game better?
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: For aircraft, real-world figures (speeds, range, crew) with a source help a lot.
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to work on this myself

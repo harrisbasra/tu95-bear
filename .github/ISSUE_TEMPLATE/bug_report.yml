@@ -1,0 +1,61 @@
+name: Bug report
+description: Something in the game is broken or behaves wrongly
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a bug. The more detail, the faster it gets fixed.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you saw, and what you expected to see instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open mission 4 (Bombing range) with the B-52H
+        2. Drop a bomb at 300 m above ground
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: mission
+    attributes:
+      label: Mission
+      options:
+        - Not mission specific / menu
+        - 1. First takeoff
+        - 2. Ferry flight
+        - 3. Valley run
+        - 4. Bombing range
+        - 5. Thirsty bird
+        - 6. Supply drop
+        - 7. Silent engines
+        - 8. Last flight
+  - type: dropdown
+    id: aircraft
+    attributes:
+      label: Aircraft
+      options:
+        - Not aircraft specific
+        - Tu-95MS Bear
+        - C-130J Hercules
+        - C-17A Globemaster III
+        - B-52H Stratofortress
+        - B-1B Lancer
+        - Tu-160 Blackjack
+  - type: input
+    id: env
+    attributes:
+      label: Browser and device
+      placeholder: e.g. Chrome 141 on macOS, Safari on iPhone 15
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots, console errors or anything else
