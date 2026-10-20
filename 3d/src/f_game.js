@@ -1,13 +1,15 @@
 
 /* ---------- missions ---------- */
+for(const a of AIRCRAFT){prepSpec(a);AIRCRAFT_BY_ID[a.id]=a;}
 const MISSIONS3=[
  {key:'free',name:'Free flight',summary:'Take off from 36R and explore Lahore. Land on any runway and stop to finish.',sky:'day',start:{rw:'36R',at:120}},
- {key:'depart',name:'Departure, runway 36R',summary:'Take off, raise the gear, set cruise flaps and climb to 600 m.',sky:'day',start:{rw:'36R',at:120}},
+ {key:'depart',name:'Departure, runway 36R',summary:'Take off, raise the gear, retract the flaps and climb to 600 m.',sky:'day',start:{rw:'36R',at:120}},
  {key:'final',name:'Straight-in, runway 36R',summary:'You start 10 km out, lined up with 36R. Fly the glide path, land and stop.',sky:'day',start:{air:'36R',dist:10000},dest:'36R'},
  {key:'circuit',name:'Lahore circuit',summary:'Take off from 36L, fly the left-hand circuit through three rings, then land.',sky:'day',start:{rw:'36L',at:100},
   rings:[{x:-1300,z:-5200,y:320,nx:-1,nz:0},{x:-3400,z:0,y:450,nx:0,nz:1},{x:-1600,z:6200,y:320,nx:1,nz:0}]},
  {key:'oldcity',name:'Old City flypast',summary:'Fly through the rings at Minar-e-Pakistan and Badshahi Mosque, then return and land.',sky:'evening',start:{x:-600,z:-3200,agl:450,hdg:305,kmh:400},oldcity:true},
- {key:'night',name:'Night arrival, runway 18L',summary:'Land on 18L at night with a 6 m/s crosswind from the west.',sky:'night',wind:[6,0],start:{air:'18L',dist:12000},dest:'18L'}
+ {key:'night',name:'Night arrival, runway 18L',summary:'Land on 18L at night with a 6 m/s crosswind from the west.',sky:'night',wind:[6,0],start:{air:'18L',dist:12000},dest:'18L'},
+ {key:'autoland',name:'Autoland, runway 36R',summary:'You’re 22 km out with the autopilot on. Arm the approach (X), lower the gear and flaps, and let it land.',sky:'day',start:{air:'36R',dist:22000,agl:900,ap:true},dest:'36R'}
 ];
 let game=null;
 function toast(g,text){g.toasts.push({text,t:g.t});if(g.toasts.length>3)g.toasts.shift();}
@@ -15,7 +17,7 @@ function clearGame(){if(!game)return;if(game.A)scene.remove(game.A.g);for(const 
 function newGame(mi,mode){
   clearGame();
   const M=MISSIONS3[mi],sp=currentSpec();
-  const p=newPlane(sp);const A=buildAircraft(sp);scene.add(A.g);
+  const kind=M.start.air||M.start.agl&&!M.start.rw?'landing':'takeoff';const p=newPlane(sp,mode==='attract'?'takeoff':kind);const A=buildAircraft(sp);scene.add(A.g);
   const g={mi,M,mode,status:'play',plane:p,A,wind:V(),t:0,time:0,toasts:[],stats:{sink:null,offset:0},flags:{},rings:[],fx:[],
     opts:{assist:progress.assist,landAssist:progress.landAssist},cam:{mode:progress.camMode||'chase',pos:V(),init:false,orbit:0},endT:0,shown:false};
   if(M.wind)g.wind.set(M.wind[0],0,M.wind[1]);
@@ -23,8 +25,12 @@ function newGame(mi,mode){
   const st=M.start;
   if(mode==='attract'){placeOnRunway(p,'36R',60);}
   else if(st.rw)placeOnRunway(p,st.rw,st.at);
-  else if(st.air){const e=END(st.air);const agl=st.dist*Math.tan(3*D2R)+sp.gearH;placeInAir(p,e.T.x-e.dx*st.dist,e.T.z-e.dz*st.dist,agl,e.hdg,sp.appKmh+50,0.35);}
-  else placeInAir(p,st.x,st.z,st.agl,st.hdg,st.kmh,0.55);
+  else if(st.air){const e=END(st.air);const agl=st.agl||st.dist*Math.tan(3*D2R)+sp.gearH;
+    // start with a manoeuvring flap setting at a comfortable speed for this weight
+    const fi=sp.cat==='airliner'?sp.flaps.findIndex(f=>f.pos>=0.28):0,kmh=Math.max(sp.appKmh+50,stallKmh(sp,mass(p),sp.flaps[fi].pos)*1.4);
+    placeInAir(p,e.T.x-e.dx*st.dist,e.T.z-e.dz*st.dist,agl,e.hdg,kmh,0.35,fi);
+    if(st.ap){g.opts.assist=true;p.ap.on=true;p.ap.at=true;apSync(p);p.ap.hdg=Math.round(e.hdg);p.ap.alt=Math.round((agl+ELEV)/FT/100)*100*FT;}}
+  else placeInAir(p,st.x,st.z,st.agl,st.hdg,Math.max(st.kmh,stallKmh(sp,mass(p),0)*1.4),0.55);
   const ringDefs=M.rings?M.rings.slice():[];
   if(M.oldcity){const mn=LANDMARKS.minar,bd=LANDMARKS.badshahi;let dx=mn.x-st.x,dz=mn.z-st.z;const l=Math.hypot(dx,dz);dx/=l;dz/=l;
     ringDefs.push({x:mn.x-dx*260+dz*160,z:mn.z-dz*260-dx*160,y:150,nx:dx,nz:dz});
@@ -33,16 +39,16 @@ function newGame(mi,mode){
   for(const r of ringDefs){const mesh=new THREE.Mesh(new THREE.TorusGeometry(70,4,10,48),new THREE.MeshBasicMaterial({color:'#ffbe46',transparent:true,opacity:0.9,fog:false}));
     mesh.position.set(r.x,r.y,r.z);mesh.rotation.y=Math.atan2(r.nx,r.nz);scene.add(mesh);g.rings.push(Object.assign({mesh,state:'wait',prev:null},r));}
   if(g.rings.length)g.rings[0].state='next';
-  finishStep(p);setAircraftState(A,p,0);syncModel(g);
+  finishStep(p);if(!p.ap.on)apSync(p);setAircraftState(A,p,0);syncModel(g);
   return g;}
 function finish(g,ok,reason){
   if(g.status!=='play')return;g.status=ok?'success':'fail';g.reason=reason;g.endT=g.t+(ok?1.6:2.8);
   if(ok){const s=g.stats,M=g.M;let st=1;
     if(M.key==='depart')st=g.time<75?3:g.time<110?2:1;
     else{st=s.sink!==null&&s.sink<=1.5&&s.offset<8?3:s.sink!==null&&s.sink<=3?2:1;}
-    g.starsWon=st;progress.stars[g.mi]=Math.max(progress.stars[g.mi]||0,st);save();CLOUD.save();AU.blip(660);setTimeout(()=>AU.blip(990),140);}
+    g.starsWon=st;progress.stars[M.key]=Math.max(progress.stars[M.key]||0,st);save();CLOUD.save();AU.blip(660);setTimeout(()=>AU.blip(990),140);}
 }
-function crash(g,reason){const p=g.plane;if(!p.alive)return;p.alive=false;explode(g,p.pos.clone());g.A.g.visible=false;AU.boom(true);finish(g,false,reason);}
+function crash(g,reason){const p=g.plane;if(!p.alive)return;padPulse(1,1,700);p.alive=false;explode(g,p.pos.clone());g.A.g.visible=false;AU.boom(true);finish(g,false,reason);}
 function missionUpdate(g,dt){
   const p=g.plane,M=g.M;if(g.mode!=='play'||g.status!=='play')return;g.time+=dt;
   if(!p.onGround&&p.agl>20)g.flags.flew=true;
@@ -54,7 +60,7 @@ function missionUpdate(g,dt){
     r.prev=d;}
   const stopped=p.onGround&&p.v<1.5&&g.flags.flew;
   switch(M.key){
-    case 'depart':if(!p.onGround&&p.agl>=600&&p.gearPos<0.03&&p.flap==='cruise')finish(g,true,'A clean departure from Lahore.');break;
+    case 'depart':if(!p.onGround&&p.agl>=600&&p.gearPos<0.03&&flapsUp(p))finish(g,true,'A clean departure from Lahore.');break;
     default:{
       const ringsDone=g.rings.every(r=>r.state==='ok');
       if(stopped&&ringsDone){const rw=onRunway(p.pos.x,p.pos.z,5);finish(g,true,`Down and stopped${rw?' on runway '+rw.id:''}. Touchdown at ${(g.stats.sink||0).toFixed(1)} m/s, ${g.stats.offset.toFixed(0)} m from the centreline.`);}
@@ -78,14 +84,16 @@ function updateCamera(g,dt){
   const p=g.plane,c=g.cam,sp=p.spec;
   if(g.mode==='attract'){c.orbit+=dt*0.12;const R=sp.len*1.25+16;camera.position.set(p.pos.x+Math.cos(c.orbit)*R,p.pos.y+4+sp.len*0.12,p.pos.z+Math.sin(c.orbit)*R);camera.lookAt(p.pos.x,p.pos.y+1,p.pos.z);camera.fov=50;camera.updateProjectionMatrix();g.A.g.visible=true;return;}
   const mode=p.alive?c.mode:'chase';
-  if(mode==='cockpit'){localToWorld(p,[sp.cockpit[0],sp.cockpit[1]+0.3,0],camera.position);camera.quaternion.copy(p.q).multiply(_q.setFromAxisAngle(AX.y,-Math.PI/2));
-    camera.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(AX.x,-0.13));camera.fov=68;camera.near=0.3;camera.updateProjectionMatrix();c.init=false;return;}
-  camera.near=0.5;
+  if(mode==='cockpit'){attachCockpit(g);const eye=cockpitEye(sp);localToWorld(p,eye,camera.position);
+    camera.quaternion.copy(p.q).multiply(_q.setFromAxisAngle(AX.y,-Math.PI/2+(c.lookYaw||0)));camera.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(AX.x,(sp.cat==='airliner'?-0.24:-0.2)+(c.lookPitch||0)));
+    camera.fov=progress.fov||62;camera.near=0.05;camera.updateProjectionMatrix();c.init=false;return;}
+  detachCockpit();
+  camera.near=0.5;camera.updateProjectionMatrix();
   if(mode==='tower'){camera.position.copy(W3.towerTop);const d=camera.position.distanceTo(p.pos);camera.lookAt(p.pos);camera.fov=clamp(2*Math.atan(sp.len*1.6/Math.max(1,d))*R2D,3,60);camera.updateProjectionMatrix();c.init=false;return;}
-  const fh=V().set(Math.sin(p.hdg),0,-Math.cos(p.hdg));const dist=sp.len*1.15+16,h=sp.len*0.22+5;
+  const oy=p.hdg+(c.lookYaw||0);const fh=V().set(Math.sin(oy),0,-Math.cos(oy));const dist=sp.len*1.15+16,h=sp.len*0.22+5+(c.lookPitch||0)*-sp.len*0.6;
   const want=V().copy(p.pos).addScaledVector(fh,-dist);want.y+=h;
   if(!c.init){c.pos.copy(want);c.init=true;}
   c.pos.lerp(want,1-Math.exp(-dt*4));if(c.pos.y<2)c.pos.y=2;
   camera.position.copy(c.pos);const look=V().copy(p.pos).addScaledVector(fh,sp.len*0.35);look.y+=2;camera.lookAt(look);camera.fov=58;camera.updateProjectionMatrix();
 }
-function cycleCam(){if(!game||game.mode!=='play')return;const i=CAMS.indexOf(game.cam.mode);game.cam.mode=CAMS[(i+1)%CAMS.length];progress.camMode=game.cam.mode;save();toast(game,CAM_LABEL[game.cam.mode]);}
+function cycleCam(){if(!game||game.mode!=='play')return;const i=CAMS.indexOf(game.cam.mode);game.cam.mode=CAMS[(i+1)%CAMS.length];game.cam.lookYaw=0;game.cam.lookPitch=0;progress.camMode=game.cam.mode;save();toast(game,CAM_LABEL[game.cam.mode]);}

@@ -76,6 +76,31 @@ Match the code around you:
 3. Check takeoff, landing, a tail strike and every mission type with the new aircraft.
 4. Update the README and the bug-report template.
 
+## Working on the 3D game
+
+The 3D game lives in [`3d/src`](3d/src) and is joined into `3d/index.html` by `npm run build:3d`; the README lists what is in each file. Never edit `3d/index.html` by hand.
+
+### Adding a 3D aircraft
+
+- **Military types** go in `AIRCRAFT` in `b_core.js`; **airliners** go in `AIRLINERS` in `c_airliners.js`.
+- Use published figures and name the source in your PR: weights (`oew`, `mtow`, `mlw`, `fuelCap`, `payload`), wing area `S`, `span`, total static thrust `T` (plus `power` for turboprops), `vmo`, the flap detents with their limit speeds, and `vrefKt`, the reference approach speed at maximum landing weight.
+- The flight model derives its lift coefficients from those numbers (`prepSpec` in `e_physics.js`), so you shouldn't need to hand-tune lift.
+- For an airliner, the `geo` block gives the fuselage, wing, engine, tail and gear layout; the tail cone is lengthened automatically to match the published `tailStrike` angle.
+
+### Fly-testing
+
+Changes to the flight model, the autopilot or an aircraft must pass the scripted fly-test for every aircraft before they ship:
+
+```bash
+npm start                                   # in one terminal
+pip install playwright                      # once; uses your installed Google Chrome
+MISSIONS=1,2,5,6 python3 scripts/flytest.py # departure, straight-in, night crosswind, autoland
+```
+
+### Airport data from OpenStreetMap
+
+`3d/src/d_opla_osm.js` is generated from OpenStreetMap by `scripts/osm-airport.mjs` (the queries are in its header). OSM data is © OpenStreetMap contributors under the [ODbL](https://opendatacommons.org/licenses/odbl/): keep the credit in the game and the README, and keep the generated file under the ODbL. Improve the map on [openstreetmap.org](https://www.openstreetmap.org/) and regenerate, rather than editing the data file by hand.
+
 ## Commit messages
 
 Use short messages in the imperative mood that say what changed:

@@ -46,24 +46,62 @@ A 2D flight game written in one dependency-free HTML file. Take off, land, threa
 
 ## 3D: Lahore (beta)
 
-A full 3D version set at **Allama Iqbal International Airport (OPLA), Lahore**. Fly it at [harrisbasra.github.io/tu95-bear/3d](https://harrisbasra.github.io/tu95-bear/3d/), or from the **Fly in 3D** button on the 2D menu.
+A full 3D version set at **Allama Iqbal International Airport (OPLA), Lahore**. Fly it at [harrisbasra.github.io/tu95-bear/3d](https://harrisbasra.github.io/tu95-bear/3d/), or pick **3D** under **Version** on either menu. The game remembers your choice, and `?2d` always opens the 2D game.
 
-<img src="docs/screenshots/3d-oldcity.png" alt="C-130J over Lahore's old city at dusk, heading for the rings at Minar-e-Pakistan" width="900">
+<img src="docs/screenshots/3d-glass-cockpit.png" alt="747-400 glass cockpit on a 3 km final to runway 36R, with live PFD, ND and engine displays and the MCP" width="900">
 
-- **The real airport.** Both runways come from published survey data: 18L/36R (3,360 m, concrete) and 18R/36L (2,743 m, asphalt), 46 m wide at 217 m elevation, with their real thresholds, headings and spacing. They have full markings, edge lights, approach lighting with a sequenced flasher on the ILS runways, and working PAPI lights. Taxiways, the terminal, the tower and the hangars are simplified and placed approximately.
-- **Lahore around it.** A simplified city of about 20,000 buildings, laid out by real neighbourhood, with Minar-e-Pakistan, Badshahi Mosque and Lahore Fort, the Ravi river, Punjab farmland and the city's usual haze.
-- **Real 3D flight.** Bank, turn and line up with the runway. Each of the six aircraft keeps its 2D flight numbers, with banking, sideslip, ground effect, crosswind and nose-wheel steering added.
-- **Built to be learnable.** Optional flight assist levels the wings and coordinates turns, and landing assist softens the flare. An attitude indicator, compass with runway course, glide-path lights and centreline guide sit in the instrument panel.
-- **Three cameras.** Chase, cockpit and tower views, switched with <kbd>C</kbd>.
-- **Six missions:** free flight, a departure, a straight-in approach, the Lahore circuit, an Old City flypast at dusk and a night arrival in a crosswind.
+- **Thirteen aircraft with real numbers.**
+  - **Bombers and transports:** Tu-95MS, C-130J, C-17A, B-52H, B-1B and Tu-160.
+  - **Airliners:** Boeing 737-800, 747-400, 777-300ER and 787-9, and Airbus A320, A350-900 and A380-800.
+  - **Published data:** each one uses its published empty, landing and takeoff weights, fuel, wing area, span, thrust, speed limits and flap detents. Lift is calibrated from the real approach speed, so a heavy 777 needs the runway and a light A320 floats.
+- **Real airliner shapes.**
+  - **Fuselages:** proportions from published three-views, the 747's upper deck and the A380's double deck.
+  - **Wings:** cranked wings with flap track fairings, working flaps and spoilers, plus each type's own wingtip: blended winglets, sharklets, raked tips or a wingtip fence.
+  - **Engines and gear:** high-bypass engines on pylons and the real bogies (the 777's six-wheel trucks, the 747's and A380's body gear).
+  - **Details:** windows, doors, an APU exhaust, strobes and beacons.
+  - **Paint:** every airliner wears the game's own invented house colours. There are no airline liveries or manufacturer logos.
+- **3D cockpits** (<kbd>C</kbd> cycles chase, cockpit and tower).
+  - **Airliners:** a glass cockpit built as real geometry.
+    - Live displays: PFD (attitude, speed and altitude tapes, vertical speed, heading, flight director, ILS deviation and flight modes), ND (map with runways and the route to the runway) and engine and systems pages.
+    - Controls: an MCP or FCU you can click, an overhead panel, a moving yoke or Airbus sidestick, and thrust, flap, speedbrake and gear levers.
+  - **Bombers and transports:** a classic panel of round gauges. Soviet types get the turquoise of the real thing.
+  - **Free look and units:** drag to look around. The instruments read knots and feet, like the real aircraft.
+- **Autopilot and autothrottle** on every aircraft.
+  - **Modes:** heading, altitude and speed hold.
+  - **Approach mode:** captures the localiser and glide path, then flares, retards, rolls out on the centreline and brakes with reverse thrust. It's a full autoland.
+- **Allama Iqbal International, mapped.**
+  - **From OpenStreetMap:** taxiways (B to Z), aprons, stands, jet bridges and the footprints of the 2,500 buildings around the field.
+  - **The main terminal:** on the east side, with its long arched facade (simplified).
+  - **Runways:** both use published threshold coordinates: 18L/36R (3,360 m, concrete) and 18R/36L (2,743 m, asphalt), 46 m wide at 217 m elevation. They have full markings, edge and approach lighting, a sequenced flasher on the ILS runways and working PAPIs.
+- **Lahore around it.** A simplified city laid out by neighbourhood, with Minar-e-Pakistan, Badshahi Mosque and Lahore Fort, the Ravi, Punjab farmland and haze.
+- **Real 3D flight.** The flight model includes:
+  - an ISA atmosphere, with thrust lapse for turbofans, low-bypass engines and turboprops
+  - fuel burn and a weight that falls as fuel burns
+  - banking, sideslip, ground effect and crosswind
+  - ground spoilers, reverse thrust, and nose-wheel and rudder steering
+- **Built to be learnable.** All three assists are on by default:
+  - **Flight assist** levels the wings, coordinates turns and stops tail strikes on rotation.
+  - **Landing assist** softens the flare and kicks out the crosswind crab just before touchdown.
+  - **Crash messages** say what went wrong and how to fix it.
+- **Controllers.** Any gamepad works over USB or Bluetooth, with rumble for touchdowns, the runway and the stall stick-shaker. In Chrome and Edge on a computer, **Connect DualSense lights and triggers** adds more:
+  - **Lightbar:** olive in flight, cyan on autopilot, amber for cautions, flashing red for warnings.
+  - **Player LEDs:** show the flap position.
+  - **Mute LED:** shows the autopilot.
+  - **Adaptive triggers:** stiffen with airspeed.
+- **Plays on phones.**
+  - **Touch controls:** a stick, a power slider, and flap, gear, brake, speedbrake and autopilot buttons.
+  - **Graphics setting:** low, medium or high scales shadows, the city and the cockpit display refresh rate.
+- **Seven missions:** free flight, a departure, a straight-in approach, the Lahore circuit, an Old City flypast at dusk, a night arrival in a crosswind and an autoland.
 - **Pilot name and optional cloud saves.** Progress saves in the browser, or to Firebase after [a few setup steps](docs/FIREBASE.md).
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/3d-approach.png" alt="Tu-95 on final approach to runway 36R"> | <img src="docs/screenshots/3d-cockpit.png" alt="Cockpit view of runway 36R on final"> |
-| **Final approach** to 36R | **Cockpit view** on the same approach |
-| <img src="docs/screenshots/3d-night.png" alt="B-52 on a night approach to 18L with the city lights to the west"> | <img src="docs/screenshots/3d-tower.png" alt="Tower view of a Tu-160 lining up on 36R"> |
-| **Night arrival** on 18L | **Tower view** of a Tu-160 lining up |
+| <img src="docs/screenshots/3d-airliners.png" alt="Hangar with the airliner category open and the 747-400 selected"> | <img src="docs/screenshots/3d-terminal.png" alt="The main terminal on the east side of OPLA, with airliners on the stands"> |
+| **The hangar**: bombers and transports, and airliners | **The terminal** with airliners on the stands |
+| <img src="docs/screenshots/3d-a380-final.png" alt="A380-800 on short final to runway 36R over the city"> | <img src="docs/screenshots/3d-classic-cockpit.png" alt="Tu-95 classic cockpit with round gauges on final"> |
+| **A380-800** on short final to 36R | **Classic cockpit** in the Tu-95 |
+| <img src="docs/screenshots/3d-night.png" alt="Night approach to 18L with the city lights to the west"> | <img src="docs/screenshots/3d-oldcity.png" alt="C-130J over Lahore's old city at dusk"> |
+| **Night arrival** on 18L | **Old City flypast** at dusk |
 
 ### 3D controls
 
@@ -71,26 +109,58 @@ A full 3D version set at **Allama Iqbal International Airport (OPLA), Lahore**. 
 |---|---|
 | <kbd>↑</kbd> / <kbd>↓</kbd> | Nose up / nose down (swap these with **Pilot-style pitch**) |
 | <kbd>←</kbd> / <kbd>→</kbd> | Roll left / right. On the ground: steer |
-| <kbd>W</kbd> / <kbd>S</kbd> | Power up / down |
+| <kbd>W</kbd> / <kbd>S</kbd> | Power up / down. <kbd>S</kbd> at idle on the ground: reverse thrust and brakes |
 | <kbd>A</kbd> / <kbd>D</kbd> | Rudder |
-| <kbd>F</kbd> / <kbd>G</kbd> / <kbd>B</kbd> | Flaps / gear / brakes |
-| <kbd>C</kbd> | Camera: chase, cockpit, tower |
+| <kbd>F</kbd> / <kbd>V</kbd> | Flaps: extend / retract one notch (real detents, such as 1, 5, 15, 30 on a Boeing or 1, 1+F, 2, 3, Full on an Airbus) |
+| <kbd>G</kbd> / <kbd>B</kbd> / <kbd>Q</kbd> | Gear / brakes / speedbrake |
+| <kbd>Z</kbd> / <kbd>X</kbd> / <kbd>T</kbd> | Autopilot on or off / arm the approach / autothrottle |
+| <kbd>,</kbd> <kbd>.</kbd> · <kbd>−</kbd> <kbd>=</kbd> · <kbd>9</kbd> <kbd>0</kbd> | Autopilot heading, altitude and speed down / up |
+| <kbd>C</kbd> | Camera: chase, cockpit, tower. Drag to look around; double-tap to recentre |
 | <kbd>P</kbd> / <kbd>Esc</kbd>, <kbd>R</kbd> | Pause, restart |
 
-On touch screens, a stick on the left flies the aircraft and a slider on the right sets the power.
+On touch screens, a stick on the left flies the aircraft and a slider on the right sets the power. In the cockpit you can also tap the autopilot panel.
+
+| Controller | Action |
+|---|---|
+| Left stick | Pitch and roll (steer on the ground) |
+| L2 / R2 | Rudder |
+| R1 / L1 | Power up / down (L1 at idle on the ground: reverse and brakes) |
+| ✕ / □ / ○ / △ | Brakes / gear / speedbrake / camera |
+| D-pad | ↑ ↓ flaps, ← autopilot, → arm the approach |
+| Right stick, R3 | Look around, recentre |
+| Options, Create | Pause, autothrottle |
+
+### Where the numbers come from
+
+- **Aircraft:**
+  - Boeing *Airplane Characteristics for Airport Planning* and Airbus *Aircraft Characteristics: Airport and Maintenance Planning* documents.
+  - EASA and FAA type-certificate data, and USAF fact sheets.
+  - Standard references for the Tupolev types.
+  - Reference speeds (Vref) and turboprop static thrust are estimates from published data. Planform details are approximate.
+- **Lahore:**
+  - Runway thresholds come from OurAirports and the published AIP data.
+  - Taxiways, aprons, stands, jet bridges and building footprints come from OpenStreetMap.
+  - The terminal facade, building heights, the mosque dome and the control tower are simplified. The tower's placement isn't confirmed by any public source.
+  - The city beyond the mapped area is procedural.
 
 ### 3D source
 
-The 3D game uses [three.js](https://threejs.org/) r128 from cdnjs and otherwise follows the same no-build-step spirit: `3d/index.html` is committed and served as-is. It is generated from the readable sources in [`3d/src`](3d/src). After editing them, run `npm run build:3d`; `npm run check` fails if the two are out of sync.
+The 3D game uses [three.js](https://threejs.org/) r128 from cdnjs and otherwise follows the same no-build-step spirit: `3d/index.html` is committed and served as-is. It is generated from the readable sources in [`3d/src`](3d/src), which are joined in order inside one closure. After editing them, run `npm run build:3d`; `npm run check` fails if the two are out of sync.
 
 | File | What's in it |
 |---|---|
 | `shell.html` | Markup and styles for the menus, overlays and touch controls |
-| `b_core.js` | Utilities, Lahore geography, runway survey data and aircraft specs |
-| `c_models.js` | Procedural 3D aircraft built from fuselage stations, aerofoil slabs and engine pods |
-| `d_world.js` | Sky, terrain, the airport, city, landmarks, river, trees and clouds |
+| `b_core.js` | Utilities, Lahore geography, runway survey data and the bomber and transport specs |
+| `c_models.js` | Procedural bombers and transports built from fuselage stations, aerofoil slabs and engine pods |
+| `c_airliners.js` | Airliner specs and the airliner builder: fuselage texture, cranked wings, wingtips, nacelles, bogies |
+| `d_world.js` | Sky, terrain, runways and their lighting, the city, landmarks, river, trees and clouds |
+| `d_opla_osm.js` | Lahore airport map data, generated from OpenStreetMap by `scripts/osm-airport.mjs` (ODbL) |
+| `d_airport.js` | Builds the taxiways, aprons, stands, jet bridges, buildings and parked airliners from that data |
 | `e_physics.js` | The 3D flight model, ground handling and touchdown checks |
+| `e_autopilot.js` | Autopilot and autothrottle, approach mode and autoland |
 | `f_game.js` | Missions, rings, effects and cameras |
+| `g_cockpit.js` | 3D cockpits, with live canvas displays and clickable autopilot panels |
+| `g_pad.js` | Gamepad input, rumble, and the DualSense lightbar, LEDs and adaptive triggers over WebHID |
 | `g_ui.js` | Instrument panel, radar, audio, input, cloud saves, menus and the main loop |
 
 ## Missions
@@ -187,7 +257,9 @@ Every push to `main` deploys both games to **GitHub Pages** through [`.github/wo
 
 The code is released under the [MIT License](LICENSE). © 2026 Harris Khalid ([@harrisbasra](https://github.com/harrisbasra)).
 
-"Ту-95 Bear" and the @harrisbasra™ name and branding identify the original game and are not covered by the code license. If you publish a fork, please give it your own name and keep the original credit. Aircraft names belong to their respective manufacturers and operators. Airport and landmark layouts are simplified. They are used here only to describe the aircraft, and this project is not affiliated with or endorsed by any of them.
+"Ту-95 Bear" and the @harrisbasra™ name and branding identify the original game and are not covered by the code license. If you publish a fork, please give it your own name and keep the original credit. Aircraft names, including Boeing 737, 747, 777 and 787 and Airbus A320, A350 and A380, belong to their respective manufacturers and operators. They are used here only to describe the aircraft, and this project is not affiliated with or endorsed by any of them. Airport and landmark layouts are simplified.
+
+The Lahore airport map data in `3d/src/d_opla_osm.js` is derived from [OpenStreetMap](https://www.openstreetmap.org/copyright), © OpenStreetMap contributors, and is available under the [Open Database Licence](https://opendatacommons.org/licenses/odbl/).
 
 <div align="center">
 

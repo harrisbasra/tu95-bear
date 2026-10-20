@@ -34,6 +34,13 @@ for (const name of files) {
   }
 }
 
+// OpenStreetMap data is ODbL: the game must credit it wherever it is used.
+const built = readFileSync(new URL('../3d/index.html', import.meta.url), 'utf8');
+if (/_OSM=/.test(built) && !built.includes('OpenStreetMap contributors')) {
+  console.error('✗ 3d/index.html embeds OpenStreetMap data but does not credit "OpenStreetMap contributors"');
+  failed = true;
+}
+
 // The committed 3D build must match its sources.
 const before = readFileSync(new URL('../3d/index.html', import.meta.url), 'utf8');
 await import('./build-3d.mjs');

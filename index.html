@@ -8,6 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&family=Russo+One&display=swap" rel="stylesheet">
+<script>
+// Players who chose the 3D version in settings go straight there; ?2d always opens this one.
+try{if(localStorage.getItem('tu95-bear-version')==='3d'&&!/[?&]2d\b/.test(location.search))location.replace('3d/');}catch(e){}
+</script>
 <style>
 :root{
   --olive:#3d4733; --olive-deep:#232a1e; --olive-line:#56614a;
@@ -65,6 +69,7 @@ button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 .primary{background:var(--red);border:0;border-radius:3px;padding:9px 20px;color:#fff6ec;font-weight:700}
 .primary:hover{background:#d4452f}
 .play3d{text-decoration:none;border-color:var(--red);font-weight:700}
+.version{display:flex;gap:4px;align-items:center;color:var(--muted)}.version .ghost{padding:5px 12px}.version [aria-checked="true"]{border-color:var(--red);background:rgba(194,59,43,.2);color:var(--cream)}
 .play3d:hover{background:rgba(194,59,43,.2)}
 .link{background:none;border:0;padding:6px 2px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:15px}
 .keys{margin-top:14px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:16px;color:var(--muted)}
@@ -140,6 +145,7 @@ button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
       <button id="btn-sound" class="ghost">Sound on</button>
       <button id="btn-keys" class="ghost" aria-expanded="false">Controls</button>
       <a class="ghost play3d" href="3d/">Fly in 3D: Lahore</a>
+      <div class="version" role="radiogroup" aria-label="Game version"><span>Version</span><button class="ghost" role="radio" aria-checked="true" data-v="2d">2D</button><button class="ghost" role="radio" aria-checked="false" data-v="3d">3D</button></div>
       <button id="btn-unlock" class="link">Unlock all missions</button>
     </div>
     <div id="keys" class="keys" hidden>
@@ -1638,6 +1644,7 @@ $('#p-restart').addEventListener('click',restart);
 $('#p-menu').addEventListener('click',toMenu);
 $('#p-sound').addEventListener('click',()=>{AU.init();AU.setOn(!AU.on);});
 $('#btn-sound').addEventListener('click',()=>{AU.init();AU.setOn(!AU.on);});
+document.querySelectorAll('.version [data-v]').forEach(b=>b.addEventListener('click',()=>{try{localStorage.setItem('tu95-bear-version',b.dataset.v);}catch(e){}if(b.dataset.v==='3d')location.href='3d/';}));
 $('#btn-unlock').addEventListener('click',()=>{progress.unlocked=MISSIONS.length;save();buildLog();});
 $('#btn-keys').addEventListener('click',e=>{const k=$('#keys');k.hidden=!k.hidden;e.currentTarget.setAttribute('aria-expanded',String(!k.hidden));});
 pauseBtn.addEventListener('click',()=>pause(true));

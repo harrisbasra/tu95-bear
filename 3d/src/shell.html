@@ -65,8 +65,16 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .opts{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:16px;color:var(--muted)}
 .opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
 .opts input{accent-color:var(--red);width:17px;height:17px}
+.opts select{font:inherit;font-size:15px;background:var(--olive);color:var(--cream);border:1.5px solid var(--olive-line);border-radius:3px;padding:2px 6px}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:15px;color:var(--muted);margin-top:10px}
 .keys kbd{font-family:inherit;font-weight:700;color:var(--cream);background:var(--olive);border:1px solid var(--olive-line);border-radius:3px;padding:0 6px;white-space:nowrap}
+.pilot-row{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:16px;color:var(--muted)}
+.pilot-row input{font:inherit;font-size:17px;background:rgba(235,229,203,.08);border:1.5px solid var(--olive-line);border-radius:3px;color:var(--cream);padding:5px 10px;width:220px;user-select:text;-webkit-user-select:text}
+.cloud{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:15px;color:var(--muted)}.cloud p{margin:0}
+.version{display:flex;gap:4px;align-items:center;margin-top:10px;font-size:15px;color:var(--muted)}.version .ghost{padding:4px 12px}.version [aria-checked="true"]{border-color:var(--red);background:rgba(194,59,43,.2)}
+.pad-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:15px;color:var(--muted)}.pad-row p{margin:0}
+.cats{display:flex;gap:6px;margin:0 0 8px}.cats button[aria-selected="true"]{border-color:var(--red);background:rgba(194,59,43,.18)}
+.credit-m a{color:inherit}
 .credit-m{font-size:13px;color:var(--muted);margin-top:14px}
 .card{background:var(--paper);color:var(--ink);border-radius:3px;max-width:520px;width:100%;padding:22px 24px 18px;box-shadow:0 24px 60px rgba(0,0,0,.45);margin:auto}
 .card h2{font-family:"Russo One",sans-serif;font-weight:400;font-size:28px;line-height:1.05;margin:0 0 6px}
@@ -89,7 +97,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .thr .lvl{position:absolute;left:0;right:0;bottom:0;background:rgba(227,163,58,.6)}
 .thr span{position:absolute;left:0;right:0;top:4px;text-align:center;font-size:12px;font-weight:700}
 .loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--olive-deep);font-family:"Russo One",sans-serif;font-size:22px;color:var(--cream)}
-@media (max-height:520px){.t-cyr{font-size:52px}.place{font-size:16px;margin-top:8px}.log button{padding:5px 10px}.log .sm{display:none}.stick{width:110px;height:110px}.thr{height:110px}}
+@media (max-height:520px){.t-cyr{font-size:52px}.place{font-size:16px;margin-top:8px}.log button{padding:5px 10px}.log .sm{display:none}.stick{width:110px;height:110px}.thr{height:110px}.touch button{height:30px;min-width:52px;font-size:13px}.tbtns{gap:4px}}
 </style>
 </head>
 <body>
@@ -103,12 +111,16 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
     <div>
       <h1 class="title"><span class="t-cyr">Ту-95</span><span class="t-lat">Bear 3D</span></h1>
       <p class="by">A game by <strong>@harrisbasra™</strong></p>
-      <p class="place">Allama Iqbal International Airport, Lahore<small>Both runways are built from published survey data: 18L/36R at 3,360 m and 18R/36L at 2,743 m, at 217 m elevation. Buildings and the city are simplified.</small></p>
+      <div class="version" role="radiogroup" aria-label="Game version"><span>Version</span><button class="ghost" role="radio" aria-checked="false" data-v="2d">2D</button><button class="ghost" role="radio" aria-checked="true" data-v="3d">3D</button></div>
+      <p class="place">Allama Iqbal International Airport, Lahore<small>Both runways are built from published survey data: 18L/36R at 3,360 m and 18R/36L at 2,743 m, at 217 m elevation. Taxiways, aprons, stands and building footprints come from OpenStreetMap; heights, the terminal facade and the wider city are simplified.</small></p>
+      <div class="pilot-row"><label for="pilot">Pilot name</label><input id="pilot" type="text" maxlength="24" placeholder="Your name" autocomplete="nickname"></div>
+      <div id="cloud" class="cloud" hidden><p id="cloud-status"></p><button id="cloud-btn" class="ghost">Sign in with Google</button></div>
       <h2 class="sub">Missions</h2>
       <ol class="log" id="log"></ol>
     </div>
     <div>
       <h2 class="sub">Aircraft</h2>
+      <div class="cats" role="tablist" aria-label="Aircraft categories"><button class="ghost" role="tab" data-cat="military">Bombers and transports</button><button class="ghost" role="tab" data-cat="airliner">Airliners</button></div>
       <div class="planes" id="planes" role="radiogroup" aria-label="Aircraft"></div>
       <p class="pinfo" id="pinfo"></p>
       <div class="opts">
@@ -116,22 +128,29 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
         <label><input type="checkbox" id="o-land" checked> Landing assist</label>
         <label><input type="checkbox" id="o-invert"> Pilot-style pitch (↓ climbs)</label>
         <label><input type="checkbox" id="o-sound" checked> Sound</label>
-        <label><input type="checkbox" id="o-hq" checked> Shadows</label>
+        <label><input type="checkbox" id="o-rumble" checked> Controller rumble</label>
+        <label><input type="checkbox" id="o-units"> Aviation units (kt, ft)</label>
+        <label>Graphics <select id="o-quality"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low (phones)</option></select></label>
       </div>
+      <div class="pad-row"><p id="pad-status"></p><button id="pad-hid" class="ghost" hidden>Connect DualSense lights and triggers</button></div>
       <div class="go-row"><button id="btn-go" class="primary">Fly</button><button id="btn-keys" class="ghost" aria-expanded="false">Controls</button></div>
       <div id="keys" class="keys" hidden>
         <kbd>↑ / ↓</kbd><span>Nose up / nose down (swap with “Pilot-style pitch”)</span>
         <kbd>← / →</kbd><span>Roll left / right. On the ground: steer</span>
         <kbd>W / S</kbd><span>Power up / down</span>
         <kbd>A / D</kbd><span>Rudder left / right</span>
-        <kbd>F</kbd><span>Flaps: takeoff, cruise, landing</span>
+        <kbd>F / V</kbd><span>Flaps: extend one notch / retract one notch</span>
         <kbd>G</kbd><span>Gear up or down</span>
-        <kbd>B</kbd><span>Wheel brakes (hold)</span>
-        <kbd>C</kbd><span>Camera: chase, cockpit, tower</span>
+        <kbd>B</kbd><span>Wheel brakes (hold). S at idle on the ground: reverse thrust and brakes</span>
+        <kbd>Q</kbd><span>Speedbrake out or in</span>
+        <kbd>Z / X / T</kbd><span>Autopilot on or off / arm the approach / autothrottle</span>
+        <kbd>, .  − =  9 0</kbd><span>Autopilot heading, altitude and speed down / up</span>
+        <kbd>C</kbd><span>Camera: chase, cockpit, tower. Drag to look around; in the cockpit, tap the autopilot panel</span>
+        <kbd>Controller</kbd><span>Left stick flies, L2 / R2 rudder, R1 / L1 power, ✕ brakes, □ gear, D-pad flaps and autopilot, △ camera</span>
         <kbd>P / Esc</kbd><span>Pause</span>
         <kbd>R</kbd><span>Restart</span>
       </div>
-      <p class="credit-m">© 2026 @harrisbasra™. Ту-95 Bear is a trademark of @harrisbasra.</p>
+      <p class="credit-m">© 2026 @harrisbasra™. Ту-95 Bear is a trademark of @harrisbasra. Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>. Aircraft names belong to their manufacturers and are used only to describe the aircraft.</p>
     </div>
   </div>
 </div>
@@ -161,7 +180,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 <div id="touch" class="touch hidden">
   <div class="stick" id="stick"><div class="knob" id="knob"></div></div>
   <div class="rgroup">
-    <div class="tbtns"><button data-press="flaps">Flaps</button><button data-press="gear">Gear</button><button data-hold="brake">Brake</button></div>
+    <div class="tbtns"><button data-press="ap">AP</button><button data-press="app">APP</button><button data-press="spd">Spd brk</button></div>
+    <div class="tbtns"><button data-press="flapsUp">Flaps ▲</button><button data-press="flaps">Flaps ▼</button><button data-press="gear">Gear</button><button data-hold="brake">Brake</button></div>
     <div class="thr" id="thr"><div class="lvl" id="thr-lvl"></div><span>Power</span></div>
   </div>
 </div>

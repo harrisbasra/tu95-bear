@@ -40,6 +40,7 @@ function decalTex(kind){
   else{c.fillStyle='#3f464b';c.fillRect(4,52,120,24);c.beginPath();c.arc(64,64,34,0,Math.PI*2);c.fill();star(64,66,30,'#d9dcde');c.fillStyle='#d9dcde';c.fillRect(100,60,20,8);c.fillRect(8,60,20,8);}
   const t=new THREE.CanvasTexture(cv);t.anisotropy=4;return t;}
 function buildAircraft(sp){
+  if(sp.geo)return buildAirliner(sp);
   const S=shared(),M=sp.model;
   const bodyM=stdMat(M.color,{vertexColors:true}),wingM=stdMat(M.color),acc=stdMat(M.accent);
   const g=new THREE.Group();const parts={props:[],flaps:[],gear:[],swing:[],ab:[],lights:{},discs:[],blades:[]};
@@ -141,6 +142,7 @@ function setAircraftState(A,p,t){
   for(const d of P.discs)d.opacity=0.08+blur*0.32;
   for(const b of P.blades)b.visible=blur<0.85;
   for(const f of P.flaps)f.rotation.z=p.flapPos*0.6;
+  if(P.spoilers){const spl=Math.max((p.spd||0)*(p.onGround?1:0.55),p.gsp||0);for(const s of P.spoilers)s.rotation.z=-spl*0.85;}
   for(const s of P.swing)s.g.rotation.y=-p.sweep*s.s;
   for(const gl of P.gear){gl.leg.position.y=(1-p.gearPos)*gl.up;gl.leg.visible=p.gearPos>0.04;}
   for(const c of P.ab){c.visible=p.ab>0.03;c.scale.set(1,0.6+p.ab*0.7,1);}
