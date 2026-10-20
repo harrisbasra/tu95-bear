@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ту-95 Bear 3D: Lahore, by @harrisbasra™</title>
+<meta name="author" content="@harrisbasra">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&family=Russo+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --olive:#3d4733; --olive-deep:#232a1e; --olive-line:#56614a;
+  --cream:#ebe5cb; --paper:#e6dfc2; --ink:#1c2018; --muted:#a8ad93;
+  --red:#c23b2b; --amber:#e3a33a; --scrim:rgba(18,22,15,.66);
+  color-scheme:light dark;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--olive:#363f2d;--olive-deep:#1d2319;--paper:#ddd6b8;--scrim:rgba(10,13,9,.72);}}
+:root[data-theme="dark"]{--olive:#363f2d;--olive-deep:#1d2319;--paper:#ddd6b8;--scrim:rgba(10,13,9,.72);}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--olive-deep)}
+body{font-family:"PT Sans Narrow","Arial Narrow","Roboto Condensed",sans-serif;color:var(--cream);font-size:18px;line-height:1.4;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#gl,#hud{position:fixed;inset:0;width:100%;height:100%;display:block}
+#gl{touch-action:none}#hud{pointer-events:none}
+#safe-probe{position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+.hidden,[hidden]{display:none!important}
+.screen{position:fixed;inset:0;display:flex;padding:calc(env(safe-area-inset-top,0px) + 16px) calc(env(safe-area-inset-right,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 16px) calc(env(safe-area-inset-left,0px) + 16px);overflow:auto}
+.screen.dim{background:var(--scrim);align-items:center;justify-content:center}
+.menu{background:linear-gradient(90deg,rgba(20,25,17,.9) 0,rgba(20,25,17,.72) 60%,rgba(20,25,17,.25) 100%)}
+.menu-in{width:100%;max-width:1100px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;align-items:start}
+@media (max-width:860px){.menu-in{grid-template-columns:1fr;gap:18px}}
+.title{font-family:"Russo One","Arial Black",sans-serif;font-weight:400;margin:0;line-height:.9;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.t-cyr{font-size:clamp(56px,9vw,96px);color:var(--cream);letter-spacing:-.02em}
+.t-lat{font-size:clamp(20px,3vw,28px);color:var(--red)}
+.by{margin:6px 0 0;font-size:17px;color:var(--muted)}.by strong{color:var(--cream)}
+.place{margin:14px 0 6px;font-size:19px;max-width:44ch;color:var(--cream)}
+.place small{display:block;color:var(--muted);font-size:15px;margin-top:2px}
+.sub{font-family:"Russo One",sans-serif;font-weight:400;font-size:17px;margin:18px 0 8px;color:var(--cream)}
+.log{list-style:none;margin:0;padding:0;background:var(--paper);color:var(--ink);border-radius:3px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.log li{border-bottom:1px solid rgba(28,32,24,.16)}.log li:last-child{border-bottom:0}
+.log button{display:grid;grid-template-columns:2em 1fr auto;gap:8px;align-items:center;width:100%;padding:8px 12px;background:none;border:0;text-align:left;color:var(--ink)}
+.log button:hover{background:rgba(194,59,43,.08)}
+.log button[aria-pressed="true"]{background:#fbf4e4;box-shadow:inset 4px 0 0 var(--red)}
+.log .n{font-family:"Russo One",sans-serif;font-size:19px;color:var(--red)}
+.log .nm{font-weight:700;font-size:18px;line-height:1.1}
+.log .sm{display:block;font-size:14px;color:#5b5f4d}
+.log .st{font-size:16px;letter-spacing:2px;color:#b07d1a;white-space:nowrap}.log .st .off{color:rgba(28,32,24,.22)}
+.planes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+@media (max-width:520px){.planes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pl{display:flex;flex-direction:column;gap:1px;padding:5px 6px 7px;border:1.5px solid rgba(235,229,203,.2);border-radius:3px;background:rgba(235,229,203,.06);text-align:left;color:var(--cream)}
+.pl:hover{border-color:rgba(235,229,203,.5)}
+.pl[aria-checked="true"]{border-color:var(--red);background:rgba(194,59,43,.18)}
+.pl canvas{width:100%;height:auto;display:block;border-radius:2px;aspect-ratio:240/96}
+.pl .pn{font-weight:700;font-size:15px;line-height:1.1;margin-top:3px}.pl .pr{font-size:12.5px;color:var(--muted);line-height:1.15}
+.pinfo{margin-top:8px;font-size:15px;color:var(--muted);line-height:1.35;min-height:2.7em}.pinfo strong{color:var(--cream)}
+.go-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.primary{background:var(--red);border:0;border-radius:3px;padding:10px 24px;color:#fff6ec;font-weight:700;font-size:19px}
+.primary:hover{background:#d4452f}
+.ghost{background:transparent;border:1.5px solid var(--olive-line);border-radius:3px;padding:7px 14px;color:var(--cream)}
+.ghost:hover{border-color:var(--cream)}
+.opts{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:16px;color:var(--muted)}
+.opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.opts input{accent-color:var(--red);width:17px;height:17px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:15px;color:var(--muted);margin-top:10px}
+.keys kbd{font-family:inherit;font-weight:700;color:var(--cream);background:var(--olive);border:1px solid var(--olive-line);border-radius:3px;padding:0 6px;white-space:nowrap}
+.credit-m{font-size:13px;color:var(--muted);margin-top:14px}
+.card{background:var(--paper);color:var(--ink);border-radius:3px;max-width:520px;width:100%;padding:22px 24px 18px;box-shadow:0 24px 60px rgba(0,0,0,.45);margin:auto}
+.card h2{font-family:"Russo One",sans-serif;font-weight:400;font-size:28px;line-height:1.05;margin:0 0 6px}
+.card .ghost{color:var(--ink);border-color:rgba(28,32,24,.3)}.card .ghost:hover{border-color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.stars{font-size:32px;letter-spacing:6px;color:#c48a12;margin:0 0 10px;line-height:1}.stars .off{color:rgba(28,32,24,.18)}
+.stats{display:grid;grid-template-columns:auto 1fr;gap:2px 16px;margin:0 0 16px;font-size:17px}.stats dt{color:#5b5f4d}.stats dd{margin:0;font-weight:700}
+.credit{margin:14px 0 0;font-size:14px;color:#6b6f5c}.credit strong{color:var(--ink)}
+.card .opts{color:#4a4e3f}
+.hud-btn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 10px);width:40px;height:40px;border-radius:3px;border:1.5px solid rgba(235,229,203,.5);background:rgba(25,30,21,.55);color:var(--cream);font-weight:700;display:flex;align-items:center;justify-content:center}
+.hud-btn.cam{right:calc(env(safe-area-inset-right,0px) + 56px);width:auto;padding:0 10px;font-size:15px}
+.touch{position:fixed;left:0;right:0;bottom:calc(var(--panel-h,120px) + 8px);display:flex;justify-content:space-between;align-items:flex-end;padding:0 calc(env(safe-area-inset-right,0px) + 10px) 0 calc(env(safe-area-inset-left,0px) + 10px);pointer-events:none}
+.stick{width:132px;height:132px;border-radius:50%;border:1.5px solid rgba(235,229,203,.5);background:rgba(25,30,21,.35);position:relative;pointer-events:auto;touch-action:none}
+.stick .knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(235,229,203,.7)}
+.rgroup{display:flex;gap:8px;align-items:flex-end;pointer-events:auto}
+.tbtns{display:flex;flex-direction:column;gap:6px}
+.touch button{border:1.5px solid rgba(235,229,203,.55);background:rgba(25,30,21,.5);color:var(--cream);border-radius:3px;font-weight:700;font-size:14px;min-width:58px;height:36px;touch-action:none}
+.touch button.on{background:rgba(194,59,43,.75)}
+.thr{width:46px;height:132px;border:1.5px solid rgba(235,229,203,.5);border-radius:3px;background:rgba(25,30,21,.35);position:relative;touch-action:none}
+.thr .lvl{position:absolute;left:0;right:0;bottom:0;background:rgba(227,163,58,.6)}
+.thr span{position:absolute;left:0;right:0;top:4px;text-align:center;font-size:12px;font-weight:700}
+.loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--olive-deep);font-family:"Russo One",sans-serif;font-size:22px;color:var(--cream)}
+@media (max-height:520px){.t-cyr{font-size:52px}.place{font-size:16px;margin-top:8px}.log button{padding:5px 10px}.log .sm{display:none}.stick{width:110px;height:110px}.thr{height:110px}}
+</style>
+</head>
+<body>
+<canvas id="gl" aria-label="3D flight view"></canvas>
+<canvas id="hud" aria-hidden="true"></canvas>
+<div id="safe-probe"></div>
+<div id="loading" class="loading">Loading Lahore…</div>
+
+<div id="menu" class="screen menu hidden">
+  <div class="menu-in">
+    <div>
+      <h1 class="title"><span class="t-cyr">Ту-95</span><span class="t-lat">Bear 3D</span></h1>
+      <p class="by">A game by <strong>@harrisbasra™</strong></p>
+      <p class="place">Allama Iqbal International Airport, Lahore<small>Both runways are built from published survey data: 18L/36R at 3,360 m and 18R/36L at 2,743 m, at 217 m elevation. Buildings and the city are simplified.</small></p>
+      <h2 class="sub">Missions</h2>
+      <ol class="log" id="log"></ol>
+    </div>
+    <div>
+      <h2 class="sub">Aircraft</h2>
+      <div class="planes" id="planes" role="radiogroup" aria-label="Aircraft"></div>
+      <p class="pinfo" id="pinfo"></p>
+      <div class="opts">
+        <label><input type="checkbox" id="o-assist" checked> Flight assist</label>
+        <label><input type="checkbox" id="o-land" checked> Landing assist</label>
+        <label><input type="checkbox" id="o-invert"> Pilot-style pitch (↓ climbs)</label>
+        <label><input type="checkbox" id="o-sound" checked> Sound</label>
+        <label><input type="checkbox" id="o-hq" checked> Shadows</label>
+      </div>
+      <div class="go-row"><button id="btn-go" class="primary">Fly</button><button id="btn-keys" class="ghost" aria-expanded="false">Controls</button></div>
+      <div id="keys" class="keys" hidden>
+        <kbd>↑ / ↓</kbd><span>Nose up / nose down (swap with “Pilot-style pitch”)</span>
+        <kbd>← / →</kbd><span>Roll left / right. On the ground: steer</span>
+        <kbd>W / S</kbd><span>Power up / down</span>
+        <kbd>A / D</kbd><span>Rudder left / right</span>
+        <kbd>F</kbd><span>Flaps: takeoff, cruise, landing</span>
+        <kbd>G</kbd><span>Gear up or down</span>
+        <kbd>B</kbd><span>Wheel brakes (hold)</span>
+        <kbd>C</kbd><span>Camera: chase, cockpit, tower</span>
+        <kbd>P / Esc</kbd><span>Pause</span>
+        <kbd>R</kbd><span>Restart</span>
+      </div>
+      <p class="credit-m">© 2026 @harrisbasra™. Ту-95 Bear is a trademark of @harrisbasra.</p>
+    </div>
+  </div>
+</div>
+
+<div id="result" class="screen dim hidden">
+  <div class="card" role="dialog" aria-labelledby="r-title">
+    <h2 id="r-title"></h2><p id="r-reason"></p>
+    <div class="stars" id="r-stars"></div><dl class="stats" id="r-stats"></dl>
+    <div class="row"><button id="r-retry" class="primary">Fly it again</button><button id="r-menu" class="ghost">Mission list</button></div>
+    <p class="credit">Ту-95 Bear 3D by <strong>@harrisbasra™</strong></p>
+  </div>
+</div>
+<div id="pause" class="screen dim hidden">
+  <div class="card" style="max-width:340px" role="dialog" aria-labelledby="p-title">
+    <h2 id="p-title">Paused</h2>
+    <div class="opts">
+      <label><input type="checkbox" id="p-assist"> Flight assist</label>
+      <label><input type="checkbox" id="p-land"> Landing assist</label>
+      <label><input type="checkbox" id="p-invert"> Pilot-style pitch</label>
+    </div>
+    <div class="col"><button id="p-resume" class="primary">Resume</button><button id="p-restart" class="ghost">Restart mission</button><button id="p-menu" class="ghost">Mission list</button></div>
+    <p class="credit">Ту-95 Bear 3D by <strong>@harrisbasra™</strong></p>
+  </div>
+</div>
+<button id="btn-cam" class="hud-btn cam hidden">Camera</button>
+<button id="btn-pause" class="hud-btn hidden" aria-label="Pause">II</button>
+<div id="touch" class="touch hidden">
+  <div class="stick" id="stick"><div class="knob" id="knob"></div></div>
+  <div class="rgroup">
+    <div class="tbtns"><button data-press="flaps">Flaps</button><button data-press="gear">Gear</button><button data-hold="brake">Brake</button></div>
+    <div class="thr" id="thr"><div class="lvl" id="thr-lvl"></div><span>Power</span></div>
+  </div>
+</div>

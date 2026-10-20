@@ -30,6 +30,8 @@ jobs:
         run: |
           mkdir _site
           cp index.html _site/
+          mkdir _site/3d
+          cp 3d/index.html 3d/firebase-config.js _site/3d/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

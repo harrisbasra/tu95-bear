@@ -2,7 +2,7 @@
   "name": "tu95-bear",
   "version": "1.0.0",
   "private": true,
-  "description": "Ту-95 Bear: a 2D heavy-aircraft flight game in a single HTML file, by @harrisbasra",
+  "description": "Ту-95 Bear: a 2D heavy-aircraft flight game, plus a 3D version set at Lahore's Allama Iqbal International Airport, by @harrisbasra",
   "author": "Harris Khalid (https://github.com/harrisbasra)",
   "license": "MIT",
   "homepage": "https://harrisbasra.github.io/tu95-bear/",
@@ -13,9 +13,22 @@
   "bugs": {
     "url": "https://github.com/harrisbasra/tu95-bear/issues"
   },
-  "keywords": ["game", "flight", "html5", "canvas", "aircraft", "tu-95", "browser-game"],
+  "keywords": [
+    "game",
+    "flight",
+    "html5",
+    "canvas",
+    "aircraft",
+    "tu-95",
+    "browser-game",
+    "three.js",
+    "3d",
+    "lahore",
+    "flight-simulator"
+  ],
   "scripts": {
     "start": "npx --yes serve -l 8080 .",
+    "build:3d": "node scripts/build-3d.mjs",
     "check": "node scripts/check.mjs"
   },
   "engines": {

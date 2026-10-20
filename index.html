@@ -64,6 +64,8 @@ button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 .ghost:hover{border-color:var(--cream)}
 .primary{background:var(--red);border:0;border-radius:3px;padding:9px 20px;color:#fff6ec;font-weight:700}
 .primary:hover{background:#d4452f}
+.play3d{text-decoration:none;border-color:var(--red);font-weight:700}
+.play3d:hover{background:rgba(194,59,43,.2)}
 .link{background:none;border:0;padding:6px 2px;color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:15px}
 .keys{margin-top:14px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:16px;color:var(--muted)}
 .keys kbd{font-family:inherit;font-weight:700;color:var(--cream);background:var(--olive);border:1px solid var(--olive-line);border-radius:3px;padding:0 6px;white-space:nowrap}
@@ -137,6 +139,7 @@ button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
     <div class="menu-foot">
       <button id="btn-sound" class="ghost">Sound on</button>
       <button id="btn-keys" class="ghost" aria-expanded="false">Controls</button>
+      <a class="ghost play3d" href="3d/">Fly in 3D: Lahore</a>
       <button id="btn-unlock" class="link">Unlock all missions</button>
     </div>
     <div id="keys" class="keys" hidden>

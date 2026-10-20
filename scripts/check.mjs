@@ -1,35 +1,47 @@
 // Sanity checks run by CI and `npm run check`.
-// The game is one self-contained index.html, so this parses every inline
+// Each game is a self-contained HTML file, so this parses every inline
 // <script> block and fails on syntax errors before anything ships.
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
-const file = new URL('../index.html', import.meta.url);
-const html = readFileSync(file, 'utf8');
-const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)].map(m => m[1]);
+const files = ['index.html', '3d/index.html'];
 let failed = false;
 
-if (!scripts.length) {
-  console.error('✗ No inline <script> found in index.html');
+for (const name of files) {
+  const html = readFileSync(new URL(`../${name}`, import.meta.url), 'utf8');
+  const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)].map(m => m[1]);
+
+  if (!scripts.length) {
+    console.error(`✗ ${name}: no inline <script> found`);
+    failed = true;
+  }
+
+  scripts.forEach((code, i) => {
+    try {
+      new vm.Script(code, { filename: `${name} <script #${i + 1}>` });
+      console.log(`✓ ${name} script #${i + 1} parses (${code.split('\n').length} lines)`);
+    } catch (err) {
+      console.error(`✗ ${name} script #${i + 1}: ${err.message}`);
+      failed = true;
+    }
+  });
+
+  for (const tag of ['<!doctype html>', '<title>', 'name="viewport"']) {
+    if (!html.toLowerCase().includes(tag.toLowerCase())) {
+      console.error(`✗ ${name} is missing ${tag}`);
+      failed = true;
+    }
+  }
+}
+
+// The committed 3D build must match its sources.
+const before = readFileSync(new URL('../3d/index.html', import.meta.url), 'utf8');
+await import('./build-3d.mjs');
+const after = readFileSync(new URL('../3d/index.html', import.meta.url), 'utf8');
+if (before !== after) {
+  console.error('✗ 3d/index.html was out of date with 3d/src. Run `npm run build:3d` and commit the result.');
   failed = true;
 }
 
-scripts.forEach((code, i) => {
-  try {
-    new vm.Script(code, { filename: `index.html <script #${i + 1}>` });
-    console.log(`✓ script #${i + 1} parses (${code.split('\n').length} lines)`);
-  } catch (err) {
-    console.error(`✗ script #${i + 1}: ${err.message}`);
-    failed = true;
-  }
-});
-
-for (const tag of ['<!doctype html>', '<title>', 'name="viewport"']) {
-  if (!html.toLowerCase().includes(tag.toLowerCase())) {
-    console.error(`✗ index.html is missing ${tag}`);
-    failed = true;
-  }
-}
-
 if (failed) process.exit(1);
-console.log('✓ index.html looks good');
+console.log('✓ all games look good');

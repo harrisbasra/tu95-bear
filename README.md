@@ -7,6 +7,7 @@
 A 2D flight game written in one dependency-free HTML file. Take off, land, thread valley gates, bomb a range, refuel in mid-air, drop supplies and bail out of a burning bomber in a night storm.
 
 [![Play now](https://img.shields.io/badge/▶_Play_now-c23b2b?style=for-the-badge)](https://harrisbasra.github.io/tu95-bear/)
+[![Fly in 3D](https://img.shields.io/badge/✈_Fly_in_3D:_Lahore-3d4733?style=for-the-badge)](https://harrisbasra.github.io/tu95-bear/3d/)
 
 [![CI](https://github.com/harrisbasra/tu95-bear/actions/workflows/ci.yml/badge.svg)](https://github.com/harrisbasra/tu95-bear/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-3d4733.svg)](LICENSE)
@@ -42,6 +43,55 @@ A 2D flight game written in one dependency-free HTML file. Take off, land, threa
 | **Bombing range** with the predicted arc | **Supply drop** into a crosswind at dusk |
 
 <p align="center"><img src="docs/screenshots/eject.png" alt="Burning bomber in a night storm, heading for the signal fires" width="49%"><br><b>Last flight:</b> bail out over the signal fires before the tanks go</p>
+
+## 3D: Lahore (beta)
+
+A full 3D version set at **Allama Iqbal International Airport (OPLA), Lahore**. Fly it at [harrisbasra.github.io/tu95-bear/3d](https://harrisbasra.github.io/tu95-bear/3d/), or from the **Fly in 3D** button on the 2D menu.
+
+<img src="docs/screenshots/3d-oldcity.png" alt="C-130J over Lahore's old city at dusk, heading for the rings at Minar-e-Pakistan" width="900">
+
+- **The real airport.** Both runways come from published survey data: 18L/36R (3,360 m, concrete) and 18R/36L (2,743 m, asphalt), 46 m wide at 217 m elevation, with their real thresholds, headings and spacing. They have full markings, edge lights, approach lighting with a sequenced flasher on the ILS runways, and working PAPI lights. Taxiways, the terminal, the tower and the hangars are simplified and placed approximately.
+- **Lahore around it.** A simplified city of about 20,000 buildings, laid out by real neighbourhood, with Minar-e-Pakistan, Badshahi Mosque and Lahore Fort, the Ravi river, Punjab farmland and the city's usual haze.
+- **Real 3D flight.** Bank, turn and line up with the runway. Each of the six aircraft keeps its 2D flight numbers, with banking, sideslip, ground effect, crosswind and nose-wheel steering added.
+- **Built to be learnable.** Optional flight assist levels the wings and coordinates turns, and landing assist softens the flare. An attitude indicator, compass with runway course, glide-path lights and centreline guide sit in the instrument panel.
+- **Three cameras.** Chase, cockpit and tower views, switched with <kbd>C</kbd>.
+- **Six missions:** free flight, a departure, a straight-in approach, the Lahore circuit, an Old City flypast at dusk and a night arrival in a crosswind.
+- **Pilot name and optional cloud saves.** Progress saves in the browser, or to Firebase after [a few setup steps](docs/FIREBASE.md).
+
+| | |
+|:---:|:---:|
+| <img src="docs/screenshots/3d-approach.png" alt="Tu-95 on final approach to runway 36R"> | <img src="docs/screenshots/3d-cockpit.png" alt="Cockpit view of runway 36R on final"> |
+| **Final approach** to 36R | **Cockpit view** on the same approach |
+| <img src="docs/screenshots/3d-night.png" alt="B-52 on a night approach to 18L with the city lights to the west"> | <img src="docs/screenshots/3d-tower.png" alt="Tower view of a Tu-160 lining up on 36R"> |
+| **Night arrival** on 18L | **Tower view** of a Tu-160 lining up |
+
+### 3D controls
+
+| Key | Action |
+|---|---|
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Nose up / nose down (swap these with **Pilot-style pitch**) |
+| <kbd>←</kbd> / <kbd>→</kbd> | Roll left / right. On the ground: steer |
+| <kbd>W</kbd> / <kbd>S</kbd> | Power up / down |
+| <kbd>A</kbd> / <kbd>D</kbd> | Rudder |
+| <kbd>F</kbd> / <kbd>G</kbd> / <kbd>B</kbd> | Flaps / gear / brakes |
+| <kbd>C</kbd> | Camera: chase, cockpit, tower |
+| <kbd>P</kbd> / <kbd>Esc</kbd>, <kbd>R</kbd> | Pause, restart |
+
+On touch screens, a stick on the left flies the aircraft and a slider on the right sets the power.
+
+### 3D source
+
+The 3D game uses [three.js](https://threejs.org/) r128 from cdnjs and otherwise follows the same no-build-step spirit: `3d/index.html` is committed and served as-is. It is generated from the readable sources in [`3d/src`](3d/src). After editing them, run `npm run build:3d`; `npm run check` fails if the two are out of sync.
+
+| File | What's in it |
+|---|---|
+| `shell.html` | Markup and styles for the menus, overlays and touch controls |
+| `b_core.js` | Utilities, Lahore geography, runway survey data and aircraft specs |
+| `c_models.js` | Procedural 3D aircraft built from fuselage stations, aerofoil slabs and engine pods |
+| `d_world.js` | Sky, terrain, the airport, city, landmarks, river, trees and clouds |
+| `e_physics.js` | The 3D flight model, ground handling and touchdown checks |
+| `f_game.js` | Missions, rings, effects and cameras |
+| `g_ui.js` | Instrument panel, radar, audio, input, cloud saves, menus and the main loop |
 
 ## Missions
 
@@ -131,13 +181,13 @@ Everyone taking part is expected to follow the [Code of Conduct](CODE_OF_CONDUCT
 
 ## Deployment
 
-Every push to `main` deploys to **GitHub Pages** through [`.github/workflows/pages.yml`](.github/workflows/pages.yml). The repo also includes a [`vercel.json`](vercel.json), so it can be deployed to Vercel as a static site without any extra setup.
+Every push to `main` deploys both games to **GitHub Pages** through [`.github/workflows/pages.yml`](.github/workflows/pages.yml): the 2D game at the site root and the 3D game at `/3d/`. Optional cloud saves for the 3D game use Firebase; see [docs/FIREBASE.md](docs/FIREBASE.md). The repo also includes a [`vercel.json`](vercel.json), so it can be deployed to Vercel as a static site without any extra setup.
 
 ## License
 
 The code is released under the [MIT License](LICENSE). © 2026 Harris Khalid ([@harrisbasra](https://github.com/harrisbasra)).
 
-"Ту-95 Bear" and the @harrisbasra™ name and branding identify the original game and are not covered by the code license. If you publish a fork, please give it your own name and keep the original credit. Aircraft names belong to their respective manufacturers and operators. They are used here only to describe the aircraft, and this project is not affiliated with or endorsed by any of them.
+"Ту-95 Bear" and the @harrisbasra™ name and branding identify the original game and are not covered by the code license. If you publish a fork, please give it your own name and keep the original credit. Aircraft names belong to their respective manufacturers and operators. Airport and landmark layouts are simplified. They are used here only to describe the aircraft, and this project is not affiliated with or endorsed by any of them.
 
 <div align="center">
 
