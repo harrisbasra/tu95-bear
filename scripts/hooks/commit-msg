@@ -1,0 +1,9 @@
+#!/bin/sh
+# Keeps commit messages free of AI attribution trailers.
+# Turn on once per clone with: npm run setup
+msg="$1"
+tmp="$(mktemp)"
+grep -v -i -E '^(co-authored-by:.*(claude|anthropic)|claude-session:)|generated with \[?claude code' "$msg" > "$tmp" || true
+# Drop trailing blank lines left behind
+awk 'NF{for(;n>0;n--)print "";print;next}{n++}' "$tmp" > "$msg"
+rm -f "$tmp"

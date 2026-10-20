@@ -27,6 +27,7 @@
     "flight-simulator"
   ],
   "scripts": {
+    "setup": "git config core.hooksPath scripts/hooks",
     "start": "npx --yes serve -l 8080 .",
     "build:3d": "node scripts/build-3d.mjs",
     "check": "node scripts/check.mjs"
