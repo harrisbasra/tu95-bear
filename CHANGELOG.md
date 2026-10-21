@@ -4,6 +4,21 @@ Notable changes to this project are recorded here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+### Changed
+- **A new look for the 3D game:**
+  - **Menu:** a new flight-deck menu, with frosted-glass panels over the live airport and a cyan and amber palette.
+  - **Fonts:** Exo 2, Barlow and Barlow Condensed.
+  - **Motion:** animated grid, radar and sheen effects, staggered entrances and count-ups. All of it switches off when the system asks for reduced motion.
+  - **Everything else matches:** the career, map, pause, result and loading screens, the instrument panel and the touch controls share the new design.
+- **Sharper aircraft:**
+  - **Wings:** smooth aerofoil wings and tails instead of faceted slabs, and finer fuselages.
+  - **Paint:** up to 4096-pixel paint shared per aircraft type, with a gloss map so windows shine.
+  - **Reflections:** environment reflections of the current sky. Frame rate is unchanged in testing.
+- **Margalla Hills:** the hills near Islamabad follow the ridge more closely, and landmarks sit on the terrain and keep the city off their grounds.
+
+### Added
+- **Explore mode:** a free camera for flying round each city, with jump-to buttons for the landmarks, the terminal, the runways and the aircraft.
+
 ### Fixed
 - **Flying off the scenery:** on long flights the ground could disappear, leaving only sky and fog. A low-detail ground now follows you to the horizon, clouds stay around you, and the en-route scenery re-centres every 25 km.
 - **Dusk colours:** the dusk sky and haze were a muddy brown. The sky now has a deep blue zenith, a warm horizon band and a glow round the sun, with blue-grey haze below.

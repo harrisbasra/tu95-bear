@@ -3,128 +3,278 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ту-95 Bear 3D: Lahore, by @harrisbasra™</title>
+<title>Ту-95 Bear 3D, by @harrisbasra™</title>
 <meta name="author" content="@harrisbasra">
+<meta name="theme-color" content="#05070d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&family=Russo+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ---------- design system: a night-time flight deck ---------- */
 :root{
-  --olive:#3d4733; --olive-deep:#232a1e; --olive-line:#56614a;
-  --cream:#ebe5cb; --paper:#e6dfc2; --ink:#1c2018; --muted:#a8ad93;
-  --red:#c23b2b; --amber:#e3a33a; --scrim:rgba(18,22,15,.66);
-  color-scheme:light dark;box-sizing:border-box;
+  --bg:#05070d;--bg2:#0a0f1a;--glass:rgba(12,18,30,.62);--glass-hi:rgba(22,32,52,.72);--line:rgba(130,190,255,.16);--line-hi:rgba(130,210,255,.42);
+  --text:#e9f1ff;--muted:#8fa3c2;--dim:#5d6f8c;--accent:#3ee6ff;--accent2:#ff8a3d;--accent3:#b18cff;--good:#4dffa1;--warn:#ffc04d;--danger:#ff5470;
+  --display:"Exo 2","Arial Black",sans-serif;--ui:"Barlow","Helvetica Neue",Arial,sans-serif;--cond:"Barlow Condensed","Arial Narrow",sans-serif;
+  --r:14px;--r-sm:9px;--shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px var(--line) inset;
+  /* names the older screens and canvases still use */
+  --olive:#101827;--olive-deep:var(--bg);--olive-line:var(--line-hi);--cream:var(--text);--paper:var(--glass-hi);--ink:var(--text);--red:var(--accent2);--amber:var(--warn);--scrim:rgba(3,5,10,.72);
+  color-scheme:dark;box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--olive:#363f2d;--olive-deep:#1d2319;--paper:#ddd6b8;--scrim:rgba(10,13,9,.72);}}
-:root[data-theme="dark"]{--olive:#363f2d;--olive-deep:#1d2319;--paper:#ddd6b8;--scrim:rgba(10,13,9,.72);}
+:root[data-theme="light"]{color-scheme:dark}
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-html,body{height:100%;margin:0;overflow:hidden;background:var(--olive-deep)}
-body{font-family:"PT Sans Narrow","Arial Narrow","Roboto Condensed",sans-serif;color:var(--cream);font-size:18px;line-height:1.4;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg)}
+body{font-family:var(--ui);color:var(--text);font-size:17px;line-height:1.45;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-font-smoothing:antialiased}
 #gl,#hud{position:fixed;inset:0;width:100%;height:100%;display:block}
 #gl{touch-action:none}#hud{pointer-events:none}
 #safe-probe{position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .hidden,[hidden]{display:none!important}
+a{color:var(--accent)}
 .screen{position:fixed;inset:0;display:flex;padding:calc(env(safe-area-inset-top,0px) + 16px) calc(env(safe-area-inset-right,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 16px) calc(env(safe-area-inset-left,0px) + 16px);overflow:auto}
-.screen.dim{background:var(--scrim);align-items:center;justify-content:center}
-.menu{background:linear-gradient(90deg,rgba(20,25,17,.9) 0,rgba(20,25,17,.72) 60%,rgba(20,25,17,.25) 100%)}
-.menu-in{width:100%;max-width:1100px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;align-items:start}
-@media (max-width:860px){.menu-in{grid-template-columns:1fr;gap:18px}}
-.title{font-family:"Russo One","Arial Black",sans-serif;font-weight:400;margin:0;line-height:.9;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.t-cyr{font-size:clamp(56px,9vw,96px);color:var(--cream);letter-spacing:-.02em}
-.t-lat{font-size:clamp(20px,3vw,28px);color:var(--red)}
-.by{margin:6px 0 0;font-size:17px;color:var(--muted)}.by strong{color:var(--cream)}
-.place{margin:14px 0 6px;font-size:19px;max-width:44ch;color:var(--cream)}
-.place small{display:block;color:var(--muted);font-size:15px;margin-top:2px}
-.sub{font-family:"Russo One",sans-serif;font-weight:400;font-size:17px;margin:18px 0 8px;color:var(--cream)}
-.log{list-style:none;margin:0;padding:0;background:var(--paper);color:var(--ink);border-radius:3px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
-.log li{border-bottom:1px solid rgba(28,32,24,.16)}.log li:last-child{border-bottom:0}
-.log button{display:grid;grid-template-columns:2em 1fr auto;gap:8px;align-items:center;width:100%;padding:8px 12px;background:none;border:0;text-align:left;color:var(--ink)}
-.log button:hover{background:rgba(194,59,43,.08)}
-.log button[aria-pressed="true"]{background:#fbf4e4;box-shadow:inset 4px 0 0 var(--red)}
-.log .n{font-family:"Russo One",sans-serif;font-size:19px;color:var(--red)}
-.log .nm{font-weight:700;font-size:18px;line-height:1.1}
-.log .sm{display:block;font-size:14px;color:#5b5f4d}
-.log .st{font-size:16px;letter-spacing:2px;color:#b07d1a;white-space:nowrap}.log .st .off{color:rgba(28,32,24,.22)}
-.planes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-@media (max-width:520px){.planes{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.pl{display:flex;flex-direction:column;gap:1px;padding:5px 6px 7px;border:1.5px solid rgba(235,229,203,.2);border-radius:3px;background:rgba(235,229,203,.06);text-align:left;color:var(--cream)}
-.pl:hover{border-color:rgba(235,229,203,.5)}
-.pl[aria-checked="true"]{border-color:var(--red);background:rgba(194,59,43,.18)}
-.pl canvas{width:100%;height:auto;display:block;border-radius:2px;aspect-ratio:240/96}
-.pl .pn{font-weight:700;font-size:15px;line-height:1.1;margin-top:3px}.pl .pr{font-size:12.5px;color:var(--muted);line-height:1.15}
-.pinfo{margin-top:8px;font-size:15px;color:var(--muted);line-height:1.35;min-height:2.7em}.pinfo strong{color:var(--cream)}
-.go-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
-.primary{background:var(--red);border:0;border-radius:3px;padding:10px 24px;color:#fff6ec;font-weight:700;font-size:19px}
-.primary:hover{background:#d4452f}
-.ghost{background:transparent;border:1.5px solid var(--olive-line);border-radius:3px;padding:7px 14px;color:var(--cream)}
-.ghost:hover{border-color:var(--cream)}
-.opts{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:16px;color:var(--muted)}
-.opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
-.opts input{accent-color:var(--red);width:17px;height:17px}
-.opts select{font:inherit;font-size:15px;background:var(--olive);color:var(--cream);border:1.5px solid var(--olive-line);border-radius:3px;padding:2px 6px}
-.keys{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:15px;color:var(--muted);margin-top:10px}
-.keys kbd{font-family:inherit;font-weight:700;color:var(--cream);background:var(--olive);border:1px solid var(--olive-line);border-radius:3px;padding:0 6px;white-space:nowrap}
-.pilot-row{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:16px;color:var(--muted)}
-.pilot-row input{font:inherit;font-size:17px;background:rgba(235,229,203,.08);border:1.5px solid var(--olive-line);border-radius:3px;color:var(--cream);padding:5px 10px;width:220px;user-select:text;-webkit-user-select:text}
-.cloud{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:15px;color:var(--muted)}.cloud p{margin:0}
-.version{display:flex;gap:4px;align-items:center;margin-top:10px;font-size:15px;color:var(--muted)}.version .ghost{padding:4px 12px}.version [aria-checked="true"]{border-color:var(--red);background:rgba(194,59,43,.2)}
-.pad-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:15px;color:var(--muted)}.pad-row p{margin:0}
-.cats{display:flex;gap:6px;margin:0 0 8px}.cats button[aria-selected="true"]{border-color:var(--red);background:rgba(194,59,43,.18)}
-.credit-m a{color:inherit}
-.map-screen{background:var(--olive-deep);padding:0}
-.map-in{display:grid;grid-template-columns:minmax(0,1fr) 360px;width:100%;height:100%}
+.screen.dim{background:radial-gradient(120% 80% at 50% 40%,rgba(10,18,34,.55),rgba(2,4,9,.86));backdrop-filter:blur(8px) saturate(1.2);-webkit-backdrop-filter:blur(8px) saturate(1.2);align-items:center;justify-content:center;animation:fadeIn .35s ease both}
+
+/* buttons */
+.primary,.ghost{position:relative;overflow:hidden;border-radius:var(--r-sm);font-weight:600;letter-spacing:.01em;transition:transform .18s ease,box-shadow .25s ease,border-color .2s,background .2s,color .2s}
+.primary{background:linear-gradient(135deg,#ffb25a,var(--accent2) 45%,#ff5a3c);border:0;padding:11px 26px;color:#1a0b02;font-size:18px;box-shadow:0 10px 30px rgba(255,120,50,.35),0 0 0 1px rgba(255,200,150,.35) inset}
+.primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(255,120,50,.5),0 0 0 1px rgba(255,220,180,.6) inset}
+.primary:active{transform:translateY(0) scale(.98)}
+.ghost{background:rgba(120,170,255,.06);border:1px solid var(--line-hi);padding:8px 15px;color:var(--text)}
+.ghost:hover{border-color:var(--accent);background:rgba(62,230,255,.1);box-shadow:0 0 22px rgba(62,230,255,.18)}
+.primary:disabled,.ghost:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);transform:scale(0);animation:ripple .6s ease-out;pointer-events:none}
+
+/* ---------- menu ---------- */
+.menu{padding:0;overflow:hidden;background:
+  radial-gradient(70% 90% at 0% 50%,rgba(4,7,14,.94),rgba(4,7,14,.55) 55%,rgba(4,7,14,0) 80%),
+  linear-gradient(180deg,rgba(4,7,14,.75),rgba(4,7,14,0) 22%,rgba(4,7,14,0) 70%,rgba(4,7,14,.9))}
+.fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.fx-grid{position:absolute;left:-50%;right:-50%;bottom:-10%;height:60%;background-image:linear-gradient(rgba(62,230,255,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(62,230,255,.16) 1px,transparent 1px);background-size:64px 64px;transform:perspective(420px) rotateX(64deg);transform-origin:50% 100%;mask-image:linear-gradient(to top,rgba(0,0,0,.9),transparent 85%);-webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.9),transparent 85%);animation:gridMove 3.2s linear infinite;opacity:.55}
+.fx-scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+.fx-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.45;animation:float 14s ease-in-out infinite}
+.fx-orb.a{width:520px;height:520px;left:-160px;top:-160px;background:radial-gradient(circle,rgba(62,230,255,.45),transparent 70%)}
+.fx-orb.b{width:440px;height:440px;right:-120px;bottom:-140px;background:radial-gradient(circle,rgba(255,138,61,.35),transparent 70%);animation-delay:-6s}
+.fx-orb.c{width:300px;height:300px;left:45%;top:30%;background:radial-gradient(circle,rgba(177,140,255,.25),transparent 70%);animation-delay:-3s}
+.fx-sweep{position:absolute;inset:-20%;background:conic-gradient(from 0deg at 18% 70%,rgba(62,230,255,.09),transparent 12%,transparent);animation:spin 9s linear infinite;mix-blend-mode:screen}
+.deck-wrap{position:relative;z-index:1;display:grid;grid-template-rows:auto 1fr auto;width:100%;height:100%;padding:calc(env(safe-area-inset-top,0px) + 14px) calc(env(safe-area-inset-right,0px) + 22px) calc(env(safe-area-inset-bottom,0px) + 10px) calc(env(safe-area-inset-left,0px) + 22px);overflow:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:44px;height:44px;filter:drop-shadow(0 0 12px rgba(62,230,255,.55))}
+.logo .ring{transform-origin:50% 50%;animation:spin 12s linear infinite}
+.wordmark{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.06em;line-height:1}
+.wordmark b{display:block;font-size:12px;letter-spacing:.42em;color:var(--accent);font-weight:600;margin-top:4px}
+.badge3d{font-family:var(--display);font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;color:#04121a;background:linear-gradient(135deg,var(--accent),#8ef6ff);box-shadow:0 0 18px rgba(62,230,255,.6)}
+.top-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.seg{display:flex;padding:3px;border-radius:999px;background:rgba(120,170,255,.08);border:1px solid var(--line);position:relative}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:999px;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.08em;color:var(--muted);transition:color .2s,background .25s,box-shadow .25s}
+.seg button[aria-checked="true"],.seg button[aria-selected="true"]{color:#04121a;background:linear-gradient(135deg,var(--accent),#9ff8ff);box-shadow:0 0 16px rgba(62,230,255,.5)}
+.chip{display:flex;align-items:center;gap:10px;padding:5px 12px 5px 5px;border-radius:999px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;transition:border-color .2s}
+.chip:hover{border-color:var(--line-hi)}
+.avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;color:#04121a;background:conic-gradient(from 210deg,var(--accent),var(--accent3),var(--accent2),var(--accent));box-shadow:0 0 0 2px rgba(5,7,13,.9),0 0 18px rgba(62,230,255,.4)}
+.chip b{display:block;font-size:14px;line-height:1.1}.chip small{display:block;font-size:12px;color:var(--muted);line-height:1.1}
+.sync{width:9px;height:9px;border-radius:50%;background:var(--dim);box-shadow:0 0 0 3px rgba(93,111,140,.18)}
+.sync.on{background:var(--good);box-shadow:0 0 0 3px rgba(77,255,161,.18),0 0 12px var(--good);animation:pulse 2.2s ease-in-out infinite}.sync.off{background:var(--warn)}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--glass);display:grid;place-items:center;color:var(--text);transition:border-color .2s,box-shadow .2s}
+.icon-btn:hover{border-color:var(--accent);box-shadow:0 0 18px rgba(62,230,255,.3)}
+.icon-btn svg{width:20px;height:20px}
+.deck{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:clamp(18px,3vw,44px);align-items:center;max-width:1400px;width:100%;margin:0 auto;padding:16px 0}
+.hero{max-width:640px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;margin:0 0 14px;font-family:var(--cond);font-weight:600;font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent)}
+.eyebrow::before{content:"";width:34px;height:1px;background:linear-gradient(90deg,transparent,var(--accent))}
+.title{font-family:var(--display);font-weight:700;font-size:clamp(40px,6.2vw,86px);line-height:.95;letter-spacing:-.01em;margin:0}
+.title .grad{background:linear-gradient(100deg,#fff 0%,#bff8ff 30%,var(--accent) 50%,#fff 70%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s ease-in-out infinite}
+.title .cyr{display:block;font-size:.42em;letter-spacing:.14em;color:var(--muted);margin-bottom:8px;font-weight:600}
+.lede{font-size:clamp(16px,1.5vw,19px);color:var(--muted);max-width:48ch;margin:16px 0 22px}
+.lede strong{color:var(--text);font-weight:600}
+.cta{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:12px}
+.cta button{text-align:left;border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px;min-height:128px;position:relative;overflow:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .25s}
+.cta button b{font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:.02em}
+.cta button small{font-size:13.5px;color:var(--muted);line-height:1.3}
+.cta button svg{width:30px;height:30px}
+.cta button .kbd{position:absolute;right:12px;top:12px;font-family:var(--cond);font-size:12px;letter-spacing:.1em;color:rgba(26,11,2,.7);border:1px solid rgba(26,11,2,.3);border-radius:5px;padding:1px 6px}
+.cta-main{border:0;color:#1a0b02;background:linear-gradient(140deg,#ffcf8a 0%,#ff9a4a 38%,#ff5a3c 100%);box-shadow:0 18px 50px rgba(255,110,50,.45),0 0 0 1px rgba(255,220,180,.5) inset}
+.cta-main small{color:rgba(26,11,2,.72)!important}
+.cta-main::after{content:"";position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);transform:translateX(-60%);animation:sheen 4.5s ease-in-out infinite}
+.cta-main:hover{transform:translateY(-4px);box-shadow:0 26px 60px rgba(255,110,50,.6),0 0 0 1px rgba(255,235,210,.8) inset}
+.cta-card{border:1px solid var(--line);color:var(--text);background:linear-gradient(160deg,rgba(28,42,68,.75),rgba(10,15,26,.75));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.cta-card svg{color:var(--accent);filter:drop-shadow(0 0 8px rgba(62,230,255,.5))}
+.cta-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 20px 50px rgba(0,0,0,.45),0 0 30px rgba(62,230,255,.2)}
+.cta-card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:conic-gradient(from var(--ang,0deg),transparent 0 70%,var(--accent) 80%,transparent 90%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .3s;animation:angle 3s linear infinite}
+.cta-card:hover::before{opacity:1}
+@property --ang{syntax:"<angle>";initial-value:0deg;inherits:false}
+.strip{display:flex;gap:26px;flex-wrap:wrap;margin-top:22px}
+.strip div{display:flex;flex-direction:column}
+.strip b{font-family:var(--display);font-size:30px;font-weight:700;line-height:1;background:linear-gradient(180deg,#fff,#9fdfff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.strip span{font-family:var(--cond);font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+/* where you are: a live airport card with a radar sweep */
+.loc{display:flex;gap:14px;align-items:center;margin:0 0 20px;padding:12px 14px;border-radius:var(--r);background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);max-width:560px;position:relative;overflow:hidden}
+.loc::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanX 4s ease-in-out infinite}
+.radar{width:62px;height:62px;flex:none;border-radius:50%;position:relative;background:radial-gradient(circle,rgba(62,230,255,.12),rgba(62,230,255,.02) 70%);box-shadow:0 0 0 1px var(--line-hi) inset}
+.radar::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(62,230,255,.55),transparent 22%);animation:spin 2.6s linear infinite}
+.radar::after{content:"";position:absolute;inset:16px;border-radius:50%;box-shadow:0 0 0 1px rgba(62,230,255,.25) inset}
+.radar i{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);left:58%;top:34%;animation:blink 2.6s ease-in-out infinite}
+.loc-k{font-family:var(--cond);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+.loc-n{font-family:var(--display);font-size:18px;font-weight:600;line-height:1.15}
+.loc-m{font-size:13.5px;color:var(--muted)}
+/* the right-hand panel */
+.panel{border-radius:20px;background:linear-gradient(160deg,rgba(20,30,50,.72),rgba(8,12,22,.78));border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);padding:14px;display:flex;flex-direction:column;max-height:calc(100vh - 170px);min-height:420px;position:relative;transform-style:preserve-3d;transition:transform .2s ease-out}
+.panel::before,.panel::after{content:"";position:absolute;width:18px;height:18px;border:2px solid var(--accent);opacity:.8}
+.panel::before{left:-1px;top:-1px;border-right:0;border-bottom:0;border-top-left-radius:20px}.panel::after{right:-1px;bottom:-1px;border-left:0;border-top:0;border-bottom-right-radius:20px}
+.tabs{display:flex;gap:4px;padding:4px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--line);position:relative}
+.tabs button{flex:1;border:0;background:none;padding:9px 6px;border-radius:9px;font-family:var(--display);font-weight:600;font-size:13.5px;letter-spacing:.06em;color:var(--muted);position:relative;z-index:1;transition:color .25s}
+.tabs button[aria-selected="true"]{color:#04121a}
+.tabs .ink{position:absolute;top:4px;bottom:4px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#a5f8ff);box-shadow:0 0 18px rgba(62,230,255,.45);transition:left .35s cubic-bezier(.2,.8,.2,1),width .35s cubic-bezier(.2,.8,.2,1)}
+.tab-body{overflow:auto;margin-top:12px;padding-right:4px;flex:1;scrollbar-width:thin;scrollbar-color:rgba(130,190,255,.3) transparent}
+.tab-body>section{animation:tabIn .4s cubic-bezier(.2,.8,.2,1) both}
+.sec-h{font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);margin:14px 2px 8px;display:flex;align-items:center;gap:10px}
+.sec-h::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line-hi),transparent)}
+/* missions */
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.log li{opacity:0;animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.log button{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;width:100%;padding:11px 12px;background:rgba(120,170,255,.05);border:1px solid var(--line);border-radius:12px;text-align:left;color:var(--text);transition:transform .2s,border-color .2s,background .2s,box-shadow .25s}
+.log button:hover{transform:translateX(4px);border-color:var(--line-hi);background:rgba(120,170,255,.09)}
+.log button[aria-pressed="true"]{border-color:var(--accent);background:linear-gradient(90deg,rgba(62,230,255,.16),rgba(62,230,255,.03));box-shadow:0 0 24px rgba(62,230,255,.15),inset 3px 0 0 var(--accent)}
+.log .n{width:46px;height:46px;border-radius:11px;display:grid;place-items:center;font-family:var(--display);font-size:18px;font-weight:700;color:var(--accent);background:rgba(62,230,255,.08);border:1px solid rgba(62,230,255,.25)}
+.log button[aria-pressed="true"] .n{color:#04121a;background:linear-gradient(135deg,var(--accent),#a5f8ff);border-color:transparent}
+.log .nm{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.15}
+.log .sm{display:block;font-size:13.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+.log .st{font-size:16px;letter-spacing:2px;color:var(--warn);white-space:nowrap;text-shadow:0 0 10px rgba(255,192,77,.6)}.log .st .off{color:rgba(143,163,194,.25);text-shadow:none}
+/* hangar */
+.cats{display:flex;gap:6px;margin:0 0 10px;padding:3px;border-radius:999px;background:rgba(0,0,0,.2);border:1px solid var(--line);width:max-content;max-width:100%}
+.cats button{border:0;background:none;border-radius:999px;padding:6px 14px;font-weight:600;font-size:14px;color:var(--muted);transition:color .2s,background .25s}
+.cats button[aria-selected="true"]{color:#04121a;background:linear-gradient(135deg,var(--accent),#a5f8ff)}
+.planes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pl{display:flex;flex-direction:column;gap:2px;padding:6px 6px 9px;border:1px solid var(--line);border-radius:12px;background:rgba(120,170,255,.05);text-align:left;color:var(--text);transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .2s,box-shadow .25s;animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.pl:hover{transform:translateY(-3px);border-color:var(--line-hi);box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.pl[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,0 0 26px rgba(62,230,255,.25)}
+.pl canvas{width:100%;height:auto;display:block;border-radius:8px;aspect-ratio:240/96;background:radial-gradient(120% 120% at 50% 0%,#1f3556,#0b1220)}
+.pl .pn{font-family:var(--display);font-weight:600;font-size:13.5px;line-height:1.15;margin-top:4px}.pl .pr{font-size:12px;color:var(--muted);line-height:1.2}
+.pinfo{margin:12px 2px 4px;font-size:14.5px;color:var(--muted);line-height:1.4;min-height:2.6em}.pinfo strong{color:var(--text)}
+.specs{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:13px;margin:6px 2px 2px}
+.specs span{color:var(--muted);font-family:var(--cond);letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+.specs i{height:6px;border-radius:6px;background:rgba(120,170,255,.12);overflow:hidden;position:relative}
+.specs i::after{content:"";position:absolute;inset:0;width:var(--v,0%);border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent3));box-shadow:0 0 12px rgba(62,230,255,.6);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.specs b{font-family:var(--display);font-size:13px;font-weight:600;text-align:right;white-space:nowrap}
+/* settings: switches */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;font-size:15px}
+.opts label{display:flex;gap:10px;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 12px;border-radius:11px;background:rgba(120,170,255,.05);border:1px solid var(--line);transition:border-color .2s}
+.opts label:hover{border-color:var(--line-hi)}
+.opts input[type=checkbox]{appearance:none;-webkit-appearance:none;width:40px;height:22px;border-radius:22px;background:rgba(120,170,255,.18);position:relative;flex:none;cursor:pointer;transition:background .25s,box-shadow .25s;margin:0}
+.opts input[type=checkbox]::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#cfe0ff;transition:transform .3s cubic-bezier(.2,.8,.2,1),background .25s}
+.opts input[type=checkbox]:checked{background:linear-gradient(135deg,var(--accent),#7ff3ff);box-shadow:0 0 14px rgba(62,230,255,.45)}
+.opts input[type=checkbox]:checked::after{transform:translateX(18px);background:#04121a}
+.opts select,.field input,.map-side select,.career input,.career select{font:inherit;font-size:15px;background:rgba(5,9,18,.7);color:var(--text);border:1px solid var(--line-hi);border-radius:8px;padding:6px 10px;user-select:text;-webkit-user-select:text}
+.field{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);margin:0 0 8px}
+.field input{font-size:17px;padding:9px 12px}
+.cloud,.pad-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--muted);padding:10px 12px;border-radius:11px;background:rgba(120,170,255,.05);border:1px solid var(--line);margin-top:8px}.cloud p,.pad-row p{margin:0;flex:1;min-width:180px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:7px 12px;font-size:14px;color:var(--muted);align-items:center}
+.keys kbd{font-family:var(--cond);font-weight:600;font-size:13px;color:var(--text);background:linear-gradient(180deg,#1c2a44,#0e1626);border:1px solid var(--line-hi);border-bottom-width:2px;border-radius:7px;padding:2px 8px;white-space:nowrap;text-align:center}
+.ticker{display:flex;align-items:center;gap:14px;font-size:13.5px;color:var(--muted);padding:8px 2px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.ticker .tag{font-family:var(--cond);font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:12px;color:#04121a;background:var(--accent);padding:2px 8px;border-radius:5px}
+.ticker #tip{flex:1;min-width:200px;transition:opacity .4s,transform .4s}.ticker #tip.out{opacity:0;transform:translateY(6px)}
+.credit-m{font-size:12px;color:var(--dim);margin:0}.credit-m a{color:var(--muted)}
+/* entrance */
+.menu:not(.hidden) .in{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.in.d1{animation-delay:.05s!important}.in.d2{animation-delay:.12s!important}.in.d3{animation-delay:.2s!important}.in.d4{animation-delay:.28s!important}.in.d5{animation-delay:.36s!important}.in.d6{animation-delay:.44s!important}
+@media (max-width:980px){.deck{grid-template-columns:1fr;align-items:start}.panel{max-height:none;min-height:0}.cta{grid-template-columns:1fr 1fr}.cta-main{grid-column:1/-1}.deck-wrap{overflow:auto}.menu{overflow:auto}}
+@media (max-width:980px){.menu{background:linear-gradient(180deg,rgba(4,7,14,.88),rgba(4,7,14,.7) 40%,rgba(4,7,14,.92))}}
+@media (max-width:560px){.wordmark{font-size:20px}.cta{grid-template-columns:1fr}.cta button{min-height:0}.opts{grid-template-columns:1fr}.planes{grid-template-columns:repeat(2,minmax(0,1fr))}.strip{gap:18px}.strip b{font-size:24px}.title{font-size:42px}.chip small{display:none}}
+@media (max-height:560px) and (min-width:700px){.title{font-size:44px}.lede{display:none}.strip{display:none}.cta button{min-height:96px}.loc{margin-bottom:12px}.panel{max-height:calc(100vh - 110px)}}
+
+/* explore */
+.loc-t{flex:1;min-width:0}.loc-x{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:14px;padding:8px 12px;border-radius:10px}.loc-x svg{width:18px;height:18px;color:var(--accent)}
+.explore{position:fixed;inset:0;pointer-events:none}
+.ex-panel{pointer-events:auto;position:absolute;left:calc(env(safe-area-inset-left,0px) + 16px);top:calc(env(safe-area-inset-top,0px) + 16px);width:min(360px,calc(100vw - 32px));padding:16px;border-radius:18px;background:linear-gradient(160deg,rgba(20,30,50,.78),rgba(8,12,22,.82));border:1px solid var(--line);box-shadow:var(--shadow);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);animation:slideIn .45s cubic-bezier(.2,.8,.2,1) both;display:flex;flex-direction:column;gap:10px}
+.ex-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.ex-top h2{font-family:var(--display);font-weight:700;font-size:24px;margin:2px 0 0}
+.ex-row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}.ex-row select{flex:1;font:inherit;font-size:15px;background:rgba(5,9,18,.7);color:var(--text);border:1px solid var(--line-hi);border-radius:8px;padding:6px 10px}
+.ex-spots{display:flex;flex-wrap:wrap;gap:6px}.ex-spots .ghost{font-size:13.5px;padding:6px 11px;border-radius:999px}
+.ex-hint{margin:0;font-size:12.5px;color:var(--muted)}
+.ex-ud{pointer-events:auto;position:absolute;right:calc(env(safe-area-inset-right,0px) + 16px);bottom:calc(env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;gap:8px}
+.ex-ud .ghost{width:52px;height:52px;border-radius:50%;font-size:18px;background:rgba(8,12,22,.55);backdrop-filter:blur(8px)}
+@media (pointer:fine){.ex-ud{display:none}}
+.touch.explore{bottom:calc(env(safe-area-inset-bottom,0px) + 20px)}.touch.explore .rgroup{display:none}
+@media (max-width:560px){.ex-panel{max-height:46vh;overflow:auto}}
+
+/* ---------- other screens: glass cards ---------- */
+.card{position:relative;background:linear-gradient(165deg,rgba(22,33,55,.92),rgba(8,12,22,.94));color:var(--text);border-radius:20px;max-width:540px;width:100%;padding:26px 26px 20px;border:1px solid var(--line);box-shadow:var(--shadow);margin:auto;animation:pop .45s cubic-bezier(.2,.8,.2,1) both}
+.card::before{content:"";position:absolute;left:24px;right:24px;top:0;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+.card h2{font-family:var(--display);font-weight:700;font-size:28px;line-height:1.05;margin:0 0 8px;letter-spacing:.01em}
+.card .ghost{color:var(--text)}
+.row{display:flex;gap:10px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.stars{font-size:36px;letter-spacing:8px;color:var(--warn);margin:0 0 12px;line-height:1;text-shadow:0 0 16px rgba(255,192,77,.7)}.stars .off{color:rgba(143,163,194,.2);text-shadow:none}
+.stats{display:grid;grid-template-columns:auto 1fr;gap:4px 18px;margin:0 0 18px;font-size:15.5px}.stats dt{color:var(--muted)}.stats dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.credit{margin:16px 0 0;font-size:13px;color:var(--dim)}.credit strong{color:var(--muted)}
+.card .opts{color:var(--text);grid-template-columns:1fr}
+.sub{font-family:var(--display);font-weight:600;font-size:18px;margin:6px 0;color:var(--text)}
+/* world map planner */
+.map-screen{background:var(--bg);padding:0}
+.map-in{display:grid;grid-template-columns:minmax(0,1fr) 380px;width:100%;height:100%}
 #map-cv{width:100%;height:100%;display:block;touch-action:manipulation}
-.map-side{background:rgba(20,25,17,.92);padding:calc(env(safe-area-inset-top,0px) + 16px) calc(env(safe-area-inset-right,0px) + 16px) 16px 16px;overflow:auto;display:flex;flex-direction:column;gap:8px;font-size:15px}
-.map-side .sub{margin:0}.map-side .hint{margin:0;color:var(--muted);font-size:14px}
-.map-side label{display:flex;flex-direction:column;gap:2px;color:var(--muted);font-size:13px}
-.map-side select{font:inherit;font-size:15px;background:var(--olive);color:var(--cream);border:1.5px solid var(--olive-line);border-radius:3px;padding:4px 6px}
-.m-info{font-size:14px;margin:4px 0;color:var(--cream)}.m-info dt{color:var(--muted)}.m-info .warn{color:#ffb3a8}
-.primary:disabled,.ghost:disabled{opacity:.45;cursor:not-allowed}
-.card.career{max-width:900px;max-height:calc(100vh - 32px);overflow:auto}
-.career h3{font-family:"Russo One",sans-serif;font-weight:400;font-size:18px;margin:16px 0 6px}
-.career .cats .ghost{color:var(--ink);border-color:rgba(28,32,24,.3)}.career .cats button[aria-selected="true"]{border-color:var(--red);background:rgba(194,59,43,.12)}
-.c-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}.c-sub{margin:0;color:#5b5f4d}
-.c-bal{text-align:right}.c-bal span{display:block;color:#5b5f4d;font-size:14px}.c-bal strong{font-family:"Russo One",sans-serif;font-size:24px;font-weight:400}
-.neg{color:#a5281b}.bad{color:#a5281b}.c-msg{min-height:1.3em;margin:4px 0;font-weight:700}.c-msg.bad{color:#a5281b}.c-note{color:#5b5f4d;font-size:15px}
-.c-field{display:flex;flex-direction:column;gap:2px;margin:8px 0;color:#5b5f4d;font-size:14px}
-.career input,.career select{font:inherit;font-size:16px;padding:5px 8px;border:1.5px solid rgba(28,32,24,.3);border-radius:3px;background:#fbf7ea;color:var(--ink);user-select:text;-webkit-user-select:text}
-.c-jobs li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 12px}.c-job{display:flex;flex-direction:column}.c-job .sm{font-size:14px;color:#5b5f4d}.c-job .sm.bad{color:#a5281b}
-.c-pay{display:flex;gap:10px;align-items:center;white-space:nowrap}.log.c-jobs .c-pay .primary{background:var(--red);color:#fff6ec;width:auto;padding:6px 16px;font-size:16px;display:inline-block}.log.c-jobs .c-pay .primary:disabled{background:#9c8f80}
-.c-ferry,.c-loan{align-items:center;margin-top:10px}
-.c-card{border:1px solid rgba(28,32,24,.18);border-radius:3px;padding:10px 12px;margin:8px 0;background:#fbf7ea}.c-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.c-row.sm{font-size:14px;color:#5b5f4d}
-.c-cond{position:relative;height:18px;background:rgba(28,32,24,.12);border-radius:2px;margin:6px 0}.c-cond i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}.c-cond span{position:relative;font-size:12px;font-weight:700;padding-left:6px;line-height:18px}
-.c-table{width:100%;border-collapse:collapse;font-size:15px}.c-table th{text-align:left;color:#5b5f4d;font-weight:700;border-bottom:1px solid rgba(28,32,24,.25);padding:4px 6px}.c-table td{border-bottom:1px solid rgba(28,32,24,.1);padding:4px 6px;vertical-align:top}
-.c-btns{white-space:nowrap}.c-btns .ghost{padding:4px 8px;font-size:14px;margin:1px}.c-stmt td:nth-child(3),.c-stmt td:nth-child(4){white-space:nowrap;text-align:right}
-@media (max-width:600px){.c-table{font-size:13px}.c-btns .ghost{display:block;width:100%}.c-jobs li{flex-direction:column;align-items:stretch}.c-pay{justify-content:space-between}}
+.map-side{background:linear-gradient(165deg,rgba(18,27,46,.95),rgba(6,10,18,.97));border-left:1px solid var(--line);padding:calc(env(safe-area-inset-top,0px) + 18px) calc(env(safe-area-inset-right,0px) + 18px) 18px 18px;overflow:auto;display:flex;flex-direction:column;gap:9px;font-size:15px;animation:slideIn .5s cubic-bezier(.2,.8,.2,1) both}
+.map-side .hint{margin:0;color:var(--muted);font-size:14px}
+.map-side label{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:12.5px;font-family:var(--cond);letter-spacing:.14em;text-transform:uppercase}
+.map-side select{font-family:var(--ui);letter-spacing:0;text-transform:none}
+.m-info{font-size:14px;margin:4px 0;color:var(--text)}.m-info dt{color:var(--muted)}.m-info .warn{color:#ff9aa9}
 @media (max-width:760px){.map-in{grid-template-columns:1fr;grid-template-rows:42vh auto;height:auto;min-height:100%}.map-screen{overflow:auto}}
-.credit-m{font-size:13px;color:var(--muted);margin-top:14px}
-.card{background:var(--paper);color:var(--ink);border-radius:3px;max-width:520px;width:100%;padding:22px 24px 18px;box-shadow:0 24px 60px rgba(0,0,0,.45);margin:auto}
-.card h2{font-family:"Russo One",sans-serif;font-weight:400;font-size:28px;line-height:1.05;margin:0 0 6px}
-.card .ghost{color:var(--ink);border-color:rgba(28,32,24,.3)}.card .ghost:hover{border-color:var(--ink)}
-.row{display:flex;gap:10px;flex-wrap:wrap}.col{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.stars{font-size:32px;letter-spacing:6px;color:#c48a12;margin:0 0 10px;line-height:1}.stars .off{color:rgba(28,32,24,.18)}
-.stats{display:grid;grid-template-columns:auto 1fr;gap:2px 16px;margin:0 0 16px;font-size:17px}.stats dt{color:#5b5f4d}.stats dd{margin:0;font-weight:700}
-.credit{margin:14px 0 0;font-size:14px;color:#6b6f5c}.credit strong{color:var(--ink)}
-.card .opts{color:#4a4e3f}
-.hud-btn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 10px);width:40px;height:40px;border-radius:3px;border:1.5px solid rgba(235,229,203,.5);background:rgba(25,30,21,.55);color:var(--cream);font-weight:700;display:flex;align-items:center;justify-content:center}
-.hud-btn.cam{right:calc(env(safe-area-inset-right,0px) + 56px);width:auto;padding:0 10px;font-size:15px}
-.hud-btn.time{right:calc(env(safe-area-inset-right,0px) + 142px);width:auto;padding:0 10px;font-size:15px}.hud-btn.skip{right:calc(env(safe-area-inset-right,0px) + 196px);width:auto;padding:0 10px;font-size:15px}
+/* career */
+.card.career{max-width:920px;max-height:calc(100vh - 32px);overflow:auto}
+.career h3{font-family:var(--display);font-weight:600;font-size:17px;margin:18px 0 8px;color:var(--accent);letter-spacing:.04em}
+.career .cats{margin:12px 0 4px}
+.c-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}.c-sub{margin:0;color:var(--muted)}
+.c-bal{text-align:right}.c-bal span{display:block;color:var(--muted);font-size:12px;font-family:var(--cond);letter-spacing:.2em;text-transform:uppercase}.c-bal strong{font-family:var(--display);font-size:28px;font-weight:700;background:linear-gradient(180deg,#fff,#9fefff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.neg{color:var(--danger)!important}.bad{color:var(--danger)}.c-msg{min-height:1.3em;margin:6px 0;font-weight:600;color:var(--good)}.c-msg.bad{color:var(--danger)}.c-note{color:var(--muted);font-size:14.5px}
+.c-field{display:flex;flex-direction:column;gap:4px;margin:8px 0;color:var(--muted);font-size:13px}
+.c-jobs li{opacity:1;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(120,170,255,.05)}
+.c-jobs li:hover{border-color:var(--line-hi)}
+.c-job{display:flex;flex-direction:column}.c-job .nm{font-family:var(--display);font-weight:600}.c-job .sm{font-size:13.5px;color:var(--muted)}.c-job .sm.bad{color:var(--danger)}
+.c-pay{display:flex;gap:12px;align-items:center;white-space:nowrap}.c-pay strong{font-family:var(--display);font-size:18px}
+.log.c-jobs .c-pay .primary{width:auto;padding:7px 18px;font-size:15px;display:inline-block}
+.c-ferry,.c-loan{align-items:center;margin-top:12px}
+.c-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;background:rgba(120,170,255,.05)}.c-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.c-row.sm{font-size:13.5px;color:var(--muted)}
+.c-cond{position:relative;height:20px;background:rgba(120,170,255,.1);border-radius:10px;margin:8px 0;overflow:hidden}.c-cond i{position:absolute;left:0;top:0;bottom:0;border-radius:10px;box-shadow:0 0 14px currentColor}.c-cond span{position:relative;font-size:12px;font-weight:700;padding-left:10px;line-height:20px;color:#04121a}
+.c-table{width:100%;border-collapse:collapse;font-size:14.5px;font-variant-numeric:tabular-nums}.c-table th{text-align:left;color:var(--muted);font-family:var(--cond);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:12px;border-bottom:1px solid var(--line-hi);padding:6px}.c-table td{border-bottom:1px solid var(--line);padding:7px 6px;vertical-align:top}.c-table small{color:var(--muted)}
+.c-table tr:hover td{background:rgba(120,170,255,.04)}
+.c-btns{white-space:nowrap}.c-btns .ghost{padding:4px 9px;font-size:13.5px;margin:1px}.c-stmt td:nth-child(3),.c-stmt td:nth-child(4){white-space:nowrap;text-align:right}
+@media (max-width:600px){.c-table{font-size:13px}.c-btns .ghost{display:block;width:100%}.c-jobs li{flex-direction:column;align-items:stretch}.c-pay{justify-content:space-between}}
+/* in flight */
+.hud-btn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 10px);width:42px;height:42px;border-radius:11px;border:1px solid var(--line-hi);background:rgba(8,12,22,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--text);font-weight:700;display:flex;align-items:center;justify-content:center;transition:border-color .2s,box-shadow .2s}
+.hud-btn:hover{border-color:var(--accent);box-shadow:0 0 16px rgba(62,230,255,.3)}
+.hud-btn.cam{right:calc(env(safe-area-inset-right,0px) + 58px);width:auto;padding:0 12px;font-size:14px}
+.hud-btn.time{right:calc(env(safe-area-inset-right,0px) + 148px);width:auto;padding:0 12px;font-size:14px}.hud-btn.skip{right:calc(env(safe-area-inset-right,0px) + 204px);width:auto;padding:0 12px;font-size:14px}
 .touch{position:fixed;left:0;right:0;bottom:calc(var(--panel-h,120px) + 8px);display:flex;justify-content:space-between;align-items:flex-end;padding:0 calc(env(safe-area-inset-right,0px) + 10px) 0 calc(env(safe-area-inset-left,0px) + 10px);pointer-events:none}
-.stick{width:132px;height:132px;border-radius:50%;border:1.5px solid rgba(235,229,203,.5);background:rgba(25,30,21,.35);position:relative;pointer-events:auto;touch-action:none}
-.stick .knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(235,229,203,.7)}
+.stick{width:132px;height:132px;border-radius:50%;border:1px solid var(--line-hi);background:radial-gradient(circle,rgba(62,230,255,.08),rgba(8,12,22,.45));position:relative;pointer-events:auto;touch-action:none;box-shadow:0 0 24px rgba(62,230,255,.12) inset}
+.stick .knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e9fbff,#6fd9ef);box-shadow:0 0 20px rgba(62,230,255,.5)}
 .rgroup{display:flex;gap:8px;align-items:flex-end;pointer-events:auto}
 .tbtns{display:flex;flex-direction:column;gap:6px}
-.touch button{border:1.5px solid rgba(235,229,203,.55);background:rgba(25,30,21,.5);color:var(--cream);border-radius:3px;font-weight:700;font-size:14px;min-width:58px;height:36px;touch-action:none}
-.touch button.on{background:rgba(194,59,43,.75)}
-.thr{width:46px;height:132px;border:1.5px solid rgba(235,229,203,.5);border-radius:3px;background:rgba(25,30,21,.35);position:relative;touch-action:none}
-.thr .lvl{position:absolute;left:0;right:0;bottom:0;background:rgba(227,163,58,.6)}
-.thr span{position:absolute;left:0;right:0;top:4px;text-align:center;font-size:12px;font-weight:700}
-.loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--olive-deep);font-family:"Russo One",sans-serif;font-size:22px;color:var(--cream)}
-@media (max-height:520px){.t-cyr{font-size:52px}.place{font-size:16px;margin-top:8px}.log button{padding:5px 10px}.log .sm{display:none}.stick{width:110px;height:110px}.thr{height:110px}.touch button{height:30px;min-width:52px;font-size:13px}.tbtns{gap:4px}}
+.touch button{border:1px solid var(--line-hi);background:rgba(8,12,22,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--text);border-radius:9px;font-weight:600;font-size:13.5px;min-width:58px;height:36px;touch-action:none}
+.touch button.on{background:linear-gradient(135deg,#ffb25a,var(--accent2));color:#1a0b02;border-color:transparent}
+.thr{width:46px;height:132px;border:1px solid var(--line-hi);border-radius:11px;background:rgba(8,12,22,.45);position:relative;touch-action:none;overflow:hidden}
+.thr .lvl{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,var(--accent2),#ffcf8a)}
+.thr span{position:absolute;left:0;right:0;top:4px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em}
+/* loading */
+.loading{position:fixed;inset:0;display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;background:radial-gradient(80% 60% at 50% 40%,#0d1830,var(--bg));font-family:var(--display);font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);z-index:5}
+.loading::before{content:"";width:74px;height:74px;border-radius:50%;border:2px solid rgba(62,230,255,.15);border-top-color:var(--accent);box-shadow:0 0 30px rgba(62,230,255,.25);animation:spin 1s linear infinite}
+.loading::after{content:"Ту-95 Bear 3D · @harrisbasra™";font-size:12px;letter-spacing:.4em;color:var(--dim)}
+@media (max-height:520px){.stick{width:110px;height:110px}.thr{height:110px}.touch button{height:30px;min-width:52px;font-size:13px}.tbtns{gap:4px}}
+/* motion */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+@keyframes tabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes angle{to{--ang:360deg}}
+@keyframes gridMove{from{background-position:0 0}to{background-position:0 64px}}
+@keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}
+@keyframes shine{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+@keyframes sheen{0%,60%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes blink{0%,60%{opacity:0}70%{opacity:1}100%{opacity:0}}
+@keyframes scanX{0%,100%{transform:translateX(-60%)}50%{transform:translateX(60%)}}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.log li,.pl{opacity:1}}
 </style>
 </head>
 <body>
@@ -134,54 +284,107 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 <div id="loading" class="loading">Loading Lahore…</div>
 
 <div id="menu" class="screen menu hidden">
-  <div class="menu-in">
-    <div>
-      <h1 class="title"><span class="t-cyr">Ту-95</span><span class="t-lat">Bear 3D</span></h1>
-      <p class="by">A game by <strong>@harrisbasra™</strong></p>
-      <div class="version" role="radiogroup" aria-label="Game version"><span>Version</span><button class="ghost" role="radio" aria-checked="false" data-v="2d">2D</button><button class="ghost" role="radio" aria-checked="true" data-v="3d">3D</button></div>
-      <p class="place">Allama Iqbal International Airport, Lahore<small>Both runways are built from published survey data: 18L/36R at 3,360 m and 18R/36L at 2,743 m, at 217 m elevation. Taxiways, aprons, stands and building footprints come from OpenStreetMap; heights, the terminal facade and the wider city are simplified.</small></p>
-      <div class="pilot-row"><label for="pilot">Pilot name</label><input id="pilot" type="text" maxlength="24" placeholder="Your name" autocomplete="nickname"></div>
-      <div id="cloud" class="cloud" hidden><p id="cloud-status"></p><button id="cloud-btn" class="ghost">Sign in with Google</button></div>
-      <h2 class="sub">Missions</h2>
-      <ol class="log" id="log"></ol>
-    </div>
-    <div>
-      <h2 class="sub">Aircraft</h2>
-      <div class="cats" role="tablist" aria-label="Aircraft categories"><button class="ghost" role="tab" data-cat="military">Bombers and transports</button><button class="ghost" role="tab" data-cat="airliner">Airliners</button></div>
-      <div class="planes" id="planes" role="radiogroup" aria-label="Aircraft"></div>
-      <p class="pinfo" id="pinfo"></p>
-      <div class="opts">
-        <label><input type="checkbox" id="o-assist" checked> Flight assist</label>
-        <label><input type="checkbox" id="o-land" checked> Landing assist</label>
-        <label><input type="checkbox" id="o-invert"> Pilot-style pitch (↓ climbs)</label>
-        <label><input type="checkbox" id="o-sound" checked> Sound</label>
-        <label><input type="checkbox" id="o-rumble" checked> Controller rumble</label>
-        <label><input type="checkbox" id="o-units"> Aviation units (kt, ft)</label>
-        <label>Graphics <select id="o-quality"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low (phones)</option></select></label>
+  <div class="fx" aria-hidden="true"><div class="fx-orb a"></div><div class="fx-orb b"></div><div class="fx-orb c"></div><div class="fx-sweep"></div><div class="fx-grid"></div><div class="fx-scan"></div></div>
+  <div class="deck-wrap">
+    <header class="topbar in d1">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9ff8ff"/><stop offset="1" stop-color="#3ee6ff"/></linearGradient></defs>
+          <circle class="ring" cx="24" cy="24" r="21" fill="none" stroke="url(#lg)" stroke-width="1.5" stroke-dasharray="6 5"/>
+          <path d="M24 9l3 11 12 5-12 2-1 10 4 3H18l4-3-1-10-12-2 12-5z" fill="url(#lg)"/></svg>
+        <div class="wordmark">Ту-95 BEAR<b>Flight deck</b></div><span class="badge3d">3D</span>
       </div>
-      <div class="pad-row"><p id="pad-status"></p><button id="pad-hid" class="ghost" hidden>Connect DualSense lights and triggers</button></div>
-      <div class="go-row"><button id="btn-go" class="primary">Fly</button><button id="btn-map" class="ghost">Fly between airports</button><button id="btn-career" class="ghost">Career</button><button id="btn-keys" class="ghost" aria-expanded="false">Controls</button></div>
-      <div id="keys" class="keys" hidden>
-        <kbd>↑ / ↓</kbd><span>Nose up / nose down (swap with “Pilot-style pitch”)</span>
-        <kbd>← / →</kbd><span>Roll left / right. On the ground: steer</span>
-        <kbd>W / S</kbd><span>Power up / down</span>
-        <kbd>A / D</kbd><span>Rudder left / right</span>
-        <kbd>F / V</kbd><span>Flaps: extend one notch / retract one notch</span>
-        <kbd>G</kbd><span>Gear up or down</span>
-        <kbd>B</kbd><span>Wheel brakes (hold). S at idle on the ground: reverse thrust and brakes</span>
-        <kbd>Q</kbd><span>Speedbrake out or in</span>
-        <kbd>Z / X / T</kbd><span>Autopilot on or off / arm the approach / autothrottle</span>
-        <kbd>, .  − =  9 0</kbd><span>Autopilot heading, altitude and speed down / up</span>
-        <kbd>C</kbd><span>Camera: chase, cockpit, tower. Drag to look around; in the cockpit, tap the autopilot panel</span>
-        <kbd>Controller</kbd><span>Left stick flies, L2 / R2 rudder, R1 / L1 power, ✕ brakes, □ gear, D-pad flaps and autopilot, △ camera</span>
-        <kbd>P / Esc</kbd><span>Pause</span>
-        <kbd>R</kbd><span>Restart</span>
+      <div class="top-right">
+        <div class="seg version" role="radiogroup" aria-label="Game version"><button role="radio" aria-checked="false" data-v="2d">2D</button><button role="radio" aria-checked="true" data-v="3d">3D</button></div>
+        <button class="icon-btn" id="btn-sound" aria-label="Sound on or off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path id="snd-wave" d="M16 9a4 4 0 010 6M19 6a8 8 0 010 12"/></svg></button>
+        <div class="chip" id="pilot-chip" role="button" tabindex="0" aria-label="Pilot and cloud sync"><span class="avatar" id="chip-avatar">P</span><span><b id="chip-name">Pilot</b><small id="chip-rank">Ready for departure</small></span><i class="sync" id="chip-sync"></i></div>
       </div>
-      <p class="credit-m">© 2026 @harrisbasra™. Ту-95 Bear is a trademark of @harrisbasra. Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>. Aircraft names belong to their manufacturers and are used only to describe the aircraft.</p>
-    </div>
+    </header>
+
+    <main class="deck">
+      <section class="hero">
+        <p class="eyebrow in d1">Heavy-aircraft flight simulator</p>
+        <h1 class="title in d2"><span class="cyr">Ту-95 Bear</span>Fly the giants <span class="grad">of the sky</span></h1>
+        <p class="lede in d3"><strong>13 aircraft</strong>, from the Tu-95 to the A380, at <strong>8 real airports</strong>. Glass cockpits, autoland, real fuel burn, and a career with your own airline.</p>
+        <div class="loc in d3"><div class="radar"><i></i></div><div class="loc-t"><div class="loc-k">Now at</div><div class="loc-n" id="loc-name">Allama Iqbal International, Lahore</div><div class="loc-m" id="loc-meta">OPLA · 217 m · runways 18L/36R, 18R/36L</div></div>
+          <button class="ghost loc-x" id="btn-explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5M11 8v6M8 11h6"/></svg>Explore the city</button></div>
+        <div class="cta in d4">
+          <button id="btn-go" class="cta-main"><span class="kbd">ENTER</span>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg>
+            <b>Fly mission</b><small id="cta-mission">Free flight at Lahore</small></button>
+          <button id="btn-map" class="cta-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+            <b>World routes</b><small>Plan a flight between 8 airports</small></button>
+          <button id="btn-career" class="cta-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 13h18"/></svg>
+            <b>Career</b><small id="cta-career">Start your own airline</small></button>
+        </div>
+        <div class="strip in d5"><div><b data-count="13">0</b><span>Aircraft</span></div><div><b data-count="8">0</b><span>Airports</span></div><div><b data-count="7">0</b><span>Missions</span></div><div><b id="stat-stars" data-count="0">0</b><span>Stars earned</span></div></div>
+      </section>
+
+      <aside class="panel in d4" id="panel">
+        <nav class="tabs" role="tablist" aria-label="Menu sections"><span class="ink" id="tab-ink"></span>
+          <button role="tab" data-tab="missions" aria-selected="true">Missions</button><button role="tab" data-tab="hangar" aria-selected="false">Hangar</button><button role="tab" data-tab="settings" aria-selected="false">Settings</button><button role="tab" data-tab="controls" aria-selected="false">Controls</button></nav>
+        <div class="tab-body">
+          <section data-pane="missions"><div class="sec-h">Lahore missions</div><ol class="log" id="log"></ol></section>
+          <section data-pane="hangar" hidden>
+            <div class="cats" role="tablist" aria-label="Aircraft categories"><button role="tab" data-cat="military">Bombers and transports</button><button role="tab" data-cat="airliner">Airliners</button></div>
+            <div class="planes" id="planes" role="radiogroup" aria-label="Aircraft"></div>
+            <p class="pinfo" id="pinfo"></p>
+            <div class="specs" id="specs"></div>
+          </section>
+          <section data-pane="settings" hidden>
+            <div class="sec-h">Pilot</div>
+            <label class="field" for="pilot">Pilot name<input id="pilot" type="text" maxlength="24" placeholder="Your name" autocomplete="nickname"></label>
+            <div id="cloud" class="cloud" hidden><p id="cloud-status"></p><button id="cloud-btn" class="ghost">Sign in with Google</button></div>
+            <div class="sec-h">Flying</div>
+            <div class="opts">
+              <label>Flight assist<input type="checkbox" id="o-assist" checked></label>
+              <label>Landing assist<input type="checkbox" id="o-land" checked></label>
+              <label>Pilot-style pitch (↓ climbs)<input type="checkbox" id="o-invert"></label>
+              <label>Aviation units (kt, ft)<input type="checkbox" id="o-units"></label>
+            </div>
+            <div class="sec-h">Sound and graphics</div>
+            <div class="opts">
+              <label>Sound<input type="checkbox" id="o-sound" checked></label>
+              <label>Controller rumble<input type="checkbox" id="o-rumble" checked></label>
+              <label>Graphics<select id="o-quality"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low (phones)</option></select></label>
+            </div>
+            <div class="sec-h">Controller</div>
+            <div class="pad-row"><p id="pad-status"></p><button id="pad-hid" class="ghost" hidden>Connect DualSense lights and triggers</button></div>
+          </section>
+          <section data-pane="controls" hidden>
+            <div id="keys" class="keys">
+              <kbd>↑ / ↓</kbd><span>Nose up / nose down (swap with pilot-style pitch)</span>
+              <kbd>← / →</kbd><span>Roll left / right. On the ground: steer</span>
+              <kbd>W / S</kbd><span>Power up / down. S at idle on the ground: reverse and brakes</span>
+              <kbd>A / D</kbd><span>Rudder left / right</span>
+              <kbd>F / V</kbd><span>Flaps: extend / retract one notch</span>
+              <kbd>G · B · Q</kbd><span>Gear · wheel brakes (hold) · speedbrake</span>
+              <kbd>Z · X · T</kbd><span>Autopilot · arm the approach · autothrottle</span>
+              <kbd>N · J</kbd><span>NAV (follow the route) · VNAV (cruise level and descent)</span>
+              <kbd>, .  − =  9 0</kbd><span>Autopilot heading, altitude and speed down / up</span>
+              <kbd>Y · K</kbd><span>Speed up time · skip to the descent</span>
+              <kbd>C</kbd><span>Camera: chase, cockpit, tower. Drag to look around</span>
+              <kbd>P / Esc · R</kbd><span>Pause · restart</span>
+              <kbd>Controller</kbd><span>Left stick flies, L2 / R2 rudder, R1 / L1 power, ✕ brakes, □ gear, D-pad flaps and autopilot, △ camera</span>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="ticker in d6"><span class="tag">Tip</span><span id="tip">Flight assist and landing assist are on by default. Turn them off in Settings when you're ready.</span>
+      <p class="credit-m">© 2026 @harrisbasra™ · Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> · Aircraft names belong to their manufacturers</p></footer>
   </div>
 </div>
 
+<div id="explore" class="explore hidden">
+  <div class="ex-panel">
+    <div class="ex-top"><div><div class="loc-k">Free camera</div><h2 id="ex-title">Explore</h2></div><button id="ex-back" class="ghost">Back</button></div>
+    <label class="ex-row">City <select id="ex-region"></select></label>
+    <div class="loc-k">Fly to</div><div class="ex-spots" id="ex-spots"></div>
+    <p class="ex-hint">W A S D to move, Q and E down and up, Shift for speed, drag to look, scroll to change speed (<span id="ex-speed">80 m/s</span>). Landmarks are simplified models.</p>
+  </div>
+  <div class="ex-ud"><button id="ex-up" class="ghost" aria-label="Up">▲</button><button id="ex-down" class="ghost" aria-label="Down">▼</button></div>
+</div>
 <div id="map" class="screen map-screen hidden">
   <div class="map-in">
     <canvas id="map-cv" aria-label="World map with the airports"></canvas>
@@ -205,19 +408,19 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
   <div class="card" role="dialog" aria-labelledby="r-title">
     <h2 id="r-title"></h2><p id="r-reason"></p>
     <div class="stars" id="r-stars"></div><dl class="stats" id="r-stats"></dl>
-    <div class="row"><button id="r-retry" class="primary">Fly it again</button><button id="r-menu" class="ghost">Mission list</button></div>
+    <div class="row"><button id="r-retry" class="primary">Fly it again</button><button id="r-menu" class="ghost">Back to the menu</button></div>
     <p class="credit">Ту-95 Bear 3D by <strong>@harrisbasra™</strong></p>
   </div>
 </div>
 <div id="pause" class="screen dim hidden">
-  <div class="card" style="max-width:340px" role="dialog" aria-labelledby="p-title">
+  <div class="card" style="max-width:360px" role="dialog" aria-labelledby="p-title">
     <h2 id="p-title">Paused</h2>
     <div class="opts">
-      <label><input type="checkbox" id="p-assist"> Flight assist</label>
-      <label><input type="checkbox" id="p-land"> Landing assist</label>
-      <label><input type="checkbox" id="p-invert"> Pilot-style pitch</label>
+      <label>Flight assist<input type="checkbox" id="p-assist"></label>
+      <label>Landing assist<input type="checkbox" id="p-land"></label>
+      <label>Pilot-style pitch<input type="checkbox" id="p-invert"></label>
     </div>
-    <div class="col"><button id="p-resume" class="primary">Resume</button><button id="p-restart" class="ghost">Restart mission</button><button id="p-menu" class="ghost">Mission list</button></div>
+    <div class="col"><button id="p-resume" class="primary">Resume</button><button id="p-restart" class="ghost">Restart</button><button id="p-menu" class="ghost">Back to the menu</button></div>
     <p class="credit">Ту-95 Bear 3D by <strong>@harrisbasra™</strong></p>
   </div>
 </div>
@@ -246,8 +449,8 @@ function hash2(x,y){return hash(x*12.9898+y*78.233);}
 function vnoise2(x,y){const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;const sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
   const a=hash2(ix,iy),b=hash2(ix+1,iy),c=hash2(ix,iy+1),d=hash2(ix+1,iy+1);return lerp(lerp(a,b,sx),lerp(c,d,sx),sy);}
 function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-const FONT='"PT Sans Narrow","Arial Narrow","Roboto Condensed",sans-serif';
-const DISPLAY='"Russo One","Arial Black",sans-serif';
+const FONT='"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif';
+const DISPLAY='"Exo 2","Arial Black",sans-serif';
 const G=9.81;
 const KT=1.852,FT=0.3048; // km/h per knot, metres per foot
 
@@ -402,7 +605,8 @@ const AIRPORTS=[
   rwys:[{id:'10L/28R',w:45,surf:'asphalt',ils:['10L','28R'],ends:[{n:'10L',lat:33.553001,lon:72.806602,disp:0},{n:'28R',lat:33.547001,lon:72.845200,disp:0}]},
         {id:'10R/28L',w:60,surf:'asphalt',ils:['10R','28L'],ends:[{n:'10R',lat:33.551174,lon:72.806145,disp:0},{n:'28L',lat:33.545124,lon:72.844826,disp:0}]}],
   districts:[[33.70,73.05,0.8,4,1.2],[33.60,73.06,1.0,4],[33.52,73.10,0.6,3],[33.68,72.98,0.5,2],[33.63,72.95,0.45,2.5],[33.56,72.75,0.35,2.5]],
-  hills:[[33.77,72.93,4.5,700],[33.78,73.03,5,950],[33.77,73.14,5,850],[33.74,72.84,3.5,450],[33.80,73.22,6,1100]],
+  // the Margalla Hills ridge, north of the city (the Faisal Mosque sits at their foot)
+  hills:[[33.775,72.94,2.6,650],[33.79,73.03,3,900],[33.785,73.12,3,850],[33.76,72.86,2.2,420],[33.81,73.21,3.6,1050]],
   landmarks:[{type:'faisal',name:'Faisal Mosque',lat:33.7295,lon:73.0372}]},
  {icao:'OPKC',vis:24,iata:'KHI',name:'Jinnah International',city:'Karachi',country:'Pakistan',elev:30,ref:[24.9065,67.1608],osm:true,ground:'arid',haze:'#d4cfc2',
   rwys:[{id:'07L/25R',w:46,surf:'concrete',ils:['25R','07L'],ends:[{n:'07L',lat:24.904699,lon:67.147598,disp:0},{n:'25R',lat:24.912399,lon:67.178001,disp:0}]},
@@ -469,7 +673,7 @@ function shared(){
   SHARED.ab=new THREE.MeshBasicMaterial({color:'#ffb060',transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
   return SHARED;}
 function fuselageGeo(st,glass,ring){
-  const S=st.slice().sort((a,b)=>b[0]-a[0]);const N=56;ring=ring||22;const x0=S[0][0],x1=S[S.length-1][0];
+  const S=st.slice().sort((a,b)=>b[0]-a[0]);const hq=progress.quality!=='low';const N=hq?110:56;ring=ring||(hq?36:22);const x0=S[0][0],x1=S[S.length-1][0];
   const sample=x=>{for(let i=0;i<S.length-1;i++){const a=S[i],b=S[i+1];if(x<=a[0]&&x>=b[0]){const t=(a[0]-x)/((a[0]-b[0])||1);return[lerp(a[1],b[1],t),lerp(a[2],b[2],t),lerp(a[3],b[3],t)];}}const l=S[S.length-1];return[l[1],l[2],l[3]];};
   const pos=[],col=[],idx=[];
   for(let i=0;i<=N;i++){const x=lerp(x0,x1,i/N);const [top,bot,hw]=sample(x);const cy=(top+bot)/2,ry=Math.max(0.02,(top-bot)/2);
@@ -479,14 +683,22 @@ function fuselageGeo(st,glass,ring){
       if(c<0)col.push(0.12,0.17,0.22);else col.push(c,c,c);}}
   for(let i=0;i<N;i++)for(let j=0;j<ring;j++){const a=i*(ring+1)+j,b=a+ring+1;idx.push(a,b,a+1,b,b+1,a+1);}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.setIndex(idx);g.computeVertexNormals();return g;}
-// thin aerofoil slab between a root and tip section; n = thickness direction
-function slabGeo(rLE,rc,tLE,tc,tr,tt,n){
-  const sec=(p,c,t)=>{const v=(dx,k)=>[p[0]-dx+n[0]*k,p[1]+n[1]*k,p[2]+n[2]*k];return[v(0,0),v(c*0.32,t/2),v(c,0),v(c*0.32,-t/2)];};
-  const R=sec(rLE,rc,tr),T=sec(tLE,tc,tt);const pos=[];
-  const tri=(a,b,c)=>pos.push(...a,...b,...c);
-  for(let k=0;k<4;k++){const k2=(k+1)%4;tri(R[k],R[k2],T[k2]);tri(R[k],T[k2],T[k]);}
-  tri(R[0],R[1],R[2]);tri(R[0],R[2],R[3]);tri(T[0],T[2],T[1]);tri(T[0],T[3],T[2]);
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();return g;}
+// A smooth aerofoil surface through sections {le:[x,y,z], c: chord (towards -x), th: thickness, up: thickness direction}.
+// Each section uses a NACA four-digit thickness form with cosine spacing and a little camber; shading is smooth.
+const FOIL_N=()=>({low:5,medium:8,high:11}[progress.quality]||11);
+function foilGeo(secs){const n=FOIL_N(),m=2*n,pos=[],idx=[];
+  const f=x=>5*(0.2969*Math.sqrt(x)-0.126*x-0.3516*x*x+0.2843*x*x*x-0.1036*x*x*x*x);
+  for(const s of secs){const u=s.up,pt=(x,y)=>pos.push(s.le[0]-x*s.c+u[0]*y,s.le[1]+u[1]*y,s.le[2]+u[2]*y);
+    for(let i=0;i<n;i++){const x=(1-Math.cos(Math.PI*i/n))/2;pt(x,s.th*f(x)*1.15);}
+    for(let i=n;i>0;i--){const x=(1-Math.cos(Math.PI*i/n))/2;pt(x,-s.th*f(x)*0.85);}}
+  for(let a=0;a<secs.length-1;a++)for(let i=0;i<m;i++){const p=a*m+i,q=a*m+(i+1)%m,r=p+m,t=q+m;idx.push(p,r,q,q,r,t);}
+  // end caps
+  const cap=(o,flip)=>{const c=pos.length/3;let cx=0,cy=0,cz=0;for(let i=0;i<m;i++){cx+=pos[(o+i)*3];cy+=pos[(o+i)*3+1];cz+=pos[(o+i)*3+2];}pos.push(cx/m,cy/m,cz/m);
+    for(let i=0;i<m;i++){const p=o+i,q=o+(i+1)%m;flip?idx.push(c,q,p):idx.push(c,p,q);}};
+  cap(0,false);cap((secs.length-1)*m,true);
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();return g;}
+// a two-section aerofoil between a root and tip; n = thickness direction
+function slabGeo(rLE,rc,tLE,tc,tr,tt,n){return foilGeo([{le:rLE,c:rc,th:tr,up:n},{le:tLE,c:tc,th:tt,up:n}]);}
 function podGeo(len,r,kind){
   const h=len/2;let pts;
   if(kind==='prop')pts=[[0.001,h+0.5],[r*0.45,h+0.3],[r*0.9,h-0.3],[r,h-1.2],[r*0.95,-h+2.2],[r*0.55,-h+0.4],[0.001,-h]];
@@ -715,41 +927,48 @@ function tailClearance(a){let m=90;for(const s of airlinerStations(a)){if(s[0]<a
 /* ---- house paint and windows, drawn into the fuselage texture ---- */
 // u runs from the nose (0) to the tail (1); v runs round the fuselage from the crown (0) down the right side (0.25)
 // to the belly (0.5) and up the left side (0.75).
-function fuselageTex(sp){
-  const G=sp.geo,L=sp.len,W=2048,Hh=512;
-  return tex(W,Hh,(c)=>{
+// The fuselage paint, and a matching roughness map (rough=true) in which the windows are glossy and the paint satin.
+// Resolution follows the graphics setting; both are made once per type and shared, so parked aircraft cost nothing extra.
+const PAINT_CACHE={};
+function fuselagePaint(sp){const q=progress.quality||'high',key=sp.id+':'+q;if(PAINT_CACHE[key])return PAINT_CACHE[key];
+  const W=q==='high'?4096:q==='medium'?2048:1024;return PAINT_CACHE[key]={map:fuselageTex(sp,false,W),rough:fuselageTex(sp,true,W)};}
+function fuselageTex(sp,rough,W){
+  const G=sp.geo,L=sp.len,Hh=W/4,k=W/2048;
+  const K=(col,r)=>rough?`rgb(${r},${r},${r})`:col; // r: roughness 0..255
+  const t=tex(W,Hh,(c)=>{
     const U=x=>(G.nose-x)/L*W, u=d=>d/L*W; // metres from the nose to pixels
     const circ=Math.PI*(G.D+G.H)/2,vpx=m=>m/circ*Hh;
-    c.fillStyle='#f4f3ee';c.fillRect(0,0,W,Hh);
-    // belly in light grey, below a red cheatline and a thin olive pinstripe
-    const bellyTop=0.36,bellyBot=0.64;c.fillStyle='#c9cbc8';c.fillRect(0,bellyTop*Hh,W,(bellyBot-bellyTop)*Hh);
+    c.fillStyle=K('#f5f6f7',95);c.fillRect(0,0,W,Hh);
+    // belly in light grey, below an amber cheatline and a teal pinstripe (invented house colours)
+    const bellyTop=0.36,bellyBot=0.64;c.fillStyle=K('#c8ccd1',110);c.fillRect(0,bellyTop*Hh,W,(bellyBot-bellyTop)*Hh);
     for(const side of [0.25,0.75]){const d=side<0.5?1:-1;const yv=(side+d*0.075)*Hh;
-      c.fillStyle='#c23b2b';c.fillRect(u(G.noseL*0.6),yv-vpx(0.12),W,vpx(0.24));c.fillStyle='#3d4733';c.fillRect(u(G.noseL*0.6),yv+d*vpx(0.22)-vpx(0.04),W,vpx(0.08));}
-    // windows: one row on each side per deck
+      c.fillStyle=K('#ff7a2e',85);c.fillRect(u(G.noseL*0.6),yv-vpx(0.12),W,vpx(0.24));c.fillStyle=K('#14a7c7',85);c.fillRect(u(G.noseL*0.6),yv+d*vpx(0.22)-vpx(0.045),W,vpx(0.09));}
+    // windows: one row on each side per deck, each with a thin frame
     const pitch=0.53*(G.windowScale||1)>0.6?0.6:0.53,ww=0.24*(G.windowScale||1),wh=0.34*(G.windowScale||1);
     const rows=[{v:0.03,from:G.noseL*1.05,to:L-G.tailL*0.8}];
     if(G.upperDeck){rows.push({v:-0.11,from:G.noseL*1.0,to:G.upperDeck>=1?L-G.tailL*0.95:L*G.upperDeck});}
-    for(const side of [0.25,0.75])for(const r of rows){const vy=(side+(side<0.5?-r.v:r.v))*Hh;c.fillStyle='#232a31';
+    for(const side of [0.25,0.75])for(const r of rows){const vy=(side+(side<0.5?-r.v:r.v))*Hh;
       for(let x=r.from;x<r.to;x+=pitch){let skip=false;for(const d of (G.doors||[]).concat(G.exits||[]))if(Math.abs(x-d*L)<1.0)skip=true;if(skip)continue;
-        const px=u(x);c.beginPath();const rw=u(ww)/2,rh=vpx(wh)/2;c.ellipse(px,vy,rw,rh,0,0,Math.PI*2);c.fill();}}
+        const px=u(x),rw=u(ww)/2,rh=vpx(wh)/2;c.fillStyle=K('#8e979e',90);c.beginPath();c.ellipse(px,vy,rw*1.28,rh*1.2,0,0,Math.PI*2);c.fill();
+        const gr=rough?null:c.createLinearGradient(px,vy-rh,px,vy+rh);if(gr){gr.addColorStop(0,'#3b4c5c');gr.addColorStop(0.5,'#141c24');gr.addColorStop(1,'#26323d');}
+        c.fillStyle=rough?K('',18):gr;c.beginPath();c.ellipse(px,vy,rw,rh,0,0,Math.PI*2);c.fill();}}
     // doors: outlines with a small window
-    c.lineWidth=2;
+    c.lineWidth=2*k;
     for(const side of [0.25,0.75])for(const d of (G.doors||[]).concat(G.exits||[])){const exit=(G.exits||[]).includes(d);const dw=exit?0.55:1.05,dh=exit?1.0:1.9;
-      const px=u(d*L),vy=(side+(side<0.5?-0.01:0.01))*Hh;c.strokeStyle='rgba(60,64,66,.75)';c.beginPath();c.roundRect?c.roundRect(px-u(dw)/2,vy-vpx(dh)/2,u(dw),vpx(dh),4):c.rect(px-u(dw)/2,vy-vpx(dh)/2,u(dw),vpx(dh));c.stroke();
-      c.fillStyle='#232a31';c.beginPath();c.ellipse(px,vy-vpx(dh*0.18),u(0.12),vpx(0.16),0,0,Math.PI*2);c.fill();
+      const px=u(d*L),vy=(side+(side<0.5?-0.01:0.01))*Hh;c.strokeStyle=K('rgba(60,64,66,.8)',140);c.beginPath();c.roundRect?c.roundRect(px-u(dw)/2,vy-vpx(dh)/2,u(dw),vpx(dh),4*k):c.rect(px-u(dw)/2,vy-vpx(dh)/2,u(dw),vpx(dh));c.stroke();
+      c.fillStyle=K('#1a232b',18);c.beginPath();c.ellipse(px,vy-vpx(dh*0.18),u(0.12),vpx(0.16),0,0,Math.PI*2);c.fill();
       if(G.upperDeck&&!exit&&(G.upperDeck>=1||d<G.upperDeck)){const vy2=(side+(side<0.5?0.12:-0.12))*Hh;c.strokeRect(px-u(dw)/2,vy2-vpx(dh)/2,u(dw),vpx(dh));}}
     // flight deck windows: four panes each side, wrapping round the nose
     const ce=G.nose-G.cockpitEye[0];const cx0=U(ce+1.9),cx1=U(ce-0.6);
-    for(const side of [0.25,0.75]){const s=side<0.5?1:-1;c.fillStyle='#1d252c';
+    for(const side of [0.25,0.75]){c.fillStyle=K('#141b22',12);
       const vTop=0.085,vBot=0.205;const pts=[[cx0,vTop],[cx1-u(0.2),vTop+0.012],[cx1,vBot-0.02],[cx0+u(0.6),vBot]];
       c.beginPath();for(const [x,v] of pts)c.lineTo(x,(side<0.5?v:1-v)*Hh);c.closePath();c.fill();
-      c.strokeStyle='#f4f3ee';c.lineWidth=3;for(let k=1;k<3;k++){const xx=lerp(cx0,cx1,k/3);c.beginPath();c.moveTo(xx,(side<0.5?vTop:1-vTop)*Hh);c.lineTo(xx+u(0.15),(side<0.5?vBot:1-vBot)*Hh);c.stroke();}}
-    // radome seam and a little dirt round the tail
-    c.strokeStyle='rgba(80,84,86,.5)';c.lineWidth=1.5;c.beginPath();c.moveTo(u(1.2),0);c.lineTo(u(1.2),Hh);c.stroke();
-    // panel lines
-    c.strokeStyle='rgba(0,0,0,.06)';c.lineWidth=1;for(let x=G.noseL;x<L;x+=2.3){c.beginPath();c.moveTo(u(x),0);c.lineTo(u(x),Hh);c.stroke();}
-  });}
-function tailTex(){return tex(256,256,(c,w,h)=>{c.fillStyle='#3d4733';c.fillRect(0,0,w,h);c.fillStyle='#c23b2b';c.save();c.translate(w/2,h/2);c.rotate(-0.5);c.fillRect(-w,-h*0.07,w*2,h*0.14);c.fillStyle='#ebe5cb';c.fillRect(-w,h*0.12,w*2,h*0.05);c.restore();});}
+      c.strokeStyle=K('#f5f6f7',95);c.lineWidth=3*k;for(let kk=1;kk<3;kk++){const xx=lerp(cx0,cx1,kk/3);c.beginPath();c.moveTo(xx,(side<0.5?vTop:1-vTop)*Hh);c.lineTo(xx+u(0.15),(side<0.5?vBot:1-vBot)*Hh);c.stroke();}}
+    // radome seam and panel lines
+    c.strokeStyle=K('rgba(80,84,86,.5)',120);c.lineWidth=1.5*k;c.beginPath();c.moveTo(u(1.2),0);c.lineTo(u(1.2),Hh);c.stroke();
+    c.strokeStyle=K('rgba(0,0,0,.07)',105);c.lineWidth=k;for(let x=G.noseL;x<L;x+=2.3){c.beginPath();c.moveTo(u(x),0);c.lineTo(u(x),Hh);c.stroke();}
+  });if(rough)t.encoding=THREE.LinearEncoding;t.anisotropy=maxAniso;return t;}
+let TAIL_TEX=null;function tailTex(){return TAIL_TEX||(TAIL_TEX=tex(512,512,(c,w,h)=>{const g=c.createLinearGradient(0,0,w,h);g.addColorStop(0,'#16294a');g.addColorStop(1,'#0a1428');c.fillStyle=g;c.fillRect(0,0,w,h);c.save();c.translate(w/2,h/2);c.rotate(-0.5);c.fillStyle='#ff7a2e';c.fillRect(-w,-h*0.07,w*2,h*0.14);c.fillStyle='#14a7c7';c.fillRect(-w,h*0.11,w*2,h*0.045);c.restore();}));}
 
 /* ---- geometry helpers ---- */
 // Fuselage stations from a few published dimensions: nose length, constant section and the upswept tail cone.
@@ -763,28 +982,25 @@ function airlinerStations(sp){const G=sp.geo,R=G.D/2,RH=G.H/2,x0=G.nose,x1=G.nos
   if(G.hump){const xh=x0-sp.len*G.hump.to;for(const s of st){const d=s[0]-xh;if(s[0]<=x0-G.noseL*0.25){const k=d>0?1:Math.max(0,1+d/9);const kk=smooth(k)*clamp((x0-s[0])/(G.noseL*1.1),0,1);s[1]+=G.hump.h*kk;}}}
   return st;}
 function fuselageGeoUV(st,len,nose){
-  const S=st.slice().sort((a,b)=>b[0]-a[0]);const N=120,ring=32;const x0=S[0][0],x1=S[S.length-1][0];
+  const S=st.slice().sort((a,b)=>b[0]-a[0]);const hq=progress.quality==='high';const N=hq?170:110,ring=hq?48:32;const x0=S[0][0],x1=S[S.length-1][0];
   const sample=x=>{for(let i=0;i<S.length-1;i++){const a=S[i],b=S[i+1];if(x<=a[0]&&x>=b[0]){const t=(a[0]-x)/((a[0]-b[0])||1);return[lerp(a[1],b[1],t),lerp(a[2],b[2],t),lerp(a[3],b[3],t)];}}const l=S[S.length-1];return[l[1],l[2],l[3]];};
   const pos=[],uv=[],idx=[];
   for(let i=0;i<=N;i++){const tt=i/N,x=lerp(x0,x1,Math.pow(tt,1)*1);const [top,bot,hw]=sample(x);const cy=(top+bot)/2,ry=Math.max(0.02,(top-bot)/2);
     for(let j=0;j<=ring;j++){const a=j/ring*Math.PI*2;pos.push(x,cy+Math.cos(a)*ry,Math.sin(a)*Math.max(0.02,hw));uv.push((nose-x)/len,1-j/ring);}}
   for(let i=0;i<N;i++)for(let j=0;j<ring;j++){const a=i*(ring+1)+j,b=a+ring+1;idx.push(a,b,a+1,b,b+1,a+1);}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g;}
-// a wing panel through a list of sections [x of leading edge, y, z, chord, thickness]
-function panelGeo(secs){const pos=[];const tri=(a,b,c)=>pos.push(...a,...b,...c);
-  const S=secs.map(s=>{const [x,y,z,c,t]=s;const th=c*t;return[[x,y,z],[x-c*0.3,y+th*0.6,z],[x-c,y,z],[x-c*0.35,y-th*0.4,z]];});
-  for(let i=0;i<S.length-1;i++){const R=S[i],T=S[i+1];for(let k=0;k<4;k++){const k2=(k+1)%4;tri(R[k],R[k2],T[k2]);tri(R[k],T[k2],T[k]);}}
-  const A=S[0],B=S[S.length-1];tri(A[0],A[1],A[2]);tri(A[0],A[2],A[3]);tri(B[0],B[2],B[1]);tri(B[0],B[3],B[2]);
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();return g;}
+// a wing panel through a list of sections [x of leading edge, y, z, chord, thickness ratio]
+function panelGeo(secs,up){return foilGeo(secs.map(([x,y,z,c,t])=>({le:[x,y,z],c,th:c*t,up:up||[0,1,0]})));}
 function nacelleGeo(len,d,flat){const r=d/2,h=len/2;
   const pts=[[r*0.86,h],[r*0.97,h-0.12*len],[r,h-0.3*len],[r*0.93,-h+0.28*len],[r*0.7,-h+0.06*len],[r*0.62,-h]];
   const g=new THREE.LatheGeometry(pts.map(p=>new THREE.Vector2(p[0],p[1])),28);g.rotateZ(-Math.PI/2);if(flat)g.scale(1,flat,1);return g;}
 
 function buildAirliner(sp){
   const S=shared(),G=sp.geo,W=G.wing;
-  const paint=fuselageTex(sp);paint.anisotropy=maxAniso;
-  const bodyM=stdMat('#ffffff',{map:paint,metalness:0.25,roughness:0.45}),wingM=stdMat('#d9dcdd',{metalness:0.45,roughness:0.42}),greyM=stdMat('#b7bbbe',{metalness:0.5,roughness:0.4});
-  const whiteM=stdMat('#f1f1ec',{metalness:0.3,roughness:0.4}),tailM=stdMat('#ffffff',{map:tailTex(),metalness:0.2,roughness:0.5}),darkM=S.dark,metalM=stdMat('#9ea3a6',{metalness:0.85,roughness:0.3});
+  // painted surfaces are satin paint over metal; the windows are glossy (see the roughness map)
+  const paint=fuselagePaint(sp);
+  const bodyM=stdMat('#ffffff',{map:paint.map,roughnessMap:paint.rough,metalness:0.12,roughness:1,envMapIntensity:0.9}),wingM=stdMat('#d6dade',{metalness:0.35,roughness:0.38}),greyM=stdMat('#b2b8bd',{metalness:0.5,roughness:0.36});
+  const whiteM=stdMat('#f3f4f5',{metalness:0.15,roughness:0.32}),tailM=stdMat('#ffffff',{map:tailTex(),metalness:0.15,roughness:0.35}),darkM=S.dark,metalM=stdMat('#9ea3a6',{metalness:0.85,roughness:0.3});
   const g=new THREE.Group();const parts={props:[],flaps:[],gear:[],swing:[],ab:[],lights:{},discs:[],blades:[],spoilers:[],rev:[]};
   const add=(geo,m,parent)=>{const me=new THREE.Mesh(geo,m);me.castShadow=true;(parent||g).add(me);return me;};
   const st=airlinerStations(sp);add(fuselageGeoUV(st,sp.len,G.nose),bodyM);
@@ -810,7 +1026,7 @@ function buildAirliner(sp){
       const h=W.tipH,secsW=[];const n=W.tip==='curved'?5:2;
       for(let i=0;i<=n;i++){const t=i/n,curve=W.tip==='curved'||W.tip==='winglet'?Math.pow(t,0.6):t;const zz=tz+(cant*h*curve+(W.tip==='curved'?0.9*Math.sin(t*1.57):0.2*t));
         secsW.push([tx-t*tc*0.55-0.05,ty+h*t,zz*s,lerp(tc,tc*0.32,t),0.09]);}
-      const wg=panelGeo(secsW);add(wg,whiteM);}
+      const wg=panelGeo(secsW,[0,0,s]);add(wg,whiteM);}
     if(W.tip==='fence'){add(planarUV(panelFin([[tx+0.4,ty-W.tipH*0.35,tc*1.05],[tx-tc*0.25,ty+W.tipH*0.65,tc*0.5]],0.06).translate(0,0,tz*s)),tailM);}
     // flaps (inboard and outboard), hinged at the trailing edge
     for(const [za,zb] of [[W.r0+0.2,zk],[zk+0.3,W.r0+(W.b-W.r0)*0.74]]){const ca=chordAt(za),cb=chordAt(zb);
@@ -868,11 +1084,7 @@ function buildAirliner(sp){
   return{g,parts,pts:{gear:gearPts,body}};
 }
 // a vertical panel (the fin), sections [x of leading edge, y, chord]
-function panelFin(secs,t){const pos=[];const tri=(a,b,c)=>pos.push(...a,...b,...c);
-  const S=secs.map(([x,y,c])=>{const th=c*t;return[[x,y,0],[x-c*0.3,y,th*0.5],[x-c,y,0],[x-c*0.3,y,-th*0.5]];});
-  for(let i=0;i<S.length-1;i++){const R=S[i],T=S[i+1];for(let k=0;k<4;k++){const k2=(k+1)%4;tri(R[k],R[k2],T[k2]);tri(R[k],T[k2],T[k]);}}
-  const B=S[S.length-1];tri(B[0],B[2],B[1]);tri(B[0],B[3],B[2]);
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();return g;}
+function panelFin(secs,t){return foilGeo(secs.map(([x,y,c])=>({le:[x,y,0],c,th:c*t,up:[0,0,1]})));}
 // planar texture coordinates from the x-y extent, for the tail art
 function planarUV(geo){geo.computeBoundingBox();const b=geo.boundingBox,p=geo.attributes.position,uv=[];
   for(let i=0;i<p.count;i++)uv.push((p.getX(i)-b.min.x)/((b.max.x-b.min.x)||1),(p.getY(i)-b.min.y)/((b.max.y-b.min.y)||1));
@@ -1046,6 +1258,8 @@ function buildAirport(){
   lightPoints(pts,4.5,false);
   if(REGION_OSM)buildAirportOSM(REGION_OSM,{grass,concrete,asphalt});else buildAirportGeneric({grass,concrete,asphalt});
 }
+// keep the generated city off the landmarks and their grounds
+function lmNear(x,z){for(const k in LANDMARKS){const l=LANDMARKS[k];if(Math.abs(x-l.x)<260&&Math.abs(z-l.z)<260)return true;}return false;}
 function buildCity(){
   const r=rng(42+REGION.icao.charCodeAt(1));const tmp=new THREE.Object3D();const col=new THREE.Color();
   const pal=REGION.ground==='desert'||REGION.ground==='arid'?['#e3d6bd','#d8c8a8','#efe6d3','#cbb894','#e6dccb','#bfae8e','#f2ede2','#d3c3a0']:REGION.ground==='temperate'?['#b9a593','#a8927e','#c9c0b2','#8f7f72','#b4a89a','#9a8f86','#d8d2c6','#a67c64','#c2b9ad']:['#c9bba0','#b8a88a','#d6cdb8','#a89c86','#c4b296','#9e8e7a','#d9d2c3','#b08a6c','#c7c2b5','#a3876b'];
@@ -1055,7 +1269,7 @@ function buildCity(){
   x0=Math.max(x0,-30000);x1=Math.min(x1,30000);z0=Math.max(z0,-30000);z1=Math.min(z1,30000);
   for(let x=x0;x<=x1;x+=58)for(let z=z0;z<=z1;z+=58){
     const d=cityDensity(x,z);if(d<0.06)continue;if(r()>d*0.62)continue;const tall=cityDensity.tall||1;
-    const bx=x+(r()-0.5)*30,bz=z+(r()-0.5)*30;if(inWater(bx,bz)||terrainH(bx,bz)>15)continue;
+    const bx=x+(r()-0.5)*30,bz=z+(r()-0.5)*30;if(inWater(bx,bz)||terrainH(bx,bz)>15||lmNear(bx,bz))continue;
     let h=5+Math.pow(r(),3)*(d>0.85?55:22)*Math.min(tall,2);if(r()<0.004*d*tall*tall)h+=40+r()*50*tall;if(tall>2&&d>0.6&&r()<0.05)h+=60+r()*80*tall;
     h=Math.min(h,approachLimit(bx,bz));
     // towers keep realistic proportions (a slenderness of about 1:6 at most)
@@ -1115,7 +1329,7 @@ function buildLandmarks(){
   const M={std:(c,r,m)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m||0}),
     add(g,geo,mat,x,y,z){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;},
     minaret(g,x,z,h,r,mat,cap){this.add(g,new THREE.CylinderGeometry(r*0.75,r,h,10),mat,x,h/2,z);this.add(g,new THREE.CylinderGeometry(r,r,4,10),cap,x,h+2,z);this.add(g,new THREE.ConeGeometry(r*0.8,8,10),cap,x,h+8,z);}};
-  for(const l of REGION.landmarks||[]){const b=LANDMARK_BUILD[l.type];if(!b)continue;const p=geo(l.lat,l.lon),g=new THREE.Group();g.position.set(p.x,0,p.z);scene.add(g);const [r,h]=b(g,M);if(h)addObstacle(p.x-r,p.x+r,p.z-r,p.z+r,h);}}
+  for(const l of REGION.landmarks||[]){const b=LANDMARK_BUILD[l.type];if(!b)continue;const p=geo(l.lat,l.lon),g=new THREE.Group();g.position.set(p.x,HILLS.length?terrainH(p.x,p.z):0,p.z);scene.add(g);const [r,h]=b(g,M);if(h)addObstacle(p.x-r,p.x+r,p.z-r,p.z+r,h);}}
 function buildTrees(){
   if(REGION.ground==='desert')return;const r=rng(9);const items=[];const n=REGION.ground==='arid'?2500:9000;
   for(let i=0;i<n;i++){const x=(r()-0.5)*44000,z=(r()-0.5)*44000;if(cityDensity(x,z)>0.35)continue;if(OSM_BOX&&x>OSM_BOX.x0-100&&x<OSM_BOX.x1+100&&z>OSM_BOX.z0-100&&z<OSM_BOX.z1+100)continue;
@@ -1144,7 +1358,18 @@ function applySky(name){
   for(const c of W3.clouds)c.material.opacity=0.85*S.cl;
   for(const p of W3.pts){p.pts.visible=!p.night||S.night||name==='evening';p.pts.material.size=p.size*(S.night?1.25:name==='evening'?1:0.75);}
   if(W3.cityLights)W3.cityLights.visible=S.night||name==='evening';
+  updateEnv(S);
 }
+// Reflections: a small environment map of the current sky over the ground, made once per sky change (a few ms).
+// Paint, glass and metal on every aircraft reflect it, which is most of what makes them look solid and sharp.
+function updateEnv(S){try{if(!W3.pmrem)W3.pmrem=new THREE.PMREMGenerator(renderer);
+  // a small sky panorama: zenith, mid-sky, the horizon band and the ground below, with the sun's glow
+  const hz=S===SKIES.day&&REGION.haze?REGION.haze:S.hz,gnd=new THREE.Color((W3.G||GROUNDS.fields).base).multiplyScalar(S.night?0.08:0.55);
+  const pano=tex(256,128,(c,w,h)=>{const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,S.top);g.addColorStop(0.32,S.mid);g.addColorStop(0.49,hz);g.addColorStop(0.51,'#'+gnd.getHexString());g.addColorStop(1,'#'+gnd.clone().multiplyScalar(0.7).getHexString());
+    c.fillStyle=g;c.fillRect(0,0,w,h);if(S.glow){const sd=S.sd,az=(Math.atan2(sd[0],-sd[2])/(Math.PI*2)+0.5)*w,el=(0.5-Math.asin(sd[1]/Math.hypot(...sd))/Math.PI)*h;
+      const r=c.createRadialGradient(az,el,0,az,el,w*0.18);r.addColorStop(0,S.sun);r.addColorStop(1,'rgba(0,0,0,0)');c.globalAlpha=S.glow*0.7;c.fillStyle=r;c.fillRect(0,0,w,h);c.globalAlpha=1;}});
+  pano.mapping=THREE.EquirectangularReflectionMapping;
+  const rt=W3.pmrem.fromEquirectangular(pano);pano.dispose();if(W3.envRT)W3.envRT.dispose();W3.envRT=rt;scene.environment=rt.texture;}catch(e){console.warn('No reflections',e);}}
 
 
 /* ---- the airport from OpenStreetMap: grass, taxiways, aprons, stands, jet bridges and buildings ---- */
@@ -1672,6 +1897,7 @@ function syncModel(g){const p=g.plane;g.A.g.position.copy(p.pos);g.A.g.quaternio
 const CAMS=['chase','cockpit','tower'];const CAM_LABEL={chase:'Chase view',cockpit:'Cockpit view',tower:'Tower view'};
 function updateCamera(g,dt){
   const p=g.plane,c=g.cam,sp=p.spec;
+  if(EX.on){exploreCamera(dt);g.A.g.visible=true;return;}
   if(g.mode==='attract'){c.orbit+=dt*0.12;const R=sp.len*1.25+16;camera.position.set(p.pos.x+Math.cos(c.orbit)*R,p.pos.y+4+sp.len*0.12,p.pos.z+Math.sin(c.orbit)*R);camera.lookAt(p.pos.x,p.pos.y+1,p.pos.z);camera.fov=50;camera.updateProjectionMatrix();g.A.g.visible=true;return;}
   const mode=p.alive?c.mode:'chase';
   if(mode==='cockpit'){attachCockpit(g);const eye=cockpitEye(sp);localToWorld(p,eye,camera.position);
@@ -2258,23 +2484,23 @@ function planInfo(){MAP.dep=$('#m-dep').value;MAP.dest=$('#m-dest').value;const 
 function mapXY(lat,lon,w,h){const v=MAP.view;return[(lon-v.lon0)/(v.lon1-v.lon0)*w,(v.lat1-lat)/(v.lat1-v.lat0)*h];}
 function drawMap(){const cv=$('#map-cv');if(!cv||$('#map').classList.contains('hidden'))return;const r=cv.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
   cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const w=r.width,h=r.height;
-  c.fillStyle='#1f2a26';c.fillRect(0,0,w,h);
+  c.fillStyle='#04070e';c.fillRect(0,0,w,h);
   // graticule
-  c.strokeStyle='rgba(235,229,203,.07)';c.lineWidth=1;for(let lon=-90;lon<=100;lon+=15){const [x]=mapXY(0,lon,w,h);c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke();}
+  c.strokeStyle='rgba(62,230,255,.07)';c.lineWidth=1;for(let lon=-90;lon<=100;lon+=15){const [x]=mapXY(0,lon,w,h);c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke();}
   for(let lat=0;lat<=60;lat+=15){const [,y]=mapXY(lat,0,w,h);c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke();}
-  if(window.TU95_WORLD){c.fillStyle='#4a5640';c.strokeStyle='#6c7a5c';c.lineWidth=0.8;
+  if(window.TU95_WORLD){c.fillStyle='#14233a';c.strokeStyle='#2c4a72';c.lineWidth=0.8;
     for(const p of TU95_WORLD){c.beginPath();for(let i=0;i<p.length;i+=2){const [x,y]=mapXY(p[i+1],p[i],w,h);i?c.lineTo(x,y):c.moveTo(x,y);}c.closePath();c.fill();c.stroke();}}
   // the planned great-circle route
-  const P=MAP.plan;if(P&&P.dep!==P.dest){const a=AIRPORT_BY_ICAO[P.dep].ref,b=AIRPORT_BY_ICAO[P.dest].ref,brg=gcBearing(a,b);c.strokeStyle='#ff5ad8';c.lineWidth=2.5;c.setLineDash([8,6]);c.beginPath();
-    for(let i=0;i<=64;i++){const q=gcPoint(a,brg,P.dist*i/64);const [x,y]=mapXY(q[0],q[1],w,h);i?c.lineTo(x,y):c.moveTo(x,y);}c.stroke();c.setLineDash([]);}
+  const P=MAP.plan;if(P&&P.dep!==P.dest){const a=AIRPORT_BY_ICAO[P.dep].ref,b=AIRPORT_BY_ICAO[P.dest].ref,brg=gcBearing(a,b);c.strokeStyle='#3ee6ff';c.shadowColor='#3ee6ff';c.shadowBlur=10;c.lineWidth=2.5;c.setLineDash([8,6]);c.beginPath();
+    for(let i=0;i<=64;i++){const q=gcPoint(a,brg,P.dist*i/64);const [x,y]=mapXY(q[0],q[1],w,h);i?c.lineTo(x,y):c.moveTo(x,y);}c.stroke();c.setLineDash([]);c.shadowBlur=0;}
   c.font=`700 14px ${FONT}`;c.textBaseline='middle';
   for(const ap of AIRPORTS){const [x,y]=mapXY(ap.ref[0],ap.ref[1],w,h);const dep=ap.icao===MAP.dep,dest=ap.icao===MAP.dest;
-    if(dep||dest){c.strokeStyle=dep?'#86d36f':'#c23b2b';c.lineWidth=3;c.beginPath();c.arc(x,y,9,0,7);c.stroke();}
-    c.fillStyle=MAP.hover===ap.icao?'#ffffff':'#ebe5cb';c.beginPath();c.arc(x,y,4.5,0,7);c.fill();
+    if(dep||dest){c.strokeStyle=dep?'#4dffa1':'#ff8a3d';c.lineWidth=3;c.beginPath();c.arc(x,y,9,0,7);c.stroke();}
+    c.fillStyle=MAP.hover===ap.icao?'#ffffff':'#e9f1ff';c.beginPath();c.arc(x,y,4.5,0,7);c.fill();
     const right=!['OPIS','OPKC','OPLA'].includes(ap.icao)||ap.icao==='OPIS';const ty=ap.icao==='OPLA'?y+12:ap.icao==='OPKC'?y+10:ap.icao==='OPIS'?y-11:y;
-    c.textAlign=ap.icao==='OPLA'||ap.icao==='OPKC'?'left':right?'left':'right';c.fillStyle='rgba(18,22,15,.75)';const t=`${ap.iata} ${ap.city}`;const tw=c.measureText(t).width;const tx=c.textAlign==='left'?x+10:x-10-tw;
-    c.fillRect(tx-3,ty-9,tw+6,18);c.fillStyle=dep?'#b9e3a7':dest?'#ffb3a8':'#ebe5cb';c.textAlign='left';c.fillText(t,tx,ty);}
-  c.fillStyle='rgba(235,229,203,.5)';c.font=`700 11px ${FONT}`;c.textAlign='right';c.fillText('Land outline: Natural Earth (public domain). Ту-95 Bear 3D by @harrisbasra™',w-8,h-10);}
+    c.textAlign=ap.icao==='OPLA'||ap.icao==='OPKC'?'left':right?'left':'right';c.fillStyle='rgba(5,9,18,.82)';const t=`${ap.iata} ${ap.city}`;const tw=c.measureText(t).width;const tx=c.textAlign==='left'?x+10:x-10-tw;
+    c.fillRect(tx-3,ty-9,tw+6,18);c.fillStyle=dep?'#9dffcf':dest?'#ffc49a':'#e9f1ff';c.textAlign='left';c.fillText(t,tx,ty);}
+  c.fillStyle='rgba(214,228,255,.5)';c.font=`700 11px ${FONT}`;c.textAlign='right';c.fillText('Land outline: Natural Earth (public domain). Ту-95 Bear 3D by @harrisbasra™',w-8,h-10);}
 function mapPick(e){const cv=$('#map-cv'),r=cv.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;let best=null;
   for(const ap of AIRPORTS){const [px,py]=mapXY(ap.ref[0],ap.ref[1],r.width,r.height);const d=Math.hypot(px-x,py-y);if(d<24&&(!best||d<best.d))best={d,ap};}return best&&best.ap;}
 function wireMap(){const cv=$('#map-cv');
@@ -2285,6 +2511,49 @@ function wireMap(){const cv=$('#map-cv');
   $('#m-fly').addEventListener('click',()=>{const P=currentPlan();if(!P.range)return;progress.plane=P.spec;save();PLAN=P;startFlight();});
   $('#m-back').addEventListener('click',closeMap);$('#btn-map').addEventListener('click',openMap);
   addEventListener('resize',drawMap);}
+
+
+/* ---------- explore: a free camera over the current city ---------- */
+// Fly a camera anywhere in the region to look at the landmarks, the airport and the aircraft. Pick a sight to glide to it
+// and orbit; any input takes over again. Keys: W A S D move, Q / E down and up, Shift faster, drag to look, wheel speed.
+const EX={on:false,pos:null,yaw:0,pitch:-0.25,speed:80,orbit:null,tween:null,drag:null};
+const EX_SIZE={burj:900,owtc:600,empire:480,shard:340,sail:340,liberty:140,faisal:200,mazar:140,minar:110,badshahi:260,fort:420,castle:380,hagia:180,mosque6:200,fountain:300};
+function exploreSpots(){const s=[];
+  for(const l of REGION.landmarks||[]){const p=geo(l.lat,l.lon),r=EX_SIZE[l.type]||220;s.push({name:l.name,x:p.x,z:p.z,y:r*0.35,r:r*1.4});}
+  if(W3.terminal)s.push({name:'Main terminal',x:W3.terminal.x,z:W3.terminal.z,y:20,r:420});
+  if(RWYS.length){const rw=RWYS[0];s.push({name:`Runway ${rw.id}`,x:rw.ends[0].T.x+rw.dx*300,z:rw.ends[0].T.z+rw.dz*300,y:10,r:260});}
+  if(game&&game.A)s.push({name:`The ${currentSpec().name}`,x:game.plane.pos.x,z:game.plane.pos.z,y:6,r:Math.max(70,currentSpec().len*1.6),plane:true});
+  return s;}
+function openExplore(){AU.init();EX.on=true;show($('#menu'),false);show($('#explore'),true);$('#touch').classList.add('explore');show($('#touch'),isTouch);
+  const sp=exploreSpots()[0]||{x:0,z:0,y:0,r:400};EX.pos=new THREE.Vector3(sp.x-sp.r*1.4,Math.max(120,sp.y+sp.r*0.6),sp.z+sp.r*1.4);EX.yaw=Math.atan2(sp.x-EX.pos.x,-(sp.z-EX.pos.z));EX.pitch=-0.3;
+  renderExplore();goToSpot(sp);}
+function closeExplore(){EX.on=false;EX.orbit=EX.tween=null;show($('#explore'),false);$('#touch').classList.remove('explore');show($('#touch'),false);IN.stickP=IN.stickR=0;show($('#menu'),true);buildMenu();}
+function renderExplore(){const box=$('#ex-spots');box.innerHTML='';
+  for(const sp of exploreSpots()){const b=document.createElement('button');b.className='ghost';b.textContent=sp.name;b.addEventListener('click',()=>goToSpot(sp));box.appendChild(b);}
+  const sel=$('#ex-region');if(!sel.options.length)for(const a of AIRPORTS){const o=document.createElement('option');o.value=a.icao;o.textContent=`${a.city} (${a.iata})`;sel.appendChild(o);}
+  sel.value=REGION.icao;$('#ex-title').textContent=`Explore ${REGION.city}`;}
+// glide to a sight, then orbit it slowly
+function goToSpot(sp){const from=EX.pos.clone(),ang=Math.atan2(from.x-sp.x,from.z-sp.z);const to=new THREE.Vector3(sp.x+Math.sin(ang)*sp.r,sp.y+sp.r*0.45,sp.z+Math.cos(ang)*sp.r);
+  EX.tween={from,to,t:0,dur:clamp(from.distanceTo(to)/1500,1.2,4),look:new THREE.Vector3(sp.x,sp.y,sp.z)};EX.orbit={c:new THREE.Vector3(sp.x,sp.y,sp.z),r:sp.r,a:ang,h:sp.r*0.45};}
+function exploreCamera(dt){const K=KEYS,fast=K.ShiftLeft||K.ShiftRight?5:1;
+  const mv=(K.KeyW||K.ArrowUp?1:0)-(K.KeyS||K.ArrowDown?1:0)+(IN.stickP||0),st=(K.KeyD||K.ArrowRight?1:0)-(K.KeyA||K.ArrowLeft?1:0)+(IN.stickR||0),up=(K.KeyE||K.Space?1:0)-(K.KeyQ?1:0)+(EX.up||0);
+  if(mv||st||up||EX.drag){EX.tween=null;EX.orbit=null;}
+  if(EX.tween){const T=EX.tween;T.t+=dt/T.dur;const k=smooth(Math.min(1,T.t));EX.pos.lerpVectors(T.from,T.to,k);const d=V().subVectors(T.look,EX.pos);EX.yaw=Math.atan2(d.x,-d.z);EX.pitch=Math.atan2(d.y,Math.hypot(d.x,d.z));if(T.t>=1)EX.tween=null;}
+  else if(EX.orbit){const O=EX.orbit;O.a+=dt*0.08;EX.pos.set(O.c.x+Math.sin(O.a)*O.r,O.c.y+O.h,O.c.z+Math.cos(O.a)*O.r);const d=V().subVectors(O.c,EX.pos);EX.yaw=Math.atan2(d.x,-d.z);EX.pitch=Math.atan2(d.y,Math.hypot(d.x,d.z));}
+  else{const s=EX.speed*fast*dt,f=V().set(Math.sin(EX.yaw)*Math.cos(EX.pitch),Math.sin(EX.pitch),-Math.cos(EX.yaw)*Math.cos(EX.pitch)),r=V().set(Math.cos(EX.yaw),0,Math.sin(EX.yaw));
+    EX.pos.addScaledVector(f,mv*s).addScaledVector(r,st*s);EX.pos.y+=up*s;}
+  // stay above the ground and the buildings
+  const floor=Math.max(2,obstacleH(EX.pos.x,EX.pos.z)+3,HILLS.length?terrainH(EX.pos.x,EX.pos.z)+3:0);if(EX.pos.y<floor)EX.pos.y=floor;EX.pos.y=Math.min(EX.pos.y,8000);
+  camera.position.copy(EX.pos);camera.rotation.set(0,0,0);camera.quaternion.setFromEuler(new THREE.Euler(EX.pitch,-EX.yaw,0,'YXZ'));camera.fov=60;camera.near=0.5;camera.updateProjectionMatrix();}
+function wireExplore(){$('#btn-explore').addEventListener('click',openExplore);$('#ex-back').addEventListener('click',closeExplore);
+  $('#ex-region').addEventListener('change',e=>{const ld=$('#loading');ld.textContent=`Loading ${AIRPORT_BY_ICAO[e.target.value].city}…`;show(ld,true);loadRegion(e.target.value).then(()=>{startAttract();show(ld,false);renderExplore();const sp=exploreSpots()[0];if(sp){EX.pos.set(sp.x-sp.r*2,sp.y+sp.r,sp.z+sp.r*2);goToSpot(sp);}});});
+  const gl=$('#gl');gl.addEventListener('pointerdown',e=>{if(!EX.on)return;EX.drag={x:e.clientX,y:e.clientY,id:e.pointerId};});
+  gl.addEventListener('pointermove',e=>{if(!EX.on||!EX.drag||e.pointerId!==EX.drag.id)return;EX.yaw+=(e.clientX-EX.drag.x)*0.004;EX.pitch=clamp(EX.pitch-(e.clientY-EX.drag.y)*0.004,-1.45,1.2);EX.drag.x=e.clientX;EX.drag.y=e.clientY;});
+  const end=()=>{EX.drag=null;};gl.addEventListener('pointerup',end);gl.addEventListener('pointercancel',end);
+  gl.addEventListener('wheel',e=>{if(!EX.on)return;e.preventDefault();EX.speed=clamp(EX.speed*(e.deltaY<0?1.2:1/1.2),10,2000);toastMenu(`Camera speed ${Math.round(EX.speed)} m/s`);$('#ex-speed').textContent=`${Math.round(EX.speed)} m/s`;},{passive:false});
+  for(const [id,v] of [['#ex-up',1],['#ex-down',-1]]){const b=$(id);b.addEventListener('pointerdown',e=>{e.preventDefault();EX.up=v;});const o=()=>{EX.up=0;};b.addEventListener('pointerup',o);b.addEventListener('pointercancel',o);b.addEventListener('pointerleave',o);}
+  // the touch stick drives the camera too
+  addEventListener('keydown',e=>{if(EX.on&&e.code==='Escape')closeExplore();});}
 
 
 /* ---------- career screens ---------- */
@@ -2417,34 +2686,34 @@ function updatePapi(g){const p=g.plane;for(const P of W3.papi){const e=P.end;con
 /* ---------- HUD ---------- */
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 function circ(c,x,y,r){c.beginPath();c.arc(x,y,Math.max(0.01,r),0,Math.PI*2);}
-function lamp(x,y,r,on,col){hx.fillStyle='#14170f';circ(hx,x,y,r+1.5);hx.fill();if(on){const g=hx.createRadialGradient(x,y,0,x,y,r*2.2);g.addColorStop(0,`rgba(${col},.55)`);g.addColorStop(1,`rgba(${col},0)`);hx.fillStyle=g;circ(hx,x,y,r*2.2);hx.fill();hx.fillStyle=`rgb(${col})`;}else hx.fillStyle='#2f3528';circ(hx,x,y,r);hx.fill();}
-function dialFace(x,y,r){const c=hx;c.fillStyle='#14170f';circ(c,x,y,r+5);c.fill();const fg=c.createRadialGradient(x,y-r*0.3,r*0.1,x,y,r);fg.addColorStop(0,'#232820');fg.addColorStop(1,'#0e100c');c.fillStyle=fg;circ(c,x,y,r);c.fill();}
+function lamp(x,y,r,on,col){hx.fillStyle='#05080f';circ(hx,x,y,r+1.5);hx.fill();if(on){const g=hx.createRadialGradient(x,y,0,x,y,r*2.2);g.addColorStop(0,`rgba(${col},.55)`);g.addColorStop(1,`rgba(${col},0)`);hx.fillStyle=g;circ(hx,x,y,r*2.2);hx.fill();hx.fillStyle=`rgb(${col})`;}else hx.fillStyle='#1d2940';circ(hx,x,y,r);hx.fill();}
+function dialFace(x,y,r){const c=hx;c.fillStyle='#05080f';circ(c,x,y,r+5);c.fill();const fg=c.createRadialGradient(x,y-r*0.3,r*0.1,x,y,r);fg.addColorStop(0,'#141f33');fg.addColorStop(1,'#070b14');c.fillStyle=fg;circ(c,x,y,r);c.fill();}
 function dial(x,y,r,o){const c=hx;dialFace(x,y,r);const ang=v=>o.a0+(clamp(v,o.min,o.max)-o.min)/(o.max-o.min)*(o.a1-o.a0);
   if(o.arcs)for(const a of o.arcs){c.strokeStyle=a[2];c.lineWidth=Math.max(2,r*0.07);c.beginPath();c.arc(x,y,r*0.86,ang(a[0]),ang(a[1]));c.stroke();}
-  c.strokeStyle='#ebe5cb';for(let v=o.min;v<=o.max+1e-6;v+=o.minor){const a=ang(v);const mj=Math.abs((v-o.min)/o.major-Math.round((v-o.min)/o.major))<1e-6;const r0=mj?r*0.74:r*0.82;c.lineWidth=mj?2:1;c.beginPath();c.moveTo(x+Math.cos(a)*r0,y+Math.sin(a)*r0);c.lineTo(x+Math.cos(a)*r*0.94,y+Math.sin(a)*r*0.94);c.stroke();
-    if(mj&&o.labels&&r>30){const lv=o.labels(v);if(lv!==null){c.fillStyle='#ebe5cb';c.font=`700 ${Math.round(r*0.2)}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(lv,x+Math.cos(a)*r*0.56,y+Math.sin(a)*r*0.56);}}}
+  c.strokeStyle='#e9f1ff';for(let v=o.min;v<=o.max+1e-6;v+=o.minor){const a=ang(v);const mj=Math.abs((v-o.min)/o.major-Math.round((v-o.min)/o.major))<1e-6;const r0=mj?r*0.74:r*0.82;c.lineWidth=mj?2:1;c.beginPath();c.moveTo(x+Math.cos(a)*r0,y+Math.sin(a)*r0);c.lineTo(x+Math.cos(a)*r*0.94,y+Math.sin(a)*r*0.94);c.stroke();
+    if(mj&&o.labels&&r>30){const lv=o.labels(v);if(lv!==null){c.fillStyle='#e9f1ff';c.font=`700 ${Math.round(r*0.2)}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(lv,x+Math.cos(a)*r*0.56,y+Math.sin(a)*r*0.56);}}}
   c.textBaseline='alphabetic';
-  if(o.read){c.fillStyle='#0a0b08';const tw=r*0.98,th=r*0.32;c.fillRect(x-tw/2,y+r*0.3,tw,th);c.fillStyle='#f2c46a';c.font=`700 ${Math.round(r*0.27)}px ${FONT}`;c.textAlign='center';c.fillText(o.read,x,y+r*0.3+th*0.8);}
-  if(o.needle2!==undefined){const a=o.a0+o.needle2*(o.a1-o.a0);c.strokeStyle='#ebe5cb';c.lineWidth=Math.max(3,r*0.09);c.lineCap='round';c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(a)*r*0.48,y+Math.sin(a)*r*0.48);c.stroke();}
-  const a=ang(o.val);c.strokeStyle='#f08a3a';c.lineWidth=Math.max(2,r*0.05);c.lineCap='round';c.beginPath();c.moveTo(x-Math.cos(a)*r*0.12,y-Math.sin(a)*r*0.12);c.lineTo(x+Math.cos(a)*r*0.84,y+Math.sin(a)*r*0.84);c.stroke();
-  c.fillStyle='#3a4232';circ(c,x,y,r*0.09);c.fill();label(x,y+r+19,o.label);}
-function label(x,y,t){hx.fillStyle='rgba(235,229,203,.75)';hx.font=`700 12px ${FONT}`;hx.textAlign='center';hx.fillText(t,x,y);}
+  if(o.read){c.fillStyle='#0a0b08';const tw=r*0.98,th=r*0.32;c.fillRect(x-tw/2,y+r*0.3,tw,th);c.fillStyle='#3ee6ff';c.font=`700 ${Math.round(r*0.27)}px ${FONT}`;c.textAlign='center';c.fillText(o.read,x,y+r*0.3+th*0.8);}
+  if(o.needle2!==undefined){const a=o.a0+o.needle2*(o.a1-o.a0);c.strokeStyle='#e9f1ff';c.lineWidth=Math.max(3,r*0.09);c.lineCap='round';c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(a)*r*0.48,y+Math.sin(a)*r*0.48);c.stroke();}
+  const a=ang(o.val);c.strokeStyle='#ff8a3d';c.lineWidth=Math.max(2,r*0.05);c.lineCap='round';c.beginPath();c.moveTo(x-Math.cos(a)*r*0.12,y-Math.sin(a)*r*0.12);c.lineTo(x+Math.cos(a)*r*0.84,y+Math.sin(a)*r*0.84);c.stroke();
+  c.fillStyle='#1d2940';circ(c,x,y,r*0.09);c.fill();label(x,y+r+19,o.label);}
+function label(x,y,t){hx.fillStyle='rgba(214,228,255,.75)';hx.font=`700 12px ${FONT}`;hx.textAlign='center';hx.fillText(t,x,y);}
 function adi(x,y,r,p){const c=hx;dialFace(x,y,r);c.save();circ(c,x,y,r);c.clip();c.translate(x,y);c.rotate(-p.bank);const ppd=r/30;const off=p.pitch*R2D*ppd;
   c.fillStyle='#3f78b6';c.fillRect(-r*2,-r*2+off,r*4,r*2);c.fillStyle='#7a5a34';c.fillRect(-r*2,off,r*4,r*2);c.strokeStyle='#fff';c.lineWidth=1.5;c.beginPath();c.moveTo(-r*2,off);c.lineTo(r*2,off);c.stroke();
   c.lineWidth=1;c.fillStyle='#fff';c.font=`700 ${Math.round(r*0.16)}px ${FONT}`;c.textAlign='left';
   for(let d=-30;d<=30;d+=10){if(!d)continue;const yy=off-d*ppd;c.beginPath();c.moveTo(-r*0.28,yy);c.lineTo(r*0.28,yy);c.stroke();c.fillText(String(Math.abs(d)),r*0.32,yy+4);}
   for(let d=-25;d<=25;d+=10){const yy=off-d*ppd;c.beginPath();c.moveTo(-r*0.12,yy);c.lineTo(r*0.12,yy);c.stroke();}
-  c.restore();c.strokeStyle='#ebe5cb';c.lineWidth=1.5;for(const b of [-60,-45,-30,-20,-10,0,10,20,30,45,60]){const a=-Math.PI/2+b*D2R;const r0=b%30===0?r*0.8:r*0.87;c.beginPath();c.moveTo(x+Math.cos(a)*r0,y+Math.sin(a)*r0);c.lineTo(x+Math.cos(a)*r*0.96,y+Math.sin(a)*r*0.96);c.stroke();}
-  const ba=-Math.PI/2+(-p.bank);c.fillStyle='#f2c46a';c.beginPath();c.moveTo(x+Math.cos(ba)*r*0.78,y+Math.sin(ba)*r*0.78);c.lineTo(x+Math.cos(ba-0.08)*r*0.66,y+Math.sin(ba-0.08)*r*0.66);c.lineTo(x+Math.cos(ba+0.08)*r*0.66,y+Math.sin(ba+0.08)*r*0.66);c.fill();
-  c.strokeStyle='#f2c46a';c.lineWidth=3;c.beginPath();c.moveTo(x-r*0.55,y);c.lineTo(x-r*0.18,y);c.lineTo(x-r*0.1,y+r*0.08);c.moveTo(x+r*0.55,y);c.lineTo(x+r*0.18,y);c.lineTo(x+r*0.1,y+r*0.08);c.stroke();c.fillStyle='#f2c46a';circ(c,x,y,2.5);c.fill();
+  c.restore();c.strokeStyle='#e9f1ff';c.lineWidth=1.5;for(const b of [-60,-45,-30,-20,-10,0,10,20,30,45,60]){const a=-Math.PI/2+b*D2R;const r0=b%30===0?r*0.8:r*0.87;c.beginPath();c.moveTo(x+Math.cos(a)*r0,y+Math.sin(a)*r0);c.lineTo(x+Math.cos(a)*r*0.96,y+Math.sin(a)*r*0.96);c.stroke();}
+  const ba=-Math.PI/2+(-p.bank);c.fillStyle='#3ee6ff';c.beginPath();c.moveTo(x+Math.cos(ba)*r*0.78,y+Math.sin(ba)*r*0.78);c.lineTo(x+Math.cos(ba-0.08)*r*0.66,y+Math.sin(ba-0.08)*r*0.66);c.lineTo(x+Math.cos(ba+0.08)*r*0.66,y+Math.sin(ba+0.08)*r*0.66);c.fill();
+  c.strokeStyle='#3ee6ff';c.lineWidth=3;c.beginPath();c.moveTo(x-r*0.55,y);c.lineTo(x-r*0.18,y);c.lineTo(x-r*0.1,y+r*0.08);c.moveTo(x+r*0.55,y);c.lineTo(x+r*0.18,y);c.lineTo(x+r*0.1,y+r*0.08);c.stroke();c.fillStyle='#3ee6ff';circ(c,x,y,2.5);c.fill();
   label(x,y+r+19,'Attitude');}
-function compass(x,y,r,p,ap){const c=hx;dialFace(x,y,r);const h=p.hdg;c.save();c.translate(x,y);c.rotate(-h);c.strokeStyle='#ebe5cb';c.fillStyle='#ebe5cb';c.textAlign='center';c.textBaseline='middle';
+function compass(x,y,r,p,ap){const c=hx;dialFace(x,y,r);const h=p.hdg;c.save();c.translate(x,y);c.rotate(-h);c.strokeStyle='#e9f1ff';c.fillStyle='#e9f1ff';c.textAlign='center';c.textBaseline='middle';
   for(let d=0;d<360;d+=10){c.save();c.rotate(d*D2R);c.lineWidth=d%30?1:2;c.beginPath();c.moveTo(0,-r*0.94);c.lineTo(0,d%30?-r*0.84:-r*0.78);c.stroke();
-    if(d%30===0&&r>30){c.font=`700 ${Math.round(r*0.19)}px ${FONT}`;c.fillStyle=d===0?'#f08a3a':'#ebe5cb';c.fillText(d===0?'N':d===90?'E':d===180?'S':d===270?'W':String(d/10),0,-r*0.6);}c.restore();}
+    if(d%30===0&&r>30){c.font=`700 ${Math.round(r*0.19)}px ${FONT}`;c.fillStyle=d===0?'#ff8a3d':'#e9f1ff';c.fillText(d===0?'N':d===90?'E':d===180?'S':d===270?'W':String(d/10),0,-r*0.6);}c.restore();}
   if(ap){c.save();c.rotate(ap.e.hdg*D2R);c.strokeStyle='#86d36f';c.lineWidth=3;c.beginPath();c.moveTo(0,-r*0.5);c.lineTo(0,r*0.5);c.stroke();c.fillStyle='#86d36f';c.beginPath();c.moveTo(0,-r*0.58);c.lineTo(-5,-r*0.44);c.lineTo(5,-r*0.44);c.fill();
     const dev=clamp(ap.loc/2.5,-1,1)*r*0.35;c.strokeStyle='#ff5ad8';c.beginPath();c.moveTo(-dev,-r*0.3);c.lineTo(-dev,r*0.3);c.stroke();c.restore();}
-  c.restore();c.textBaseline='alphabetic';c.fillStyle='#f2c46a';c.beginPath();c.moveTo(x,y-r*0.16);c.lineTo(x-7,y+r*0.14);c.lineTo(x,y+r*0.06);c.lineTo(x+7,y+r*0.14);c.fill();
-  c.fillStyle='#0a0b08';c.fillRect(x-20,y-r-2,40,17);c.fillStyle='#f2c46a';c.font=`700 13px ${FONT}`;c.textAlign='center';c.fillText(String(Math.round(((h*R2D)+360)%360)).padStart(3,'0')+'°',x,y-r+11);label(x,y+r+19,'Heading');}
+  c.restore();c.textBaseline='alphabetic';c.fillStyle='#3ee6ff';c.beginPath();c.moveTo(x,y-r*0.16);c.lineTo(x-7,y+r*0.14);c.lineTo(x,y+r*0.06);c.lineTo(x+7,y+r*0.14);c.fill();
+  c.fillStyle='#0a0b08';c.fillRect(x-20,y-r-2,40,17);c.fillStyle='#3ee6ff';c.font=`700 13px ${FONT}`;c.textAlign='center';c.fillText(String(Math.round(((h*R2D)+360)%360)).padStart(3,'0')+'°',x,y-r+11);label(x,y+r+19,'Heading');}
 function warnings(g){const p=g.plane,w=[];if(!p.alive||g.status!=='play'||g.mode!=='play')return w;const kmh=p.ias*3.6;
   if(!p.onGround){if(p.stalled)w.push('Stall');const tti=p.vs<-1?p.agl/(-p.vs):99;const ap=g.ap;const onApp=ap&&p.gearPos>0.95&&ap.along<8000&&p.vs>-9;
     if(p.agl<450&&tti<7&&!onApp)w.push('Pull up');if(!p.gearDown&&p.agl<200&&p.vs<-0.5&&kmh<380&&ap&&ap.along<6000)w.push('Gear is up');
@@ -2465,7 +2734,7 @@ function drawHUD(g){
   const p=g.plane,sp=p.spec,top=viewH,ch=PH-SAFE.b,kmh=p.ias*3.6;
   const inCockpit=g.cam.mode==='cockpit'&&p.alive;
   if(!inCockpit){
-  const pg=hx.createLinearGradient(0,top,0,H);pg.addColorStop(0,'#46523b');pg.addColorStop(1,'#2c3426');hx.fillStyle=pg;hx.fillRect(0,top,W,PH);hx.fillStyle='#1b2016';hx.fillRect(0,top,W,3);
+  const pg=hx.createLinearGradient(0,top,0,H);pg.addColorStop(0,'#152038');pg.addColorStop(1,'#080d18');hx.fillStyle=pg;hx.fillRect(0,top,W,PH);hx.fillStyle='#3ee6ff';hx.fillRect(0,top,W,3);
   const L=SAFE.l+12,R=W-SAFE.r-12,avail=R-L,midY=top+ch*0.44;
   const compact=avail<760;let r=clamp((ch-44)/2,20,44);if(compact)r=clamp(Math.min((ch-40)/2,(avail-200)/10.5),18,36);
   const dw=r*2+28;let x=L+dw/2;
@@ -2477,49 +2746,49 @@ function drawHUD(g){
   const ap=g.ap;compass(x,midY,r,p,ap);x+=dw/2+10;
   // systems
   const sx=x,rowH=Math.min(30,(ch-12)/3),r1=top+12+rowH*0.5,r2=r1+rowH,r3=r2+rowH;
-  const lab=(t,yy)=>{hx.fillStyle='rgba(235,229,203,.8)';hx.font=`700 13px ${FONT}`;hx.textAlign='left';hx.fillText(t,sx,yy+4);};
+  const lab=(t,yy)=>{hx.fillStyle='rgba(214,228,255,.8)';hx.font=`700 13px ${FONT}`;hx.textAlign='left';hx.fillText(t,sx,yy+4);};
   const bl=Math.sin(g.t*10)>0,fm=Math.abs(p.flapPos-flapTarget(p))>0.02;
-  lab('Flaps',r1);{const n=sp.flaps.length,fw=compact?64:96;hx.fillStyle='#0f120c';hx.fillRect(sx+50,r1-6,fw,9);hx.fillStyle=fm&&bl?'#7a5a24':'#e3a33a';hx.fillRect(sx+50,r1-6,fw*p.flapPos,9);
-    hx.fillStyle='rgba(235,229,203,.5)';for(const f of sp.flaps)hx.fillRect(sx+50+fw*f.pos-0.5,r1-8,1,13);hx.fillStyle='#ebe5cb';hx.font=`700 11px ${FONT}`;hx.textAlign='left';hx.fillText(flapName(p),sx+56+fw,r1+3);}
+  lab('Flaps',r1);{const n=sp.flaps.length,fw=compact?64:96;hx.fillStyle='#0f120c';hx.fillRect(sx+50,r1-6,fw,9);hx.fillStyle=fm&&bl?'#7a5a24':'#ff8a3d';hx.fillRect(sx+50,r1-6,fw*p.flapPos,9);
+    hx.fillStyle='rgba(214,228,255,.5)';for(const f of sp.flaps)hx.fillRect(sx+50+fw*f.pos-0.5,r1-8,1,13);hx.fillStyle='#e9f1ff';hx.font=`700 11px ${FONT}`;hx.textAlign='left';hx.fillText(flapName(p),sx+56+fw,r1+3);}
   lab('Gear',r2);const gm=p.gearPos>0.02&&p.gearPos<0.98;for(let i=0;i<3;i++)lamp(sx+50+i*20,r2-2,5,gm?bl:p.gearPos>=0.98,gm?'230,70,50':'120,220,100');
-  lab('Power',r3);const tw=compact?60:84;hx.fillStyle='#0f120c';hx.fillRect(sx+50,r3-6,tw,9);hx.fillStyle=p.ab>0.5?'#ff8a3a':'#e3a33a';hx.fillRect(sx+50,r3-6,tw*p.thr,9);
-  hx.fillStyle='rgba(235,229,203,.65)';hx.font=`700 11px ${FONT}`;hx.fillText(p.ab>0.5?'Afterburner':`${Math.round(p.thr*100)}%`,sx+56+tw,r3+3);
-  if(p.onGround){lamp(sx+128,r2-2,5,!!p.brake,'230,70,50');hx.fillStyle='rgba(235,229,203,.6)';hx.fillText('Brakes',sx+137,r2+2);}
+  lab('Power',r3);const tw=compact?60:84;hx.fillStyle='#0f120c';hx.fillRect(sx+50,r3-6,tw,9);hx.fillStyle=p.ab>0.5?'#ff8a3a':'#ff8a3d';hx.fillRect(sx+50,r3-6,tw*p.thr,9);
+  hx.fillStyle='rgba(214,228,255,.65)';hx.font=`700 11px ${FONT}`;hx.fillText(p.ab>0.5?'Afterburner':`${Math.round(p.thr*100)}%`,sx+56+tw,r3+3);
+  if(p.onGround){lamp(sx+128,r2-2,5,!!p.brake,'230,70,50');hx.fillStyle='rgba(214,228,255,.6)';hx.fillText('Brakes',sx+137,r2+2);}
   x=sx+(compact?140:190);
   // approach block
-  if(R-x>150){const bx=x;hx.fillStyle='#1d2318';rr(hx,bx,top+10,R-bx,ch-20,4);hx.fill();hx.textAlign='left';
-    if(ap){hx.fillStyle='rgba(235,229,203,.85)';hx.font=`700 14px ${FONT}`;hx.fillText(`Runway ${ap.e.name}, ${(Math.max(0,ap.along)/1000).toFixed(1)} km`,bx+12,top+30);
+  if(R-x>150){const bx=x;hx.fillStyle='rgba(14,22,38,.92)';rr(hx,bx,top+10,R-bx,ch-20,4);hx.fill();hx.textAlign='left';
+    if(ap){hx.fillStyle='rgba(214,228,255,.85)';hx.font=`700 14px ${FONT}`;hx.fillText(`Runway ${ap.e.name}, ${(Math.max(0,ap.along)/1000).toFixed(1)} km`,bx+12,top+30);
       const wn=Math.max(0,Math.min(4,Math.round(ap.gs/0.33)+2));for(let i=0;i<4;i++)lamp(bx+18+i*20,top+48,6,true,i<wn?'255,255,255':'235,60,45');
-      const msg=ap.along<-50?'Over the runway':wn>=4?'Too high':wn===3?'Slightly high':wn===2?'On the glide path':wn===1?'Slightly low':'Too low';hx.fillStyle='rgba(235,229,203,.7)';hx.font=`700 13px ${FONT}`;hx.fillText(msg,bx+104,top+52);
-      const sw=Math.min(150,R-bx-24),cy=top+ch-34;hx.strokeStyle='rgba(235,229,203,.5)';hx.lineWidth=1;
+      const msg=ap.along<-50?'Over the runway':wn>=4?'Too high':wn===3?'Slightly high':wn===2?'On the glide path':wn===1?'Slightly low':'Too low';hx.fillStyle='rgba(214,228,255,.7)';hx.font=`700 13px ${FONT}`;hx.fillText(msg,bx+104,top+52);
+      const sw=Math.min(150,R-bx-24),cy=top+ch-34;hx.strokeStyle='rgba(214,228,255,.5)';hx.lineWidth=1;
       for(let i=-2;i<=2;i++){circ(hx,bx+12+sw/2+i*sw/5,cy,2.5);hx.stroke();}const ld=clamp(-ap.loc/2.5,-1,1);hx.fillStyle='#ff5ad8';hx.beginPath();const lx=bx+12+sw/2+ld*sw*0.4;hx.moveTo(lx,cy-6);hx.lineTo(lx+6,cy);hx.lineTo(lx,cy+6);hx.lineTo(lx-6,cy);hx.fill();
-      hx.fillStyle='rgba(235,229,203,.6)';hx.font=`700 11px ${FONT}`;hx.fillText(Math.abs(ap.lat)<15?'On the centreline':ap.lat>0?'Right of centreline, steer left':'Left of centreline, steer right',bx+12,cy+20);}
-    else{hx.fillStyle='rgba(235,229,203,.8)';hx.font=`700 14px ${FONT}`;hx.fillText('No runway ahead',bx+12,top+30);hx.fillStyle='rgba(235,229,203,.55)';hx.font=`700 13px ${FONT}`;hx.fillText('Turn toward Lahore airport to see approach guidance',bx+12,top+50,R-bx-24);}}
+      hx.fillStyle='rgba(214,228,255,.6)';hx.font=`700 11px ${FONT}`;hx.fillText(Math.abs(ap.lat)<15?'On the centreline':ap.lat>0?'Right of centreline, steer left':'Left of centreline, steer right',bx+12,cy+20);}
+    else{hx.fillStyle='rgba(214,228,255,.8)';hx.font=`700 14px ${FONT}`;hx.fillText('No runway ahead',bx+12,top+30);hx.fillStyle='rgba(214,228,255,.55)';hx.font=`700 13px ${FONT}`;hx.fillText('Turn toward Lahore airport to see approach guidance',bx+12,top+50,R-bx-24);}}
   }
   // top-left objectives
   const lines=objectives(g);const ox=SAFE.l+12,oy=SAFE.t+12;hx.font=`700 15px ${FONT}`;let ow=0;for(const l of lines)ow=Math.max(ow,hx.measureText(l[0]).width);ow=Math.min(Math.max(ow,180)+40,W*0.6);
-  const oh=30+lines.length*21;hx.fillStyle='rgba(20,24,17,.6)';rr(hx,ox,oy,ow,oh,3);hx.fill();hx.fillStyle='#ebe5cb';hx.font=`400 15px ${DISPLAY}`;hx.textAlign='left';hx.fillText(g.M.name,ox+12,oy+21);
-  lines.forEach((l,i)=>{const yy=oy+44+i*21;hx.font=`700 15px ${FONT}`;if(l[1]!==null){hx.strokeStyle=l[1]?'#86d36f':'rgba(235,229,203,.6)';hx.lineWidth=1.5;hx.strokeRect(ox+12,yy-10,10,10);if(l[1]){hx.beginPath();hx.moveTo(ox+14,yy-5);hx.lineTo(ox+17,yy-2);hx.lineTo(ox+21,yy-9);hx.stroke();}}hx.fillStyle=l[1]?'#b9e3a7':'#ebe5cb';hx.fillText(l[0],ox+(l[1]===null?12:28),yy,ow-40);});
+  const oh=30+lines.length*21;hx.fillStyle='rgba(8,12,22,.62)';rr(hx,ox,oy,ow,oh,3);hx.fill();hx.fillStyle='#e9f1ff';hx.font=`400 15px ${DISPLAY}`;hx.textAlign='left';hx.fillText(g.M.name,ox+12,oy+21);
+  lines.forEach((l,i)=>{const yy=oy+44+i*21;hx.font=`700 15px ${FONT}`;if(l[1]!==null){hx.strokeStyle=l[1]?'#86d36f':'rgba(214,228,255,.6)';hx.lineWidth=1.5;hx.strokeRect(ox+12,yy-10,10,10);if(l[1]){hx.beginPath();hx.moveTo(ox+14,yy-5);hx.lineTo(ox+17,yy-2);hx.lineTo(ox+21,yy-9);hx.stroke();}}hx.fillStyle=l[1]?'#b9e3a7':'#e9f1ff';hx.fillText(l[0],ox+(l[1]===null?12:28),yy,ow-40);});
   drawRadar(g);
   // warnings
   const w=warnings(g);g.warn=w.includes('Stall')||w.includes('Pull up');if(w.length&&Math.sin(g.t*9)>-0.3){let y=SAFE.t+oh+40;hx.font=`400 18px ${DISPLAY}`;hx.textAlign='center';for(const t of w){const tw2=hx.measureText(t).width+26;hx.fillStyle='rgba(194,59,43,.9)';rr(hx,W/2-tw2/2,y-20,tw2,28,3);hx.fill();hx.fillStyle='#fff3e8';hx.fillText(t,W/2,y+1);y+=34;}}
-  let ty=viewH*0.3;for(const t of g.toasts){const age=g.t-t.t;if(age>2.6)continue;const a=age<0.2?age/0.2:age>2?1-(age-2)/0.6:1;hx.globalAlpha=a;hx.font=`700 20px ${FONT}`;hx.textAlign='center';const tw3=hx.measureText(t.text).width+28;hx.fillStyle='rgba(20,24,17,.6)';rr(hx,W/2-tw3/2,ty-22,tw3,32,3);hx.fill();hx.fillStyle='#ebe5cb';hx.fillText(t.text,W/2,ty);hx.globalAlpha=1;ty+=40;}
+  let ty=viewH*0.3;for(const t of g.toasts){const age=g.t-t.t;if(age>2.6)continue;const a=age<0.2?age/0.2:age>2?1-(age-2)/0.6:1;hx.globalAlpha=a;hx.font=`700 20px ${FONT}`;hx.textAlign='center';const tw3=hx.measureText(t.text).width+28;hx.fillStyle='rgba(8,12,22,.62)';rr(hx,W/2-tw3/2,ty-22,tw3,32,3);hx.fill();hx.fillStyle='#e9f1ff';hx.fillText(t.text,W/2,ty);hx.globalAlpha=1;ty+=40;}
   hx.font=`700 13px ${FONT}`;hx.textAlign='left';hx.fillStyle='rgba(0,0,0,.35)';const wmY=inCockpit?SAFE.t+H*0.5:viewH;hx.fillText('@harrisbasra™',SAFE.l+13,wmY-11);hx.fillStyle='rgba(255,255,255,.65)';hx.fillText('@harrisbasra™',SAFE.l+12,wmY-12);
-  hx.font=`700 11px ${FONT}`;hx.textAlign='right';hx.fillStyle='rgba(235,229,203,.4)';hx.fillText('Ту-95 Bear 3D by @harrisbasra™',W-SAFE.r-12,inCockpit?H-SAFE.b-8:top+ch-2);
+  hx.font=`700 11px ${FONT}`;hx.textAlign='right';hx.fillStyle='rgba(214,228,255,.4)';hx.fillText('Ту-95 Bear 3D by @harrisbasra™',W-SAFE.r-12,inCockpit?H-SAFE.b-8:top+ch-2);
 }
 function drawRadar(g){const p=g.plane,rad=Math.min(78,W*0.11,isTouch?H*0.11:999),cx=W-SAFE.r-12-rad,cy=SAFE.t+62+rad;const range=p.pos.length()>14000?30000:9000;const k=rad/range;
-  hx.save();hx.fillStyle='rgba(20,24,17,.62)';circ(hx,cx,cy,rad+4);hx.fill();circ(hx,cx,cy,rad);hx.clip();
+  hx.save();hx.fillStyle='rgba(8,12,22,.66)';circ(hx,cx,cy,rad+4);hx.fill();circ(hx,cx,cy,rad);hx.clip();
   const X=x=>cx+(x-p.pos.x)*k,Y=z=>cy+(z-p.pos.z)*k;
   hx.fillStyle='rgba(210,190,150,.07)';for(const c of CITY_C){hx.beginPath();hx.arc(X(c.x),Y(c.z),Math.sqrt(c.s2/2)*k*1.2,0,7);hx.fill();}
   hx.fillStyle='rgba(80,120,140,.45)';for(const w of WATER){hx.beginPath();for(let k=0;k<w.p.length;k+=2){k?hx.lineTo(X(w.p[k]),Y(w.p[k+1])):hx.moveTo(X(w.p[k]),Y(w.p[k+1]));}hx.closePath();hx.fill();}
   hx.strokeStyle='rgba(110,150,170,.7)';hx.lineWidth=3;for(const r of RIVERS){hx.beginPath();r.pts.forEach((q,i)=>i?hx.lineTo(X(q.x),Y(q.z)):hx.moveTo(X(q.x),Y(q.z)));hx.stroke();}
-  hx.strokeStyle='#ebe5cb';hx.lineWidth=2.5;for(const rw of RWYS){hx.beginPath();hx.moveTo(X(rw.A.x),Y(rw.A.z));hx.lineTo(X(rw.B.x),Y(rw.B.z));hx.stroke();}
+  hx.strokeStyle='#e9f1ff';hx.lineWidth=2.5;for(const rw of RWYS){hx.beginPath();hx.moveTo(X(rw.A.x),Y(rw.A.z));hx.lineTo(X(rw.B.x),Y(rw.B.z));hx.stroke();}
   for(const r of g.rings){hx.fillStyle=r.state==='ok'?'#86d36f':r.state==='next'?'#ffbe46':'rgba(255,190,70,.5)';circ(hx,X(r.x),Y(r.z),3.5);hx.fill();}
   if(g.nav){const t=geo(g.nav.target[0],g.nav.target[1]);hx.strokeStyle='#ff5ad8';hx.lineWidth=2;hx.beginPath();hx.moveTo(cx,cy);hx.lineTo(X(t.x),Y(t.z));hx.stroke();}
-  hx.font=`700 10px ${FONT}`;hx.textAlign='center';for(const k in LANDMARKS){const lm=LANDMARKS[k];hx.fillStyle='#e9d9b0';circ(hx,X(lm.x),Y(lm.z),2.5);hx.fill();hx.fillStyle='rgba(235,229,203,.8)';hx.fillText(lm.name.split(' ')[0],X(lm.x),Y(lm.z)-6);}
-  if(RWYS.length){hx.fillStyle='rgba(235,229,203,.8)';hx.fillText(REGION.icao,X(0),Y(-1900));}
+  hx.font=`700 10px ${FONT}`;hx.textAlign='center';for(const k in LANDMARKS){const lm=LANDMARKS[k];hx.fillStyle='#e9d9b0';circ(hx,X(lm.x),Y(lm.z),2.5);hx.fill();hx.fillStyle='rgba(214,228,255,.8)';hx.fillText(lm.name.split(' ')[0],X(lm.x),Y(lm.z)-6);}
+  if(RWYS.length){hx.fillStyle='rgba(214,228,255,.8)';hx.fillText(REGION.icao,X(0),Y(-1900));}
   hx.restore();hx.save();hx.translate(cx,cy);hx.rotate(p.hdg);hx.fillStyle='#ffe08a';hx.beginPath();hx.moveTo(0,-8);hx.lineTo(5,6);hx.lineTo(0,3);hx.lineTo(-5,6);hx.fill();hx.restore();
-  hx.fillStyle='rgba(235,229,203,.8)';hx.font=`700 11px ${FONT}`;hx.textAlign='center';hx.fillText('N',cx,cy-rad+11);hx.fillText(`${range/1000} km`,cx,cy+rad-4);}
+  hx.fillStyle='rgba(214,228,255,.8)';hx.font=`700 11px ${FONT}`;hx.textAlign='center';hx.fillText('N',cx,cy-rad+11);hx.fillText(`${range/1000} km`,cx,cy+rad-4);}
 /* ---------- cloud saves (Firebase, optional) ---------- */
 // Cloud saves: pilots/{uid} holds the name, progress and career; bank transactions are pilots/{uid}/tx/{id}, one per document.
 // Firestore's persistent cache keeps working offline and syncs when the connection is back.
@@ -2543,7 +2812,7 @@ const CLOUD={ready:false,user:null,api:null,state:'',timer:null,
       if(d.name&&!progress.name)progress.name=d.name;mergeStars(d.progress&&d.progress.stars);save();
       const local=loadCareer(),cloud=d.career||null;
       if(cloud&&(!local||(cloud.updated||0)>(local.updated||0))){
-        if(local&&local.created!==cloud.created){try{localStorage.setItem(CAREER_KEY+'-backup',JSON.stringify(local));}catch(e){}toastMenu('Your online career is newer, so it replaced this browser’s. The old one is kept as a backup.');}
+        if(local&&local.created!==cloud.created){try{localStorage.setItem(CAREER_KEY+'-backup',JSON.stringify(local));}catch(e){}menuDetails();toastMenu('Your online career is newer, so it replaced this browser’s. The old one is kept as a backup.');}
         const q=fs.query(fs.collection(db,'pilots',this.user.uid,'tx'),fs.where('career','==',cloud.created),fs.orderBy('n','desc'),fs.limit(ECON.maxTransactions));
         let tx=[];try{tx=(await fs.getDocs(q)).docs.map(x=>Object.assign({},x.data(),{id:x.id,s:1}));}catch(e){console.warn(e);}
         CAREER=Object.assign({},cloud,{tx,jobs:{}});try{localStorage.setItem(CAREER_KEY,JSON.stringify(CAREER));}catch(e){}}
@@ -2565,16 +2834,58 @@ const CLOUD={ready:false,user:null,api:null,state:'',timer:null,
 function renderCloud(){const el=$('#cloud');if(!el)return;if(!CLOUD.ready){el.hidden=true;return;}el.hidden=false;
   const st=CLOUD.state==='offline'?' You’re offline: changes will sync when you reconnect.':CLOUD.state==='syncing'?' Syncing…':CLOUD.state==='error'?' The last sync failed; it will retry.':'';
   el.querySelector('#cloud-status').textContent=(CLOUD.user?`Signed in as ${CLOUD.user.displayName||CLOUD.user.email}. Your stars, career and bank account save online.`:'Sign in to keep your pilot name, stars and career on every device.')+st;
-  el.querySelector('#cloud-btn').textContent=CLOUD.user?'Sign out':'Sign in with Google';}
-function toastMenu(t){const el=$('#pinfo');if(el)el.textContent=t;}
+  el.querySelector('#cloud-btn').textContent=CLOUD.user?'Sign out':'Sign in with Google';if(typeof menuDetails==='function'&&$('#chip-name'))menuDetails();}
+// messages for the menu appear in the ticker at the bottom
+function toastMenu(t){const el=$('#tip');if(el){el.textContent=t;el.classList.remove('out');}}
 /* ---------- menu ---------- */
 let thumbR=null,thumbScene=null,thumbCam=null;const thumbCache={},thumbCanvas={};
 function thumbFor(sp,cv){
   if(!thumbR){thumbR=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});thumbR.setSize(240,96);thumbR.outputEncoding=THREE.sRGBEncoding;
     thumbScene=new THREE.Scene();thumbScene.add(new THREE.HemisphereLight('#dfe9f2','#6b6550',0.9));const dl=new THREE.DirectionalLight('#ffffff',0.9);dl.position.set(30,50,40);thumbScene.add(dl);thumbCam=new THREE.PerspectiveCamera(28,2.5,1,1000);}
   const A=thumbCache[sp.id]||(thumbCache[sp.id]=buildAircraft(sp));const st={spec:sp,rpm:0,engineMax:1,v:0,flapPos:0,sweep:sp.swing?sp.swing.min:0,gearPos:1,ab:0};setAircraftState(A,st,0);
-  thumbScene.add(A.g);const d=Math.max(sp.len,sp.span||0)*(sp.geo?1.12:1.75);thumbCam.position.set(-d*0.25,d*0.3,d*0.95);thumbCam.lookAt(-1,-1,0);thumbR.render(thumbScene,thumbCam);thumbScene.remove(A.g);
+  thumbScene.environment=scene&&scene.environment||null;thumbScene.add(A.g);const d=Math.max(sp.len,sp.span||0)*(sp.geo?1.12:1.75);thumbCam.position.set(-d*0.25,d*0.3,d*0.95);thumbCam.lookAt(-1,-1,0);thumbR.render(thumbScene,thumbCam);thumbScene.remove(A.g);
   const c=cv.getContext('2d');cv.width=480;cv.height=192;const gr=c.createLinearGradient(0,0,0,192);gr.addColorStop(0,'#7fa6c6');gr.addColorStop(1,'#c9d6d6');c.fillStyle=gr;c.fillRect(0,0,480,192);c.drawImage(thumbR.domElement,0,0,480,192);}
+/* ---------- menu: tabs, live details and motion ---------- */
+const TIPS=['Flight assist and landing assist are on by default. Turn them off in Settings when you’re ready.',
+  'On final, aim for two white and two red PAPI lights: that’s the 3° glide path.',
+  'Press X to arm the approach and the autopilot will land for you, flare and all.',
+  'Heavy jets need runway: the 777-300ER at full weight rotates at around 300 km/h.',
+  'In a crosswind, landing assist kicks out the crab just before touchdown.',
+  'On a long route, Y speeds up time and K skips straight to the descent.',
+  'Career pay rewards on-time arrivals and smooth landings. Hard landings cost you.',
+  'Press C for the cockpit, then drag to look around the flight deck.',
+  'Graphics on Low keeps the game smooth on phones.',
+  'Connect a DualSense in Chrome to light up the lightbar and adaptive triggers.'];
+function setTab(t){progress.menuTab=t;save();for(const b of document.querySelectorAll('.tabs [data-tab]'))b.setAttribute('aria-selected',String(b.dataset.tab===t));
+  for(const p of document.querySelectorAll('[data-pane]'))p.hidden=p.dataset.pane!==t;moveInk();if(t==='hangar')buildMenu();}
+function moveInk(){const b=document.querySelector('.tabs [aria-selected="true"]'),ink=$('#tab-ink');if(!b||!ink)return;ink.style.left=b.offsetLeft+'px';ink.style.width=b.offsetWidth+'px';}
+function countUp(){for(const el of document.querySelectorAll('[data-count]')){const to=+el.dataset.count,t0=performance.now();const tick=now=>{const k=clamp((now-t0)/1100,0,1),e=1-Math.pow(1-k,3);el.textContent=Math.round(to*e).toLocaleString('en-GB');if(k<1)requestAnimationFrame(tick);};requestAnimationFrame(tick);}}
+function wireMenu(){
+  for(const b of document.querySelectorAll('.tabs [data-tab]'))b.addEventListener('click',()=>setTab(b.dataset.tab));
+  $('#pilot-chip').addEventListener('click',()=>setTab('settings'));$('#pilot-chip').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')setTab('settings');});
+  $('#btn-sound').addEventListener('click',()=>{AU.init();AU.setOn(!progress.sound);$('#o-sound').checked=progress.sound;menuDetails();});
+  // a ripple where you press
+  document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('.primary,.ghost,.cta button,.log button,.pl');if(!b||!matchMedia('(prefers-reduced-motion: no-preference)').matches)return;const r=b.getBoundingClientRect(),d=Math.max(r.width,r.height);
+    const s=document.createElement('span');s.className='ripple';s.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;if(getComputedStyle(b).position==='static')b.style.position='relative';b.style.overflow='hidden';b.appendChild(s);setTimeout(()=>s.remove(),650);});
+  // the panel tilts gently towards the pointer
+  const panel=$('#panel');addEventListener('pointermove',e=>{if($('#menu').classList.contains('hidden')||isTouch||innerWidth<980)return;const x=e.clientX/innerWidth-0.5,y=e.clientY/innerHeight-0.5;panel.style.transform=`perspective(1200px) rotateY(${-x*4}deg) rotateX(${y*3}deg)`;});
+  // rotating tips
+  let ti=0;setInterval(()=>{const el=$('#tip');if(!el||$('#menu').classList.contains('hidden'))return;el.classList.add('out');setTimeout(()=>{ti=(ti+1)%TIPS.length;el.textContent=TIPS[ti];el.classList.remove('out');},400);},7000);
+  addEventListener('keydown',e=>{if(e.key==='Enter'&&!$('#menu').classList.contains('hidden')&&!(e.target&&/INPUT|SELECT|BUTTON/.test(e.target.tagName))){PLAN=null;startFlight();}});
+  addEventListener('resize',moveInk);if(document.fonts)document.fonts.ready.then(moveInk);setTab(progress.menuTab||'missions');countUp();}
+// the parts of the menu that reflect the current state
+function menuDetails(){requestAnimationFrame(moveInk);const sp=currentSpec(),M=MISSIONS3[progress.mission||0];
+  const name=(CAREER&&CAREER.pilot.name)||progress.name||'Pilot';$('#chip-name').textContent=name;$('#chip-avatar').textContent=name.trim().charAt(0).toUpperCase()||'P';
+  $('#chip-rank').textContent=CAREER?`${rankFor(CAREER.pilot.hours)} · ${cr(CAREER.cash)}`:'Ready for departure';
+  const sy=$('#chip-sync');sy.className='sync'+(CLOUD.user?(CLOUD.state==='offline'||CLOUD.state==='error'?' off':' on'):'');sy.title=CLOUD.user?'Saving online':'Saved in this browser';
+  $('#cta-mission').textContent=`${M.name} · ${sp.name}`;$('#cta-career').textContent=CAREER?`${cr(CAREER.cash)} · ${CAREER.fleet.length} aircraft · day ${Math.floor(CAREER.day)}`:'Start your own airline';
+  const st=Object.values(progress.stars||{}).reduce((a,b)=>a+(+b||0),0),el=$('#stat-stars');if(+el.dataset.count!==st){el.dataset.count=st;el.textContent=st;}
+  if(REGION&&REGION.rwys){$('#loc-name').textContent=`${REGION.name}, ${REGION.city}`;$('#loc-meta').textContent=`${REGION.icao} · ${REGION.iata} · ${REGION.elev} m · runways ${REGION.rwys.map(r=>r.id).join(', ')}`;}
+  const wave=$('#snd-wave');if(wave)wave.style.opacity=progress.sound?1:0.15;
+  // spec bars, relative to the biggest aircraft in the game
+  const max=k=>Math.max(...AIRCRAFT.map(a=>a[k]||0)),bar=(lbl,v,m,txt)=>`<span>${lbl}</span><i style="--v:${Math.round(100*v/m)}%"></i><b>${txt}</b>`;
+  const rng=Math.round(sp.fuelCap/burnPerKm(sp,sp.oew+sp.payload*0.6+sp.fuelCap*0.5,sp.cruise.alt)/100)*100;
+  $('#specs').innerHTML=bar('Weight',sp.mtow,max('mtow'),`${Math.round(sp.mtow/1000)} t`)+bar('Thrust',sp.T,max('T'),`${Math.round(sp.T/1000)} kN`)+bar('Wing',sp.S,max('S'),`${Math.round(sp.S)} m²`)+bar('Range',rng,16000,`${rng.toLocaleString('en-GB')} km`)+bar('Approach',sp.appKmh,330,spdText(sp.appKmh));}
 function buildMenu(){
   const ol=$('#log');ol.innerHTML='';
   MISSIONS3.forEach((m,i)=>{const li=document.createElement('li');const b=document.createElement('button');b.setAttribute('aria-pressed',String(progress.mission===i));const st=progress.stars[m.key]||0;
@@ -2590,7 +2901,7 @@ function buildMenu(){
   const sp=currentSpec();$('#pinfo').innerHTML='';const s=document.createElement('strong');s.textContent=sp.family?`${sp.family}, ${sp.name} “${sp.nick}”. `:`${sp.name} “${sp.nick}”. `;const thr=sp.engType==='turboprop'?`${sp.engines} × ${Math.round(sp.power/sp.engines/1000).toLocaleString('en-GB')} kW turboprops`:`${sp.engines} × ${Math.round(sp.T/sp.engines/1000)} kN`;
   $('#pinfo').append(s,document.createTextNode(`${sp.feel} Max takeoff weight ${Math.round(sp.mtow/1000)} t, ${thr}. At mission weights it lifts off near ${spdText(sp.rotKmh)} and approaches at about ${spdText(sp.appKmh)}.`));
   $('#o-assist').checked=progress.assist;$('#o-land').checked=progress.landAssist;$('#o-invert').checked=progress.invert;$('#o-sound').checked=progress.sound;$('#o-rumble').checked=progress.rumble!==false;renderPad();$('#o-quality').value=progress.quality;$('#o-units').checked=progress.units==='aviation';
-  $('#pilot').value=progress.name||'';}
+  $('#pilot').value=progress.name||'';menuDetails();}
 function show(el,v){el.classList.toggle('hidden',!v);}
 let isTouch=matchMedia('(pointer: coarse)').matches;
 function startAttract(){game=newGame(progress.mission||0,'attract');}
@@ -2656,8 +2967,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){for(const 
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',()=>{down=null;if(game)game.cam.dragging=false;});})();
 /* ---------- wiring ---------- */
 function wire(){
-  $('#btn-go').addEventListener('click',()=>{PLAN=null;startFlight();});wireMap();wireCareer();
-  $('#btn-keys').addEventListener('click',e=>{const k=$('#keys');k.hidden=!k.hidden;e.currentTarget.setAttribute('aria-expanded',String(!k.hidden));});
+  $('#btn-go').addEventListener('click',()=>{PLAN=null;startFlight();});wireMap();wireCareer();wireExplore();
+  wireMenu();
   $('#o-assist').addEventListener('change',e=>{progress.assist=e.target.checked;save();});$('#o-land').addEventListener('change',e=>{progress.landAssist=e.target.checked;save();});
   $('#o-invert').addEventListener('change',e=>{progress.invert=e.target.checked;save();});$('#o-sound').addEventListener('change',e=>{AU.init();AU.setOn(e.target.checked);});
   $('#o-units').addEventListener('change',e=>{progress.units=e.target.checked?'aviation':'metric';save();});

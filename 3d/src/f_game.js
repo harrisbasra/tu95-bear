@@ -91,6 +91,7 @@ function syncModel(g){const p=g.plane;g.A.g.position.copy(p.pos);g.A.g.quaternio
 const CAMS=['chase','cockpit','tower'];const CAM_LABEL={chase:'Chase view',cockpit:'Cockpit view',tower:'Tower view'};
 function updateCamera(g,dt){
   const p=g.plane,c=g.cam,sp=p.spec;
+  if(EX.on){exploreCamera(dt);g.A.g.visible=true;return;}
   if(g.mode==='attract'){c.orbit+=dt*0.12;const R=sp.len*1.25+16;camera.position.set(p.pos.x+Math.cos(c.orbit)*R,p.pos.y+4+sp.len*0.12,p.pos.z+Math.sin(c.orbit)*R);camera.lookAt(p.pos.x,p.pos.y+1,p.pos.z);camera.fov=50;camera.updateProjectionMatrix();g.A.g.visible=true;return;}
   const mode=p.alive?c.mode:'chase';
   if(mode==='cockpit'){attachCockpit(g);const eye=cockpitEye(sp);localToWorld(p,eye,camera.position);

@@ -27,23 +27,23 @@ function planInfo(){MAP.dep=$('#m-dep').value;MAP.dest=$('#m-dest').value;const 
 function mapXY(lat,lon,w,h){const v=MAP.view;return[(lon-v.lon0)/(v.lon1-v.lon0)*w,(v.lat1-lat)/(v.lat1-v.lat0)*h];}
 function drawMap(){const cv=$('#map-cv');if(!cv||$('#map').classList.contains('hidden'))return;const r=cv.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);
   cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const w=r.width,h=r.height;
-  c.fillStyle='#1f2a26';c.fillRect(0,0,w,h);
+  c.fillStyle='#04070e';c.fillRect(0,0,w,h);
   // graticule
-  c.strokeStyle='rgba(235,229,203,.07)';c.lineWidth=1;for(let lon=-90;lon<=100;lon+=15){const [x]=mapXY(0,lon,w,h);c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke();}
+  c.strokeStyle='rgba(62,230,255,.07)';c.lineWidth=1;for(let lon=-90;lon<=100;lon+=15){const [x]=mapXY(0,lon,w,h);c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke();}
   for(let lat=0;lat<=60;lat+=15){const [,y]=mapXY(lat,0,w,h);c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke();}
-  if(window.TU95_WORLD){c.fillStyle='#4a5640';c.strokeStyle='#6c7a5c';c.lineWidth=0.8;
+  if(window.TU95_WORLD){c.fillStyle='#14233a';c.strokeStyle='#2c4a72';c.lineWidth=0.8;
     for(const p of TU95_WORLD){c.beginPath();for(let i=0;i<p.length;i+=2){const [x,y]=mapXY(p[i+1],p[i],w,h);i?c.lineTo(x,y):c.moveTo(x,y);}c.closePath();c.fill();c.stroke();}}
   // the planned great-circle route
-  const P=MAP.plan;if(P&&P.dep!==P.dest){const a=AIRPORT_BY_ICAO[P.dep].ref,b=AIRPORT_BY_ICAO[P.dest].ref,brg=gcBearing(a,b);c.strokeStyle='#ff5ad8';c.lineWidth=2.5;c.setLineDash([8,6]);c.beginPath();
-    for(let i=0;i<=64;i++){const q=gcPoint(a,brg,P.dist*i/64);const [x,y]=mapXY(q[0],q[1],w,h);i?c.lineTo(x,y):c.moveTo(x,y);}c.stroke();c.setLineDash([]);}
+  const P=MAP.plan;if(P&&P.dep!==P.dest){const a=AIRPORT_BY_ICAO[P.dep].ref,b=AIRPORT_BY_ICAO[P.dest].ref,brg=gcBearing(a,b);c.strokeStyle='#3ee6ff';c.shadowColor='#3ee6ff';c.shadowBlur=10;c.lineWidth=2.5;c.setLineDash([8,6]);c.beginPath();
+    for(let i=0;i<=64;i++){const q=gcPoint(a,brg,P.dist*i/64);const [x,y]=mapXY(q[0],q[1],w,h);i?c.lineTo(x,y):c.moveTo(x,y);}c.stroke();c.setLineDash([]);c.shadowBlur=0;}
   c.font=`700 14px ${FONT}`;c.textBaseline='middle';
   for(const ap of AIRPORTS){const [x,y]=mapXY(ap.ref[0],ap.ref[1],w,h);const dep=ap.icao===MAP.dep,dest=ap.icao===MAP.dest;
-    if(dep||dest){c.strokeStyle=dep?'#86d36f':'#c23b2b';c.lineWidth=3;c.beginPath();c.arc(x,y,9,0,7);c.stroke();}
-    c.fillStyle=MAP.hover===ap.icao?'#ffffff':'#ebe5cb';c.beginPath();c.arc(x,y,4.5,0,7);c.fill();
+    if(dep||dest){c.strokeStyle=dep?'#4dffa1':'#ff8a3d';c.lineWidth=3;c.beginPath();c.arc(x,y,9,0,7);c.stroke();}
+    c.fillStyle=MAP.hover===ap.icao?'#ffffff':'#e9f1ff';c.beginPath();c.arc(x,y,4.5,0,7);c.fill();
     const right=!['OPIS','OPKC','OPLA'].includes(ap.icao)||ap.icao==='OPIS';const ty=ap.icao==='OPLA'?y+12:ap.icao==='OPKC'?y+10:ap.icao==='OPIS'?y-11:y;
-    c.textAlign=ap.icao==='OPLA'||ap.icao==='OPKC'?'left':right?'left':'right';c.fillStyle='rgba(18,22,15,.75)';const t=`${ap.iata} ${ap.city}`;const tw=c.measureText(t).width;const tx=c.textAlign==='left'?x+10:x-10-tw;
-    c.fillRect(tx-3,ty-9,tw+6,18);c.fillStyle=dep?'#b9e3a7':dest?'#ffb3a8':'#ebe5cb';c.textAlign='left';c.fillText(t,tx,ty);}
-  c.fillStyle='rgba(235,229,203,.5)';c.font=`700 11px ${FONT}`;c.textAlign='right';c.fillText('Land outline: Natural Earth (public domain). Ту-95 Bear 3D by @harrisbasra™',w-8,h-10);}
+    c.textAlign=ap.icao==='OPLA'||ap.icao==='OPKC'?'left':right?'left':'right';c.fillStyle='rgba(5,9,18,.82)';const t=`${ap.iata} ${ap.city}`;const tw=c.measureText(t).width;const tx=c.textAlign==='left'?x+10:x-10-tw;
+    c.fillRect(tx-3,ty-9,tw+6,18);c.fillStyle=dep?'#9dffcf':dest?'#ffc49a':'#e9f1ff';c.textAlign='left';c.fillText(t,tx,ty);}
+  c.fillStyle='rgba(214,228,255,.5)';c.font=`700 11px ${FONT}`;c.textAlign='right';c.fillText('Land outline: Natural Earth (public domain). Ту-95 Bear 3D by @harrisbasra™',w-8,h-10);}
 function mapPick(e){const cv=$('#map-cv'),r=cv.getBoundingClientRect();const x=e.clientX-r.left,y=e.clientY-r.top;let best=null;
   for(const ap of AIRPORTS){const [px,py]=mapXY(ap.ref[0],ap.ref[1],r.width,r.height);const d=Math.hypot(px-x,py-y);if(d<24&&(!best||d<best.d))best={d,ap};}return best&&best.ap;}
 function wireMap(){const cv=$('#map-cv');

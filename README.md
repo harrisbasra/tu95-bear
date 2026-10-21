@@ -48,8 +48,10 @@ A 2D flight game written in one dependency-free HTML file. Take off, land, threa
 
 A full 3D version, with **Allama Iqbal International Airport (OPLA), Lahore** as home base and seven more airports a world map away. Fly it at [harrisbasra.github.io/tu95-bear/3d](https://harrisbasra.github.io/tu95-bear/3d/), or pick **3D** under **Version** on either menu. The game remembers your choice, and `?2d` always opens the 2D game.
 
-<img src="docs/screenshots/3d-glass-cockpit.png" alt="747-400 glass cockpit on a 3 km final to runway 36R, with live PFD, ND and engine displays and the MCP" width="900">
+<img src="docs/screenshots/3d-menu.png" alt="The 3D game's flight-deck menu: missions, world routes, career and the hangar over the live airport" width="900">
 
+- **A flight-deck menu.** Glass panels over the live airport, with missions, the hangar and its spec bars, settings and controls in one place, plus world routes, career and a free camera.
+- **Explore.** Fly a free camera round any of the eight cities to see the landmarks, the airport and the aircraft up close.
 - **Thirteen aircraft with real numbers.**
   - **Bombers and transports:** Tu-95MS, C-130J, C-17A, B-52H, B-1B and Tu-160.
   - **Airliners:** Boeing 737-800, 747-400, 777-300ER and 787-9, and Airbus A320, A350-900 and A380-800.
@@ -125,6 +127,8 @@ A full 3D version, with **Allama Iqbal International Airport (OPLA), Lahore** as
 | **A380-800** on short final to 36R | **Classic cockpit** in the Tu-95 |
 | <img src="docs/screenshots/3d-world-map.png" alt="World map planner with a Lahore to Heathrow route in a 787-9"> | <img src="docs/screenshots/3d-dubai.png" alt="Downtown Dubai with the Burj Khalifa"> |
 | **The world map**: plan a route, check the fuel and fly | **Dubai** with the Burj Khalifa (simplified) |
+| <img src="docs/screenshots/3d-explore.png" alt="Free camera over the Faisal Mosque in Islamabad, with the Margalla Hills behind"> | <img src="docs/screenshots/3d-a320.png" alt="A320 on runway 36R at Lahore"> |
+| **Explore**: the Faisal Mosque (simplified) and the Margalla Hills | **A320** on 36R, with reflections and sharp paint |
 | <img src="docs/screenshots/3d-career.png" alt="Career jobs list at Lahore, with pay for each job and range checks"> | <img src="docs/screenshots/3d-glass-cockpit.png" alt="747-400 glass cockpit on final"> |
 | **Career mode**: jobs from your aircraft's airport | **Glass cockpit** on final |
 | <img src="docs/screenshots/3d-jfk.png" alt="JFK from the air with Jamaica Bay behind"> | <img src="docs/screenshots/3d-night.png" alt="Night approach to 18L with the city lights to the west"> |
@@ -197,6 +201,7 @@ The 3D game uses [three.js](https://threejs.org/) r128 from cdnjs and otherwise 
 | `g_cockpit.js` | 3D cockpits, with live canvas displays and clickable autopilot panels |
 | `g_pad.js` | Gamepad input, rumble, and the DualSense lightbar, LEDs and adaptive triggers over WebHID |
 | `g_map.js` | The world map and flight planner |
+| `g_explore.js` | The free camera for exploring a city |
 | `g_career.js` | The career screens: jobs, fleet and market, bank and profile |
 | `g_ui.js` | Instrument panel, radar, audio, input, cloud saves, menus and the main loop |
 

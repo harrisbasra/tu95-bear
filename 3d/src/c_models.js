@@ -10,7 +10,7 @@ function shared(){
   SHARED.ab=new THREE.MeshBasicMaterial({color:'#ffb060',transparent:true,opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
   return SHARED;}
 function fuselageGeo(st,glass,ring){
-  const S=st.slice().sort((a,b)=>b[0]-a[0]);const N=56;ring=ring||22;const x0=S[0][0],x1=S[S.length-1][0];
+  const S=st.slice().sort((a,b)=>b[0]-a[0]);const hq=progress.quality!=='low';const N=hq?110:56;ring=ring||(hq?36:22);const x0=S[0][0],x1=S[S.length-1][0];
   const sample=x=>{for(let i=0;i<S.length-1;i++){const a=S[i],b=S[i+1];if(x<=a[0]&&x>=b[0]){const t=(a[0]-x)/((a[0]-b[0])||1);return[lerp(a[1],b[1],t),lerp(a[2],b[2],t),lerp(a[3],b[3],t)];}}const l=S[S.length-1];return[l[1],l[2],l[3]];};
   const pos=[],col=[],idx=[];
   for(let i=0;i<=N;i++){const x=lerp(x0,x1,i/N);const [top,bot,hw]=sample(x);const cy=(top+bot)/2,ry=Math.max(0.02,(top-bot)/2);
@@ -20,14 +20,22 @@ function fuselageGeo(st,glass,ring){
       if(c<0)col.push(0.12,0.17,0.22);else col.push(c,c,c);}}
   for(let i=0;i<N;i++)for(let j=0;j<ring;j++){const a=i*(ring+1)+j,b=a+ring+1;idx.push(a,b,a+1,b,b+1,a+1);}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.setIndex(idx);g.computeVertexNormals();return g;}
-// thin aerofoil slab between a root and tip section; n = thickness direction
-function slabGeo(rLE,rc,tLE,tc,tr,tt,n){
-  const sec=(p,c,t)=>{const v=(dx,k)=>[p[0]-dx+n[0]*k,p[1]+n[1]*k,p[2]+n[2]*k];return[v(0,0),v(c*0.32,t/2),v(c,0),v(c*0.32,-t/2)];};
-  const R=sec(rLE,rc,tr),T=sec(tLE,tc,tt);const pos=[];
-  const tri=(a,b,c)=>pos.push(...a,...b,...c);
-  for(let k=0;k<4;k++){const k2=(k+1)%4;tri(R[k],R[k2],T[k2]);tri(R[k],T[k2],T[k]);}
-  tri(R[0],R[1],R[2]);tri(R[0],R[2],R[3]);tri(T[0],T[2],T[1]);tri(T[0],T[3],T[2]);
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();return g;}
+// A smooth aerofoil surface through sections {le:[x,y,z], c: chord (towards -x), th: thickness, up: thickness direction}.
+// Each section uses a NACA four-digit thickness form with cosine spacing and a little camber; shading is smooth.
+const FOIL_N=()=>({low:5,medium:8,high:11}[progress.quality]||11);
+function foilGeo(secs){const n=FOIL_N(),m=2*n,pos=[],idx=[];
+  const f=x=>5*(0.2969*Math.sqrt(x)-0.126*x-0.3516*x*x+0.2843*x*x*x-0.1036*x*x*x*x);
+  for(const s of secs){const u=s.up,pt=(x,y)=>pos.push(s.le[0]-x*s.c+u[0]*y,s.le[1]+u[1]*y,s.le[2]+u[2]*y);
+    for(let i=0;i<n;i++){const x=(1-Math.cos(Math.PI*i/n))/2;pt(x,s.th*f(x)*1.15);}
+    for(let i=n;i>0;i--){const x=(1-Math.cos(Math.PI*i/n))/2;pt(x,-s.th*f(x)*0.85);}}
+  for(let a=0;a<secs.length-1;a++)for(let i=0;i<m;i++){const p=a*m+i,q=a*m+(i+1)%m,r=p+m,t=q+m;idx.push(p,r,q,q,r,t);}
+  // end caps
+  const cap=(o,flip)=>{const c=pos.length/3;let cx=0,cy=0,cz=0;for(let i=0;i<m;i++){cx+=pos[(o+i)*3];cy+=pos[(o+i)*3+1];cz+=pos[(o+i)*3+2];}pos.push(cx/m,cy/m,cz/m);
+    for(let i=0;i<m;i++){const p=o+i,q=o+(i+1)%m;flip?idx.push(c,q,p):idx.push(c,p,q);}};
+  cap(0,false);cap((secs.length-1)*m,true);
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();return g;}
+// a two-section aerofoil between a root and tip; n = thickness direction
+function slabGeo(rLE,rc,tLE,tc,tr,tt,n){return foilGeo([{le:rLE,c:rc,th:tr,up:n},{le:tLE,c:tc,th:tt,up:n}]);}
 function podGeo(len,r,kind){
   const h=len/2;let pts;
   if(kind==='prop')pts=[[0.001,h+0.5],[r*0.45,h+0.3],[r*0.9,h-0.3],[r,h-1.2],[r*0.95,-h+2.2],[r*0.55,-h+0.4],[0.001,-h]];

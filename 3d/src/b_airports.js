@@ -22,7 +22,8 @@ const AIRPORTS=[
   rwys:[{id:'10L/28R',w:45,surf:'asphalt',ils:['10L','28R'],ends:[{n:'10L',lat:33.553001,lon:72.806602,disp:0},{n:'28R',lat:33.547001,lon:72.845200,disp:0}]},
         {id:'10R/28L',w:60,surf:'asphalt',ils:['10R','28L'],ends:[{n:'10R',lat:33.551174,lon:72.806145,disp:0},{n:'28L',lat:33.545124,lon:72.844826,disp:0}]}],
   districts:[[33.70,73.05,0.8,4,1.2],[33.60,73.06,1.0,4],[33.52,73.10,0.6,3],[33.68,72.98,0.5,2],[33.63,72.95,0.45,2.5],[33.56,72.75,0.35,2.5]],
-  hills:[[33.77,72.93,4.5,700],[33.78,73.03,5,950],[33.77,73.14,5,850],[33.74,72.84,3.5,450],[33.80,73.22,6,1100]],
+  // the Margalla Hills ridge, north of the city (the Faisal Mosque sits at their foot)
+  hills:[[33.775,72.94,2.6,650],[33.79,73.03,3,900],[33.785,73.12,3,850],[33.76,72.86,2.2,420],[33.81,73.21,3.6,1050]],
   landmarks:[{type:'faisal',name:'Faisal Mosque',lat:33.7295,lon:73.0372}]},
  {icao:'OPKC',vis:24,iata:'KHI',name:'Jinnah International',city:'Karachi',country:'Pakistan',elev:30,ref:[24.9065,67.1608],osm:true,ground:'arid',haze:'#d4cfc2',
   rwys:[{id:'07L/25R',w:46,surf:'concrete',ils:['25R','07L'],ends:[{n:'07L',lat:24.904699,lon:67.147598,disp:0},{n:'25R',lat:24.912399,lon:67.178001,disp:0}]},

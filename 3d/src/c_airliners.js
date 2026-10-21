@@ -106,41 +106,48 @@ function tailClearance(a){let m=90;for(const s of airlinerStations(a)){if(s[0]<a
 /* ---- house paint and windows, drawn into the fuselage texture ---- */
 // u runs from the nose (0) to the tail (1); v runs round the fuselage from the crown (0) down the right side (0.25)
 // to the belly (0.5) and up the left side (0.75).
-function fuselageTex(sp){
-  const G=sp.geo,L=sp.len,W=2048,Hh=512;
-  return tex(W,Hh,(c)=>{
+// The fuselage paint, and a matching roughness map (rough=true) in which the windows are glossy and the paint satin.
+// Resolution follows the graphics setting; both are made once per type and shared, so parked aircraft cost nothing extra.
+const PAINT_CACHE={};
+function fuselagePaint(sp){const q=progress.quality||'high',key=sp.id+':'+q;if(PAINT_CACHE[key])return PAINT_CACHE[key];
+  const W=q==='high'?4096:q==='medium'?2048:1024;return PAINT_CACHE[key]={map:fuselageTex(sp,false,W),rough:fuselageTex(sp,true,W)};}
+function fuselageTex(sp,rough,W){
+  const G=sp.geo,L=sp.len,Hh=W/4,k=W/2048;
+  const K=(col,r)=>rough?`rgb(${r},${r},${r})`:col; // r: roughness 0..255
+  const t=tex(W,Hh,(c)=>{
     const U=x=>(G.nose-x)/L*W, u=d=>d/L*W; // metres from the nose to pixels
     const circ=Math.PI*(G.D+G.H)/2,vpx=m=>m/circ*Hh;
-    c.fillStyle='#f4f3ee';c.fillRect(0,0,W,Hh);
-    // belly in light grey, below a red cheatline and a thin olive pinstripe
-    const bellyTop=0.36,bellyBot=0.64;c.fillStyle='#c9cbc8';c.fillRect(0,bellyTop*Hh,W,(bellyBot-bellyTop)*Hh);
+    c.fillStyle=K('#f5f6f7',95);c.fillRect(0,0,W,Hh);
+    // belly in light grey, below an amber cheatline and a teal pinstripe (invented house colours)
+    const bellyTop=0.36,bellyBot=0.64;c.fillStyle=K('#c8ccd1',110);c.fillRect(0,bellyTop*Hh,W,(bellyBot-bellyTop)*Hh);
     for(const side of [0.25,0.75]){const d=side<0.5?1:-1;const yv=(side+d*0.075)*Hh;
-      c.fillStyle='#c23b2b';c.fillRect(u(G.noseL*0.6),yv-vpx(0.12),W,vpx(0.24));c.fillStyle='#3d4733';c.fillRect(u(G.noseL*0.6),yv+d*vpx(0.22)-vpx(0.04),W,vpx(0.08));}
-    // windows: one row on each side per deck
+      c.fillStyle=K('#ff7a2e',85);c.fillRect(u(G.noseL*0.6),yv-vpx(0.12),W,vpx(0.24));c.fillStyle=K('#14a7c7',85);c.fillRect(u(G.noseL*0.6),yv+d*vpx(0.22)-vpx(0.045),W,vpx(0.09));}
+    // windows: one row on each side per deck, each with a thin frame
     const pitch=0.53*(G.windowScale||1)>0.6?0.6:0.53,ww=0.24*(G.windowScale||1),wh=0.34*(G.windowScale||1);
     const rows=[{v:0.03,from:G.noseL*1.05,to:L-G.tailL*0.8}];
     if(G.upperDeck){rows.push({v:-0.11,from:G.noseL*1.0,to:G.upperDeck>=1?L-G.tailL*0.95:L*G.upperDeck});}
-    for(const side of [0.25,0.75])for(const r of rows){const vy=(side+(side<0.5?-r.v:r.v))*Hh;c.fillStyle='#232a31';
+    for(const side of [0.25,0.75])for(const r of rows){const vy=(side+(side<0.5?-r.v:r.v))*Hh;
       for(let x=r.from;x<r.to;x+=pitch){let skip=false;for(const d of (G.doors||[]).concat(G.exits||[]))if(Math.abs(x-d*L)<1.0)skip=true;if(skip)continue;
-        const px=u(x);c.beginPath();const rw=u(ww)/2,rh=vpx(wh)/2;c.ellipse(px,vy,rw,rh,0,0,Math.PI*2);c.fill();}}
+        const px=u(x),rw=u(ww)/2,rh=vpx(wh)/2;c.fillStyle=K('#8e979e',90);c.beginPath();c.ellipse(px,vy,rw*1.28,rh*1.2,0,0,Math.PI*2);c.fill();
+        const gr=rough?null:c.createLinearGradient(px,vy-rh,px,vy+rh);if(gr){gr.addColorStop(0,'#3b4c5c');gr.addColorStop(0.5,'#141c24');gr.addColorStop(1,'#26323d');}
+        c.fillStyle=rough?K('',18):gr;c.beginPath();c.ellipse(px,vy,rw,rh,0,0,Math.PI*2);c.fill();}}
     // doors: outlines with a small window
-    c.lineWidth=2;
+    c.lineWidth=2*k;
     for(const side of [0.25,0.75])for(const d of (G.doors||[]).concat(G.exits||[])){const exit=(G.exits||[]).includes(d);const dw=exit?0.55:1.05,dh=exit?1.0:1.9;
-      const px=u(d*L),vy=(side+(side<0.5?-0.01:0.01))*Hh;c.strokeStyle='rgba(60,64,66,.75)';c.beginPath();c.roundRect?c.roundRect(px-u(dw)/2,vy-vpx(dh)/2,u(dw),vpx(dh),4):c.rect(px-u(dw)/2,vy-vpx(dh)/2,u(dw),vpx(dh));c.stroke();
-      c.fillStyle='#232a31';c.beginPath();c.ellipse(px,vy-vpx(dh*0.18),u(0.12),vpx(0.16),0,0,Math.PI*2);c.fill();
+      const px=u(d*L),vy=(side+(side<0.5?-0.01:0.01))*Hh;c.strokeStyle=K('rgba(60,64,66,.8)',140);c.beginPath();c.roundRect?c.roundRect(px-u(dw)/2,vy-vpx(dh)/2,u(dw),vpx(dh),4*k):c.rect(px-u(dw)/2,vy-vpx(dh)/2,u(dw),vpx(dh));c.stroke();
+      c.fillStyle=K('#1a232b',18);c.beginPath();c.ellipse(px,vy-vpx(dh*0.18),u(0.12),vpx(0.16),0,0,Math.PI*2);c.fill();
       if(G.upperDeck&&!exit&&(G.upperDeck>=1||d<G.upperDeck)){const vy2=(side+(side<0.5?0.12:-0.12))*Hh;c.strokeRect(px-u(dw)/2,vy2-vpx(dh)/2,u(dw),vpx(dh));}}
     // flight deck windows: four panes each side, wrapping round the nose
     const ce=G.nose-G.cockpitEye[0];const cx0=U(ce+1.9),cx1=U(ce-0.6);
-    for(const side of [0.25,0.75]){const s=side<0.5?1:-1;c.fillStyle='#1d252c';
+    for(const side of [0.25,0.75]){c.fillStyle=K('#141b22',12);
       const vTop=0.085,vBot=0.205;const pts=[[cx0,vTop],[cx1-u(0.2),vTop+0.012],[cx1,vBot-0.02],[cx0+u(0.6),vBot]];
       c.beginPath();for(const [x,v] of pts)c.lineTo(x,(side<0.5?v:1-v)*Hh);c.closePath();c.fill();
-      c.strokeStyle='#f4f3ee';c.lineWidth=3;for(let k=1;k<3;k++){const xx=lerp(cx0,cx1,k/3);c.beginPath();c.moveTo(xx,(side<0.5?vTop:1-vTop)*Hh);c.lineTo(xx+u(0.15),(side<0.5?vBot:1-vBot)*Hh);c.stroke();}}
-    // radome seam and a little dirt round the tail
-    c.strokeStyle='rgba(80,84,86,.5)';c.lineWidth=1.5;c.beginPath();c.moveTo(u(1.2),0);c.lineTo(u(1.2),Hh);c.stroke();
-    // panel lines
-    c.strokeStyle='rgba(0,0,0,.06)';c.lineWidth=1;for(let x=G.noseL;x<L;x+=2.3){c.beginPath();c.moveTo(u(x),0);c.lineTo(u(x),Hh);c.stroke();}
-  });}
-function tailTex(){return tex(256,256,(c,w,h)=>{c.fillStyle='#3d4733';c.fillRect(0,0,w,h);c.fillStyle='#c23b2b';c.save();c.translate(w/2,h/2);c.rotate(-0.5);c.fillRect(-w,-h*0.07,w*2,h*0.14);c.fillStyle='#ebe5cb';c.fillRect(-w,h*0.12,w*2,h*0.05);c.restore();});}
+      c.strokeStyle=K('#f5f6f7',95);c.lineWidth=3*k;for(let kk=1;kk<3;kk++){const xx=lerp(cx0,cx1,kk/3);c.beginPath();c.moveTo(xx,(side<0.5?vTop:1-vTop)*Hh);c.lineTo(xx+u(0.15),(side<0.5?vBot:1-vBot)*Hh);c.stroke();}}
+    // radome seam and panel lines
+    c.strokeStyle=K('rgba(80,84,86,.5)',120);c.lineWidth=1.5*k;c.beginPath();c.moveTo(u(1.2),0);c.lineTo(u(1.2),Hh);c.stroke();
+    c.strokeStyle=K('rgba(0,0,0,.07)',105);c.lineWidth=k;for(let x=G.noseL;x<L;x+=2.3){c.beginPath();c.moveTo(u(x),0);c.lineTo(u(x),Hh);c.stroke();}
+  });if(rough)t.encoding=THREE.LinearEncoding;t.anisotropy=maxAniso;return t;}
+let TAIL_TEX=null;function tailTex(){return TAIL_TEX||(TAIL_TEX=tex(512,512,(c,w,h)=>{const g=c.createLinearGradient(0,0,w,h);g.addColorStop(0,'#16294a');g.addColorStop(1,'#0a1428');c.fillStyle=g;c.fillRect(0,0,w,h);c.save();c.translate(w/2,h/2);c.rotate(-0.5);c.fillStyle='#ff7a2e';c.fillRect(-w,-h*0.07,w*2,h*0.14);c.fillStyle='#14a7c7';c.fillRect(-w,h*0.11,w*2,h*0.045);c.restore();}));}
 
 /* ---- geometry helpers ---- */
 // Fuselage stations from a few published dimensions: nose length, constant section and the upswept tail cone.
@@ -154,28 +161,25 @@ function airlinerStations(sp){const G=sp.geo,R=G.D/2,RH=G.H/2,x0=G.nose,x1=G.nos
   if(G.hump){const xh=x0-sp.len*G.hump.to;for(const s of st){const d=s[0]-xh;if(s[0]<=x0-G.noseL*0.25){const k=d>0?1:Math.max(0,1+d/9);const kk=smooth(k)*clamp((x0-s[0])/(G.noseL*1.1),0,1);s[1]+=G.hump.h*kk;}}}
   return st;}
 function fuselageGeoUV(st,len,nose){
-  const S=st.slice().sort((a,b)=>b[0]-a[0]);const N=120,ring=32;const x0=S[0][0],x1=S[S.length-1][0];
+  const S=st.slice().sort((a,b)=>b[0]-a[0]);const hq=progress.quality==='high';const N=hq?170:110,ring=hq?48:32;const x0=S[0][0],x1=S[S.length-1][0];
   const sample=x=>{for(let i=0;i<S.length-1;i++){const a=S[i],b=S[i+1];if(x<=a[0]&&x>=b[0]){const t=(a[0]-x)/((a[0]-b[0])||1);return[lerp(a[1],b[1],t),lerp(a[2],b[2],t),lerp(a[3],b[3],t)];}}const l=S[S.length-1];return[l[1],l[2],l[3]];};
   const pos=[],uv=[],idx=[];
   for(let i=0;i<=N;i++){const tt=i/N,x=lerp(x0,x1,Math.pow(tt,1)*1);const [top,bot,hw]=sample(x);const cy=(top+bot)/2,ry=Math.max(0.02,(top-bot)/2);
     for(let j=0;j<=ring;j++){const a=j/ring*Math.PI*2;pos.push(x,cy+Math.cos(a)*ry,Math.sin(a)*Math.max(0.02,hw));uv.push((nose-x)/len,1-j/ring);}}
   for(let i=0;i<N;i++)for(let j=0;j<ring;j++){const a=i*(ring+1)+j,b=a+ring+1;idx.push(a,b,a+1,b,b+1,a+1);}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return g;}
-// a wing panel through a list of sections [x of leading edge, y, z, chord, thickness]
-function panelGeo(secs){const pos=[];const tri=(a,b,c)=>pos.push(...a,...b,...c);
-  const S=secs.map(s=>{const [x,y,z,c,t]=s;const th=c*t;return[[x,y,z],[x-c*0.3,y+th*0.6,z],[x-c,y,z],[x-c*0.35,y-th*0.4,z]];});
-  for(let i=0;i<S.length-1;i++){const R=S[i],T=S[i+1];for(let k=0;k<4;k++){const k2=(k+1)%4;tri(R[k],R[k2],T[k2]);tri(R[k],T[k2],T[k]);}}
-  const A=S[0],B=S[S.length-1];tri(A[0],A[1],A[2]);tri(A[0],A[2],A[3]);tri(B[0],B[2],B[1]);tri(B[0],B[3],B[2]);
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();return g;}
+// a wing panel through a list of sections [x of leading edge, y, z, chord, thickness ratio]
+function panelGeo(secs,up){return foilGeo(secs.map(([x,y,z,c,t])=>({le:[x,y,z],c,th:c*t,up:up||[0,1,0]})));}
 function nacelleGeo(len,d,flat){const r=d/2,h=len/2;
   const pts=[[r*0.86,h],[r*0.97,h-0.12*len],[r,h-0.3*len],[r*0.93,-h+0.28*len],[r*0.7,-h+0.06*len],[r*0.62,-h]];
   const g=new THREE.LatheGeometry(pts.map(p=>new THREE.Vector2(p[0],p[1])),28);g.rotateZ(-Math.PI/2);if(flat)g.scale(1,flat,1);return g;}
 
 function buildAirliner(sp){
   const S=shared(),G=sp.geo,W=G.wing;
-  const paint=fuselageTex(sp);paint.anisotropy=maxAniso;
-  const bodyM=stdMat('#ffffff',{map:paint,metalness:0.25,roughness:0.45}),wingM=stdMat('#d9dcdd',{metalness:0.45,roughness:0.42}),greyM=stdMat('#b7bbbe',{metalness:0.5,roughness:0.4});
-  const whiteM=stdMat('#f1f1ec',{metalness:0.3,roughness:0.4}),tailM=stdMat('#ffffff',{map:tailTex(),metalness:0.2,roughness:0.5}),darkM=S.dark,metalM=stdMat('#9ea3a6',{metalness:0.85,roughness:0.3});
+  // painted surfaces are satin paint over metal; the windows are glossy (see the roughness map)
+  const paint=fuselagePaint(sp);
+  const bodyM=stdMat('#ffffff',{map:paint.map,roughnessMap:paint.rough,metalness:0.12,roughness:1,envMapIntensity:0.9}),wingM=stdMat('#d6dade',{metalness:0.35,roughness:0.38}),greyM=stdMat('#b2b8bd',{metalness:0.5,roughness:0.36});
+  const whiteM=stdMat('#f3f4f5',{metalness:0.15,roughness:0.32}),tailM=stdMat('#ffffff',{map:tailTex(),metalness:0.15,roughness:0.35}),darkM=S.dark,metalM=stdMat('#9ea3a6',{metalness:0.85,roughness:0.3});
   const g=new THREE.Group();const parts={props:[],flaps:[],gear:[],swing:[],ab:[],lights:{},discs:[],blades:[],spoilers:[],rev:[]};
   const add=(geo,m,parent)=>{const me=new THREE.Mesh(geo,m);me.castShadow=true;(parent||g).add(me);return me;};
   const st=airlinerStations(sp);add(fuselageGeoUV(st,sp.len,G.nose),bodyM);
@@ -201,7 +205,7 @@ function buildAirliner(sp){
       const h=W.tipH,secsW=[];const n=W.tip==='curved'?5:2;
       for(let i=0;i<=n;i++){const t=i/n,curve=W.tip==='curved'||W.tip==='winglet'?Math.pow(t,0.6):t;const zz=tz+(cant*h*curve+(W.tip==='curved'?0.9*Math.sin(t*1.57):0.2*t));
         secsW.push([tx-t*tc*0.55-0.05,ty+h*t,zz*s,lerp(tc,tc*0.32,t),0.09]);}
-      const wg=panelGeo(secsW);add(wg,whiteM);}
+      const wg=panelGeo(secsW,[0,0,s]);add(wg,whiteM);}
     if(W.tip==='fence'){add(planarUV(panelFin([[tx+0.4,ty-W.tipH*0.35,tc*1.05],[tx-tc*0.25,ty+W.tipH*0.65,tc*0.5]],0.06).translate(0,0,tz*s)),tailM);}
     // flaps (inboard and outboard), hinged at the trailing edge
     for(const [za,zb] of [[W.r0+0.2,zk],[zk+0.3,W.r0+(W.b-W.r0)*0.74]]){const ca=chordAt(za),cb=chordAt(zb);
@@ -259,11 +263,7 @@ function buildAirliner(sp){
   return{g,parts,pts:{gear:gearPts,body}};
 }
 // a vertical panel (the fin), sections [x of leading edge, y, chord]
-function panelFin(secs,t){const pos=[];const tri=(a,b,c)=>pos.push(...a,...b,...c);
-  const S=secs.map(([x,y,c])=>{const th=c*t;return[[x,y,0],[x-c*0.3,y,th*0.5],[x-c,y,0],[x-c*0.3,y,-th*0.5]];});
-  for(let i=0;i<S.length-1;i++){const R=S[i],T=S[i+1];for(let k=0;k<4;k++){const k2=(k+1)%4;tri(R[k],R[k2],T[k2]);tri(R[k],T[k2],T[k]);}}
-  const B=S[S.length-1];tri(B[0],B[2],B[1]);tri(B[0],B[3],B[2]);
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.computeVertexNormals();return g;}
+function panelFin(secs,t){return foilGeo(secs.map(([x,y,c])=>({le:[x,y,0],c,th:c*t,up:[0,0,1]})));}
 // planar texture coordinates from the x-y extent, for the tail art
 function planarUV(geo){geo.computeBoundingBox();const b=geo.boundingBox,p=geo.attributes.position,uv=[];
   for(let i=0;i<p.count;i++)uv.push((p.getX(i)-b.min.x)/((b.max.x-b.min.x)||1),(p.getY(i)-b.min.y)/((b.max.y-b.min.y)||1));

@@ -166,6 +166,8 @@ function buildAirport(){
   lightPoints(pts,4.5,false);
   if(REGION_OSM)buildAirportOSM(REGION_OSM,{grass,concrete,asphalt});else buildAirportGeneric({grass,concrete,asphalt});
 }
+// keep the generated city off the landmarks and their grounds
+function lmNear(x,z){for(const k in LANDMARKS){const l=LANDMARKS[k];if(Math.abs(x-l.x)<260&&Math.abs(z-l.z)<260)return true;}return false;}
 function buildCity(){
   const r=rng(42+REGION.icao.charCodeAt(1));const tmp=new THREE.Object3D();const col=new THREE.Color();
   const pal=REGION.ground==='desert'||REGION.ground==='arid'?['#e3d6bd','#d8c8a8','#efe6d3','#cbb894','#e6dccb','#bfae8e','#f2ede2','#d3c3a0']:REGION.ground==='temperate'?['#b9a593','#a8927e','#c9c0b2','#8f7f72','#b4a89a','#9a8f86','#d8d2c6','#a67c64','#c2b9ad']:['#c9bba0','#b8a88a','#d6cdb8','#a89c86','#c4b296','#9e8e7a','#d9d2c3','#b08a6c','#c7c2b5','#a3876b'];
@@ -175,7 +177,7 @@ function buildCity(){
   x0=Math.max(x0,-30000);x1=Math.min(x1,30000);z0=Math.max(z0,-30000);z1=Math.min(z1,30000);
   for(let x=x0;x<=x1;x+=58)for(let z=z0;z<=z1;z+=58){
     const d=cityDensity(x,z);if(d<0.06)continue;if(r()>d*0.62)continue;const tall=cityDensity.tall||1;
-    const bx=x+(r()-0.5)*30,bz=z+(r()-0.5)*30;if(inWater(bx,bz)||terrainH(bx,bz)>15)continue;
+    const bx=x+(r()-0.5)*30,bz=z+(r()-0.5)*30;if(inWater(bx,bz)||terrainH(bx,bz)>15||lmNear(bx,bz))continue;
     let h=5+Math.pow(r(),3)*(d>0.85?55:22)*Math.min(tall,2);if(r()<0.004*d*tall*tall)h+=40+r()*50*tall;if(tall>2&&d>0.6&&r()<0.05)h+=60+r()*80*tall;
     h=Math.min(h,approachLimit(bx,bz));
     // towers keep realistic proportions (a slenderness of about 1:6 at most)
@@ -235,7 +237,7 @@ function buildLandmarks(){
   const M={std:(c,r,m)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m||0}),
     add(g,geo,mat,x,y,z){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;g.add(m);return m;},
     minaret(g,x,z,h,r,mat,cap){this.add(g,new THREE.CylinderGeometry(r*0.75,r,h,10),mat,x,h/2,z);this.add(g,new THREE.CylinderGeometry(r,r,4,10),cap,x,h+2,z);this.add(g,new THREE.ConeGeometry(r*0.8,8,10),cap,x,h+8,z);}};
-  for(const l of REGION.landmarks||[]){const b=LANDMARK_BUILD[l.type];if(!b)continue;const p=geo(l.lat,l.lon),g=new THREE.Group();g.position.set(p.x,0,p.z);scene.add(g);const [r,h]=b(g,M);if(h)addObstacle(p.x-r,p.x+r,p.z-r,p.z+r,h);}}
+  for(const l of REGION.landmarks||[]){const b=LANDMARK_BUILD[l.type];if(!b)continue;const p=geo(l.lat,l.lon),g=new THREE.Group();g.position.set(p.x,HILLS.length?terrainH(p.x,p.z):0,p.z);scene.add(g);const [r,h]=b(g,M);if(h)addObstacle(p.x-r,p.x+r,p.z-r,p.z+r,h);}}
 function buildTrees(){
   if(REGION.ground==='desert')return;const r=rng(9);const items=[];const n=REGION.ground==='arid'?2500:9000;
   for(let i=0;i<n;i++){const x=(r()-0.5)*44000,z=(r()-0.5)*44000;if(cityDensity(x,z)>0.35)continue;if(OSM_BOX&&x>OSM_BOX.x0-100&&x<OSM_BOX.x1+100&&z>OSM_BOX.z0-100&&z<OSM_BOX.z1+100)continue;
@@ -264,4 +266,15 @@ function applySky(name){
   for(const c of W3.clouds)c.material.opacity=0.85*S.cl;
   for(const p of W3.pts){p.pts.visible=!p.night||S.night||name==='evening';p.pts.material.size=p.size*(S.night?1.25:name==='evening'?1:0.75);}
   if(W3.cityLights)W3.cityLights.visible=S.night||name==='evening';
+  updateEnv(S);
 }
+// Reflections: a small environment map of the current sky over the ground, made once per sky change (a few ms).
+// Paint, glass and metal on every aircraft reflect it, which is most of what makes them look solid and sharp.
+function updateEnv(S){try{if(!W3.pmrem)W3.pmrem=new THREE.PMREMGenerator(renderer);
+  // a small sky panorama: zenith, mid-sky, the horizon band and the ground below, with the sun's glow
+  const hz=S===SKIES.day&&REGION.haze?REGION.haze:S.hz,gnd=new THREE.Color((W3.G||GROUNDS.fields).base).multiplyScalar(S.night?0.08:0.55);
+  const pano=tex(256,128,(c,w,h)=>{const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,S.top);g.addColorStop(0.32,S.mid);g.addColorStop(0.49,hz);g.addColorStop(0.51,'#'+gnd.getHexString());g.addColorStop(1,'#'+gnd.clone().multiplyScalar(0.7).getHexString());
+    c.fillStyle=g;c.fillRect(0,0,w,h);if(S.glow){const sd=S.sd,az=(Math.atan2(sd[0],-sd[2])/(Math.PI*2)+0.5)*w,el=(0.5-Math.asin(sd[1]/Math.hypot(...sd))/Math.PI)*h;
+      const r=c.createRadialGradient(az,el,0,az,el,w*0.18);r.addColorStop(0,S.sun);r.addColorStop(1,'rgba(0,0,0,0)');c.globalAlpha=S.glow*0.7;c.fillStyle=r;c.fillRect(0,0,w,h);c.globalAlpha=1;}});
+  pano.mapping=THREE.EquirectangularReflectionMapping;
+  const rt=W3.pmrem.fromEquirectangular(pano);pano.dispose();if(W3.envRT)W3.envRT.dispose();W3.envRT=rt;scene.environment=rt.texture;}catch(e){console.warn('No reflections',e);}}
