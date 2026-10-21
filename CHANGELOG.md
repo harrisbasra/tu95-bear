@@ -4,6 +4,10 @@ Notable changes to this project are recorded here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+### Fixed
+- **Flying off the scenery:** on long flights the ground could disappear, leaving only sky and fog. A low-detail ground now follows you to the horizon, clouds stay around you, and the en-route scenery re-centres every 25 km.
+- **Dusk colours:** the dusk sky and haze were a muddy brown. The sky now has a deep blue zenith, a warm horizon band and a glow round the sun, with blue-grey haze below.
+
 ### Added
 - **Map data for Istanbul and Jeddah:** both now have their real OpenStreetMap taxiways, aprons, stands and terminals.
 - **Cloud saves for everything:**

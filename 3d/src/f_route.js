@@ -2,7 +2,7 @@
 /* ---------- flights between airports ---------- */
 // A flight plan picks the departure and arrival runways, a cruise altitude and the fuel, then flies the real thing:
 // the departure region, an en-route region that keeps re-centring under the aircraft (so coordinates stay precise),
-// and the destination region once you are within 70 km. Cruise can be sped up (Y) or skipped to the descent (K).
+// and the destination region once you are within 45 km. Cruise can be sped up (Y) or skipped to the descent (K).
 // Navigation is great-circle; the autopilot's NAV mode tracks to a final approach fix 18 km out on the arrival runway,
 // and VNAV holds the cruise altitude, then descends on a 3° path. Wind is not modelled en route.
 const EARTH_R=6371000;
@@ -39,7 +39,7 @@ function routeMission(P){const dep=AIRPORT_BY_ICAO[P.dep],dest=AIRPORT_BY_ICAO[P
   return{key:'route',route:P,name:`${dep.city} to ${dest.city}`,sky:P.sky,region:appr?P.dest:P.dep,
     summary:appr?`Final approach to runway ${P.arrEnd} at ${dest.name}, ${dest.city}. Land and stop.`:`${dep.name} to ${dest.name}: ${Math.round(P.dist/1000).toLocaleString('en-GB')} km. Take off from runway ${P.depEnd}, engage NAV (N) and VNAV (J), and land on ${P.arrEnd}.`,
     start:appr?{air:P.arrEnd,dist:18000}:{rw:P.depEnd,at:60},dest:appr?P.arrEnd:null};}
-// the en-route region: just the ground under the aircraft, re-centred every 100 km
+// the en-route region: just the ground under the aircraft, re-centred every 25 km
 function enrouteRegion(lat,lon,P){const dep=AIRPORT_BY_ICAO[P.dep],dest=AIRPORT_BY_ICAO[P.dest];const f=clamp(gcDist(dep.ref,[lat,lon])/Math.max(1,P.dist),0,1);
   return{icao:'ENRT',name:'En route',city:'',country:'',elev:Math.round(lerp(dep.elev,dest.elev,f)),ref:[lat,lon],ground:f<0.5?dep.ground:dest.ground,haze:f<0.5?dep.haze:dest.haze,rwys:[],landmarks:[],districts:[]};}
 // rebuild the world for a new region and carry the aircraft across in geographic coordinates
@@ -62,9 +62,9 @@ function routeUpdate(g,dt){const P=g.M.route,p=g.plane;if(!P)return;
   g.nav={track:gcBearing(here,target),dist:dDest,dFaf,altT,spdT,passed:passedFaf,target,remaining:dPath};
   // region changes
   if(!g.regionBusy){
-    if(REGION.icao!==P.dest&&dDest<70000){g.regionBusy=true;if(g.timeScale>1){g.timeScale=1;toast(g,'Time back to normal for the arrival');}switchRegion(g,dest);g.regionBusy=false;}
+    if(REGION.icao!==P.dest&&dDest<45000){g.regionBusy=true;if(g.timeScale>1){g.timeScale=1;toast(g,'Time back to normal for the arrival');}switchRegion(g,dest);g.regionBusy=false;}
     else if(REGION.icao===P.dep&&dDep>55000&&p.agl>1200){switchRegion(g,enrouteRegion(ll.lat,ll.lon,P));}
-    else if(REGION.icao==='ENRT'&&Math.hypot(p.pos.x,p.pos.z)>100000){switchRegion(g,enrouteRegion(ll.lat,ll.lon,P));}}
+    else if(REGION.icao==='ENRT'&&Math.hypot(p.pos.x,p.pos.z)>25000){switchRegion(g,enrouteRegion(ll.lat,ll.lon,P));}}
   // keep time acceleration for the safe part of the cruise
   if(g.timeScale>1&&(p.onGround||p.agl<900||!p.ap.on||warnings(g).length)){g.timeScale=1;toast(g,'Time back to normal');}}
 function cycleTime(g){if(!g.M.route){toast(g,'Time acceleration is for flights between airports');return;}const p=g.plane;

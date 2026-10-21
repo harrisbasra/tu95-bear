@@ -66,9 +66,13 @@ function buildWorld(){
   const sc=sun.shadow.camera;sc.left=-90;sc.right=90;sc.top=90;sc.bottom=-90;sc.near=10;sc.far=1400;sun.shadow.bias=-0.0006;scene.add(sun);scene.add(sun.target);
   scene.fog=new THREE.Fog(REGION.haze||'#c9cfc8',3000,20000);
   // sky dome
-  skyMat=new THREE.ShaderMaterial({uniforms:{top:{value:new THREE.Color('#5f8fbf')},hz:{value:new THREE.Color('#cfd6d2')}},side:THREE.BackSide,depthWrite:false,fog:false,
+  // sky: zenith, mid-sky and a narrow horizon band, with a glow round the sun; below the horizon it matches the haze
+  skyMat=new THREE.ShaderMaterial({uniforms:{top:{value:new THREE.Color('#5f8fbf')},mid:{value:new THREE.Color('#9fbcd8')},hz:{value:new THREE.Color('#cfd6d2')},below:{value:new THREE.Color('#c9cfc8')},
+      sunDir:{value:new THREE.Vector3(0.5,0.85,0.35)},sunCol:{value:new THREE.Color('#fff2dc')},glow:{value:0.3}},side:THREE.BackSide,depthWrite:false,fog:false,
     vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
-    fragmentShader:'uniform vec3 top;uniform vec3 hz;varying vec3 vP;void main(){float h=clamp(vP.y,0.0,1.0);gl_FragColor=vec4(mix(hz,top,pow(h,0.55)),1.0);}'});
+    fragmentShader:'uniform vec3 top;uniform vec3 mid;uniform vec3 hz;uniform vec3 below;uniform vec3 sunDir;uniform vec3 sunCol;uniform float glow;varying vec3 vP;'+
+      'void main(){float h=vP.y;vec3 c=h<0.0?mix(hz,below,clamp(-h*12.0,0.0,1.0)):(h<0.12?mix(hz,mid,smoothstep(0.0,0.12,h)):mix(mid,top,smoothstep(0.12,0.75,h)));'+
+      'float s=max(dot(normalize(vP),normalize(sunDir)),0.0);c+=sunCol*glow*(pow(s,6.0)*0.6+pow(s,64.0)*1.2)*(1.0-clamp(h,0.0,1.0)*0.5);gl_FragColor=vec4(c,1.0);}'});
   const sky=new THREE.Mesh(new THREE.SphereGeometry(45000,32,16),skyMat);sky.frustumCulled=false;sky.renderOrder=-1;scene.add(sky);W3.sky=sky;
   // ground, tinted where the city is and on the airfield
   const G=GROUNDS[REGION.ground]||GROUNDS.fields;W3.G=G;const fields=groundTex(G);fields.repeat.set(44,44);
@@ -80,6 +84,10 @@ function buildWorld(){
     const n=0.92+0.16*vnoise2(x/3000,z/3000);gcol.push(r*n,g*n,b*n);}
   gg.setAttribute('color',new THREE.Float32BufferAttribute(gcol,3));
   const ground=new THREE.Mesh(gg,new THREE.MeshLambertMaterial({map:fields,vertexColors:true}));ground.receiveShadow=true;scene.add(ground);W3.ground=ground;
+  // low-detail ground to the horizon, under the detailed square and following the camera, so you can't fly off the edge
+  const farT=groundTex(G);farT.repeat.set(160,160);const FAR=240000;W3.farTile=FAR/160;
+  const far=new THREE.Mesh(new THREE.PlaneGeometry(FAR,FAR).rotateX(-Math.PI/2),new THREE.MeshLambertMaterial({map:farT,color:'#e4e4dc',polygonOffset:true,polygonOffsetFactor:4,polygonOffsetUnits:4}));
+  far.position.y=-0.6;far.receiveShadow=false;scene.add(far);W3.farGround=far;
   buildWater();buildHills();buildAirport();buildCity();buildLandmarks();buildTrees();buildClouds();
 }
 function ribbon(points,width,y,mat){const pos=[],idx=[];for(let i=0;i<points.length;i++){const p=points[i],q=points[Math.min(i+1,points.length-1)],o=points[Math.max(i-1,0)];
@@ -235,19 +243,23 @@ function buildTrees(){
   const g=new THREE.IcosahedronGeometry(5,0);g.translate(0,7,0);const im=new THREE.InstancedMesh(g,new THREE.MeshLambertMaterial({color:REGION.ground==='arid'?'#6b6a3c':'#4a5e30'}),Math.max(1,items.length));im.count=items.length;
   const t=new THREE.Object3D();items.forEach((it,i)=>{t.position.set(it[0],terrainH(it[0],it[1]),it[1]);t.scale.set(it[2],it[2]*(0.8+r()*0.6),it[2]);t.rotation.y=r()*6;t.updateMatrix();im.setMatrixAt(i,t.matrix);});scene.add(im);
 }
+// keep the far ground under the camera (snapped to whole texture tiles so it doesn't swim) and the clouds round it
+function updateFarWorld(cam){const f=W3.farGround;if(f){const t=W3.farTile;f.position.x=Math.round(cam.position.x/t)*t;f.position.z=Math.round(cam.position.z/t)*t;}
+  for(const c of W3.clouds){const dx=c.position.x-cam.position.x,dz=c.position.z-cam.position.z;if(dx>25000)c.position.x-=50000;else if(dx<-25000)c.position.x+=50000;if(dz>25000)c.position.z-=50000;else if(dz<-25000)c.position.z+=50000;}}
 function buildClouds(){
   const ct=tex(256,256,(c)=>{const r=rng(5);for(let i=0;i<26;i++){const x=60+r()*136,y=90+r()*70,rad=30+r()*50;const g=c.createRadialGradient(x,y,0,x,y,rad);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(0,0,256,256);}});
   const r=rng(77);for(let i=0;i<70;i++){const m=new THREE.SpriteMaterial({map:ct,transparent:true,depthWrite:false,fog:true,opacity:0.85});const s=new THREE.Sprite(m);const sc=500+r()*900;s.scale.set(sc,sc*0.55,1);
     s.position.set((r()-0.5)*50000,1400+r()*1400,(r()-0.5)*50000);scene.add(s);W3.clouds.push(s);}
 }
 const SKIES={
-  day:{top:'#5d8ec2',hz:'#d3d8d0',fog:'#cdd2c9',near:2500,far:19000,sun:'#fff2dc',si:1.05,sd:[0.5,0.85,0.35],hs:'#c3d6ea',hg:'#7f7652',hi:0.62,night:false,cl:1},
-  evening:{top:'#34426e',hz:'#e8a677',fog:'#c79a7e',near:2000,far:15000,sun:'#ffbe82',si:0.85,sd:[-0.85,0.25,0.2],hs:'#8f8fb0',hg:'#5a4a3a',hi:0.45,night:false,cl:0.8},
-  night:{top:'#050912',hz:'#1b2335',fog:'#151b2a',near:1200,far:13000,sun:'#7d8db5',si:0.16,sd:[0.3,0.8,-0.4],hs:'#2c3a5c',hg:'#141820',hi:0.28,night:true,cl:0.25}
+  // fog is the colour of distant air below the horizon: blue-grey by day, cool lilac-grey at dusk, deep blue at night
+  day:{top:'#3f76b8',mid:'#86aed6',hz:'#d3dde2',fog:'#c3ccd2',near:2500,far:19000,sun:'#fff2dc',si:1.05,sd:[0.5,0.85,0.35],hs:'#c3d6ea',hg:'#7f7652',hi:0.62,night:false,cl:1,glow:0.25},
+  evening:{top:'#1f3566',mid:'#5d73a6',hz:'#f0b27a',fog:'#8e93a8',near:2000,far:16000,sun:'#ffb36a',si:0.85,sd:[-0.85,0.18,0.2],hs:'#8f97bf',hg:'#4a4440',hi:0.45,night:false,cl:0.8,glow:0.9},
+  night:{top:'#03070f',mid:'#0b1426',hz:'#1b2640',fog:'#121a2b',near:1200,far:13000,sun:'#7d8db5',si:0.16,sd:[0.3,0.8,-0.4],hs:'#2c3a5c',hg:'#141820',hi:0.28,night:true,cl:0.25,glow:0}
 };
 function applySky(name){
-  const S=SKIES[name];W3.skyName=name;skyMat.uniforms.top.value.set(S.top);skyMat.uniforms.hz.value.set(name==='day'&&REGION.haze?REGION.haze:S.hz);
-  const fog=name==='day'&&REGION.haze?REGION.haze:S.fog;const vis=(REGION.vis||19)*1000/19000;scene.fog.color.set(fog);scene.fog.near=S.near*vis;scene.fog.far=Math.min(44000,S.far*vis);renderer.setClearColor(fog);
+  const S=SKIES[name];W3.skyName=name;const U=skyMat.uniforms;U.top.value.set(S.top);U.mid.value.set(S.mid);U.hz.value.set(name==='day'&&REGION.haze?REGION.haze:S.hz);
+  const fog=name==='day'&&REGION.haze?REGION.haze:S.fog;U.below.value.set(fog);U.sunDir.value.set(...S.sd);U.sunCol.value.set(S.sun);U.glow.value=S.glow;const vis=(REGION.vis||19)*1000/19000;scene.fog.color.set(fog);scene.fog.near=S.near*vis;scene.fog.far=Math.min(44000,S.far*vis);renderer.setClearColor(fog);
   sun.color.set(S.sun);sun.intensity=S.si;W3.sunDir=new THREE.Vector3(...S.sd).normalize();hemi.color.set(S.hs);hemi.groundColor.set(S.hg);hemi.intensity=S.hi;
   for(const c of W3.clouds)c.material.opacity=0.85*S.cl;
   for(const p of W3.pts){p.pts.visible=!p.night||S.night||name==='evening';p.pts.material.size=p.size*(S.night?1.25:name==='evening'?1:0.75);}

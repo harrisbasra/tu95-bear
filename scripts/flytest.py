@@ -132,7 +132,7 @@ with sync_playwright() as pw:
     page.add_init_script(INIT)
     import os
     if os.environ.get('FINE'): page.add_init_script('window.__fine=1')
-    page.goto(URL)
+    page.goto(URL, wait_until='commit')
     page.wait_for_function('window.__bear3d && !document.querySelector("#menu").classList.contains("hidden")', timeout=60000)
     if os.environ.get('CAREER'):
         # CAREER=n: start a career at Lahore and fly n jobs in a row with the first aircraft
