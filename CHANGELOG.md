@@ -5,6 +5,7 @@ Notable changes to this project are recorded here. The format follows [Keep a Ch
 ## [Unreleased]
 
 ### Added
+- **Map data for Istanbul and Jeddah:** both now have their real OpenStreetMap taxiways, aprons, stands and terminals.
 - **Cloud saves for everything:**
   - **What syncs:** the pilot profile, career, fleet, loans, monthly summaries and every bank transaction sync to Firestore (`pilots/{uid}`, with transactions in `pilots/{uid}/tx`).
   - **Offline:** it works offline and syncs on reconnect.

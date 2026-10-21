@@ -73,7 +73,7 @@ A full 3D version, with **Allama Iqbal International Airport (OPLA), Lahore** as
   - **Pakistan:** Lahore (OPLA), Islamabad (OPIS) and Karachi (OPKC).
   - **Elsewhere:** Dubai (OMDB), London Heathrow (EGLL), New York JFK (KJFK), Istanbul (LTFM) and Jeddah (OEJN).
   - **Runways:** every runway uses published threshold coordinates, lengths, widths and elevations, including displaced thresholds (JFK and Dubai have big ones). Each has markings, lighting, PAPIs and approach lights.
-  - **Layouts:** taxiways, aprons, stands, jet bridges and terminals come from OpenStreetMap wherever the data could be fetched (all but Istanbul and Jeddah so far, which use a generic layout).
+  - **Layouts:** taxiways, aprons, stands, jet bridges and terminals come from OpenStreetMap for all eight airports.
   - **Surroundings:** each airport has its city, coast, rivers and hills, and simplified, labelled landmarks:
     - **Pakistan:** Faisal Mosque, Mazar-e-Quaid.
     - **Gulf:** Burj Khalifa, Burj Al Arab, King Fahd's Fountain.

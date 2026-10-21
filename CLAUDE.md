@@ -34,7 +34,7 @@ Owner: Harris Khalid (@harrisbasra). The game, its name and the @harrisbasra™ 
 ## Roadmap (agreed with Harris)
 1. ✅ 3D Lahore: runways from survey data, city and landmarks, six aircraft, chase/cockpit/tower cameras, assists, six missions, pilot names, optional Firebase saves.
 2. ✅ Airliners (737-800, 747-400, 777-300ER, 787-9, A320, A350-900, A380-800, invented house paint), 3D glass and classic cockpits, autopilot with autoland, hangar categories, controllers (DualSense over WebHID), OPLA rebuilt from OSM, 2D/3D version setting.
-3. ✅ Seven more airports (OPIS, OPKC, OMDB, EGLL, KJFK, LTFM, OEJN) with OurAirports runway data and OSM layouts, a world map planner, flights between airports with NAV/VNAV, time acceleration and skip-to-descent; one region loaded at a time. Istanbul and Jeddah OSM data still to fetch (Overpass timed out).
+3. ✅ Seven more airports (OPIS, OPKC, OMDB, EGLL, KJFK, LTFM, OEJN) with OurAirports runway data and OSM layouts, a world map planner, flights between airports with NAV/VNAV, time acceleration and skip-to-descent; one region loaded at a time.
 4. ✅ Career mode (`f_career.js`, UI in `g_career.js`): profile and ranks, jobs, settlement from the real flight, fleet (lease/buy/sell/repair), bank, loans, monthly summaries. Virtual credits only; tune everything in `ECON`. Stored in localStorage under `tu95-bear-3d-career-v1`.
 5. ✅ Cloud saves for everything (`CLOUD` in `g_ui.js`): offline cache, debounced batch sync, sign-in merge (newer career wins, other kept as backup), rules deployed 2026-10-21.
 As the project grows, split `3d/` into ES modules and a small build step if the single file gets unwieldy.
