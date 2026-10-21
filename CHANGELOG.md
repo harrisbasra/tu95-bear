@@ -5,6 +5,17 @@ Notable changes to this project are recorded here. The format follows [Keep a Ch
 ## [Unreleased]
 
 ### Added
+- **Cloud saves for everything:**
+  - **What syncs:** the pilot profile, career, fleet, loans, monthly summaries and every bank transaction sync to Firestore (`pilots/{uid}`, with transactions in `pilots/{uid}/tx`).
+  - **Offline:** it works offline and syncs on reconnect.
+  - **Signing in:** stars merge on sign-in, and the newer career wins with the other kept as a backup.
+- **Firestore rules** check field types and sizes and keep each pilot to their own data. They reject impossible balances, implausible jumps between saves and flight hours going backwards, and make transactions append-only.
+- **A composite index** for loading transactions.
+- **Tests:** `npm run test:rules` (19 rule checks in the emulator) and `npm run test:cloud` (end-to-end sync, restore and offline tests with the game's own code).
+
+## Stage 4
+
+### Added
 - **Career mode in the 3D game:**
   - **Profile:** pilot profile and ranks, plus a home base.
   - **Jobs:** daily passenger and cargo jobs at every airport, paid by distance and load, with on-time and landing-quality bonuses and penalties.

@@ -153,20 +153,50 @@ function drawRadar(g){const p=g.plane,rad=Math.min(78,W*0.11,isTouch?H*0.11:999)
   hx.restore();hx.save();hx.translate(cx,cy);hx.rotate(p.hdg);hx.fillStyle='#ffe08a';hx.beginPath();hx.moveTo(0,-8);hx.lineTo(5,6);hx.lineTo(0,3);hx.lineTo(-5,6);hx.fill();hx.restore();
   hx.fillStyle='rgba(235,229,203,.8)';hx.font=`700 11px ${FONT}`;hx.textAlign='center';hx.fillText('N',cx,cy-rad+11);hx.fillText(`${range/1000} km`,cx,cy+rad-4);}
 /* ---------- cloud saves (Firebase, optional) ---------- */
-const CLOUD={ready:false,user:null,api:null,
+// Cloud saves: pilots/{uid} holds the name, progress and career; bank transactions are pilots/{uid}/tx/{id}, one per document.
+// Firestore's persistent cache keeps working offline and syncs when the connection is back.
+const CLOUD={ready:false,user:null,api:null,state:'',timer:null,
   async init(){const cfg=window.TU95_FIREBASE;if(!cfg||!cfg.apiKey)return;try{
       const v='10.12.2',base=`https://www.gstatic.com/firebasejs/${v}/`;
       const [app,auth,fs]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
-      const a=app.initializeApp(cfg);const au=auth.getAuth(a);const db=fs.getFirestore(a);this.api={auth,fs,au,db};this.ready=true;
-      auth.onAuthStateChanged(au,async u=>{this.user=u;if(u){await this.load();}renderCloud();});renderCloud();}catch(e){console.warn('Cloud saves unavailable',e);}},
-  async signIn(){if(!this.ready)return;const {auth,au}=this.api;try{await auth.signInWithPopup(au,new auth.GoogleAuthProvider());}catch(e){toastMenu('Sign-in was cancelled or blocked.');}},
+      const a=app.initializeApp(cfg);const au=auth.getAuth(a);let db;
+      try{db=fs.initializeFirestore(a,{localCache:fs.persistentLocalCache({tabManager:fs.persistentMultipleTabManager()})});}catch(e){db=fs.getFirestore(a);}
+      // development only: ?emulator talks to the local Firebase emulators (npm run test:cloud) and signs in anonymously
+      if(/[?&]emulator\b/.test(location.search)&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){auth.connectAuthEmulator(au,'http://127.0.0.1:9099',{disableWarnings:true});fs.connectFirestoreEmulator(db,'127.0.0.1',8085);setTimeout(()=>auth.signInAnonymously(au),0);}
+      this.api={auth,fs,au,db};this.ready=true;
+      auth.onAuthStateChanged(au,async u=>{this.user=u;if(u){await this.load();}renderCloud();});
+      addEventListener('online',()=>{this.state='';renderCloud();this.saveCareer();});addEventListener('offline',()=>{this.state='offline';renderCloud();});renderCloud();}catch(e){console.warn('Cloud saves unavailable',e);}},
+  async signIn(){if(!this.ready)return;const {auth,au}=this.api;try{await auth.signInWithPopup(au,new auth.GoogleAuthProvider());}catch(e){toastMenu(e&&e.code==='auth/unauthorized-domain'?'Sign-in isn’t enabled for this site yet.':'Sign-in was cancelled or blocked.');}},
   async signOut(){if(this.ready)await this.api.auth.signOut(this.api.au);},
-  async load(){const {fs,db}=this.api;try{const snap=await fs.getDoc(fs.doc(db,'pilots',this.user.uid));if(snap.exists()){const d=snap.data();
-      if(d.name&&!progress.name)progress.name=d.name;mergeStars(d.progress&&d.progress.stars);save();buildMenu();}
-      await this.save();}catch(e){console.warn(e);}},
-  async save(){if(!this.ready||!this.user)return;const {fs,db}=this.api;try{await fs.setDoc(fs.doc(db,'pilots',this.user.uid),{name:progress.name||this.user.displayName||'Pilot',progress:{stars:progress.stars,plane:progress.plane},updatedAt:fs.serverTimestamp()},{merge:true});}catch(e){console.warn(e);}}};
+  ref(){return this.api.fs.doc(this.api.db,'pilots',this.user.uid);},
+  // On sign-in: stars merge to the best of both; for the career (which can't be merged safely) the newer one wins,
+  // and the other is kept in this browser as a backup so nothing is lost.
+  async load(){const {fs,db}=this.api;try{const snap=await fs.getDoc(this.ref());const d=snap.exists()?snap.data():{};
+      if(d.name&&!progress.name)progress.name=d.name;mergeStars(d.progress&&d.progress.stars);save();
+      const local=loadCareer(),cloud=d.career||null;
+      if(cloud&&(!local||(cloud.updated||0)>(local.updated||0))){
+        if(local&&local.created!==cloud.created){try{localStorage.setItem(CAREER_KEY+'-backup',JSON.stringify(local));}catch(e){}toastMenu('Your online career is newer, so it replaced this browser’s. The old one is kept as a backup.');}
+        const q=fs.query(fs.collection(db,'pilots',this.user.uid,'tx'),fs.where('career','==',cloud.created),fs.orderBy('n','desc'),fs.limit(ECON.maxTransactions));
+        let tx=[];try{tx=(await fs.getDocs(q)).docs.map(x=>Object.assign({},x.data(),{id:x.id,s:1}));}catch(e){console.warn(e);}
+        CAREER=Object.assign({},cloud,{tx,jobs:{}});try{localStorage.setItem(CAREER_KEY,JSON.stringify(CAREER));}catch(e){}}
+      buildMenu();await this.save();if(CAREER)await this.flushCareer();}catch(e){console.warn(e);this.state='error';renderCloud();}},
+  async save(){if(!this.ready||!this.user)return;const {fs}=this.api;try{await fs.setDoc(this.ref(),{name:(progress.name||this.user.displayName||'Pilot').slice(0,24),progress:{stars:progress.stars,plane:progress.plane,region:progress.region||'OPLA'},updatedAt:fs.serverTimestamp()},{merge:true});}catch(e){console.warn(e);}},
+  // debounced: a burst of changes (a flight's settlement) goes up as one batch
+  saveCareer(){if(!this.ready||!this.user)return;clearTimeout(this.timer);this.timer=setTimeout(()=>this.flushCareer(),1500);},
+  async flushCareer(){if(!this.ready||!this.user||!CAREER)return;const {fs,db}=this.api,c=CAREER;
+    const doc={v:1,created:c.created,updated:c.updated||Date.now(),pilot:c.pilot,day:c.day,cash:c.cash,fleet:c.fleet,loans:c.loans,months:c.months,month:c.month,seq:c.seq,txN:c.txN||0,active:c.active||null};
+    const b=fs.writeBatch(db);b.set(this.ref(),{name:(progress.name||c.pilot.name||'Pilot').slice(0,24),progress:{stars:progress.stars,plane:progress.plane,region:progress.region||'OPLA'},career:doc,updatedAt:fs.serverTimestamp()},{merge:true});
+    const pending=c.tx.filter(t=>!t.s&&t.id).slice(0,450);for(const t of pending)b.set(fs.doc(db,'pilots',this.user.uid,'tx',t.id),{n:t.n,d:t.d,desc:String(t.desc).slice(0,120),amount:t.amount,bal:t.bal,kind:t.kind,career:c.created});
+    this.state='syncing';renderCloud();
+    try{const commit=b.commit();for(const t of pending)t.s=1;try{localStorage.setItem(CAREER_KEY,JSON.stringify(c));}catch(e){}
+      if(navigator.onLine){await commit;this.state='';}else this.state='offline';}catch(e){console.warn(e);this.state='error';for(const t of pending)t.s=0;}renderCloud();},
+  async deleteCareer(){if(!this.ready||!this.user)return;const {fs,db}=this.api;try{
+      const snap=await fs.getDocs(fs.collection(db,'pilots',this.user.uid,'tx'));let b=fs.writeBatch(db),n=0;
+      for(const d of snap.docs){b.delete(d.ref);if(++n%450===0){await b.commit();b=fs.writeBatch(db);}}
+      b.update(this.ref(),{career:null,updatedAt:fs.serverTimestamp()});await b.commit();}catch(e){console.warn(e);}}};
 function renderCloud(){const el=$('#cloud');if(!el)return;if(!CLOUD.ready){el.hidden=true;return;}el.hidden=false;
-  el.querySelector('#cloud-status').textContent=CLOUD.user?`Signed in as ${CLOUD.user.displayName||CLOUD.user.email}. Progress saves online.`:'Sign in to keep your pilot name and stars on every device.';
+  const st=CLOUD.state==='offline'?' You’re offline: changes will sync when you reconnect.':CLOUD.state==='syncing'?' Syncing…':CLOUD.state==='error'?' The last sync failed; it will retry.':'';
+  el.querySelector('#cloud-status').textContent=(CLOUD.user?`Signed in as ${CLOUD.user.displayName||CLOUD.user.email}. Your stars, career and bank account save online.`:'Sign in to keep your pilot name, stars and career on every device.')+st;
   el.querySelector('#cloud-btn').textContent=CLOUD.user?'Sign out':'Sign in with Google';}
 function toastMenu(t){const el=$('#pinfo');if(el)el.textContent=t;}
 /* ---------- menu ---------- */
@@ -303,6 +333,6 @@ function boot(){
   renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=qual().shadows;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   camera=new THREE.PerspectiveCamera(60,1,0.5,60000);wire();
   loadRegion(progress.region||'OPLA').then(()=>{resize();startAttract();buildMenu();show($('#loading'),false);show($('#menu'),true);requestAnimationFrame(frame);CLOUD.init();});}
-window.__bear3d={get game(){return game;},ECON,get CAREER(){return CAREER;},newCareer,jobsAt,jobQuote,canFly,startJob,buyAircraft,takeLoan,repairAircraft,sellAircraft,advanceDays,debug:()=>({obst:game&&obstacleH(game.plane.pos.x,game.plane.pos.z),grid:game&&W3.grid.get(gridKey(game.plane.pos.x,game.plane.pos.z)),boxes:game&&(W3.boxes.get(Math.floor(game.plane.pos.x/100)+","+Math.floor(game.plane.pos.z/100))||[]).length,apl:game&&approachLimit(game.plane.pos.x,game.plane.pos.z),onRw:game&&!!onRunway(game.plane.pos.x,game.plane.pos.z,200),pos:game&&[Math.round(game.plane.pos.x),Math.round(game.plane.pos.y),Math.round(game.plane.pos.z)],water:WATER.length,hills:HILLS.length,rivers:RIVERS.length,city:CITY_C.length,region:REGION.icao,meshes:scene.children.length,inW:inWater(geo(40.62,-73.82).x,geo(40.62,-73.82).z)}),planFlight,setPlan:P=>{PLAN=P;},loadRegion,skipToDescent,cycleTime,AIRPORTS,get REGION(){return REGION;},get scene(){return scene;},get camera(){return camera;},get renderer(){return renderer;},buildAircraft,setAircraftState,apEngage,apArmApp,apAdjust,vspeeds,mass,step,IN,act,startFlight,newGame,AIRCRAFT,progress,save,ENDS,RWYS,setPlane:id=>{progress.plane=id;},setMission:i=>{progress.mission=i;}};
+window.__bear3d={get game(){return game;},CLOUD,loadCareer,saveCareer,ECON,get CAREER(){return CAREER;},newCareer,jobsAt,jobQuote,canFly,startJob,buyAircraft,takeLoan,repairAircraft,sellAircraft,advanceDays,debug:()=>({obst:game&&obstacleH(game.plane.pos.x,game.plane.pos.z),grid:game&&W3.grid.get(gridKey(game.plane.pos.x,game.plane.pos.z)),boxes:game&&(W3.boxes.get(Math.floor(game.plane.pos.x/100)+","+Math.floor(game.plane.pos.z/100))||[]).length,apl:game&&approachLimit(game.plane.pos.x,game.plane.pos.z),onRw:game&&!!onRunway(game.plane.pos.x,game.plane.pos.z,200),pos:game&&[Math.round(game.plane.pos.x),Math.round(game.plane.pos.y),Math.round(game.plane.pos.z)],water:WATER.length,hills:HILLS.length,rivers:RIVERS.length,city:CITY_C.length,region:REGION.icao,meshes:scene.children.length,inW:inWater(geo(40.62,-73.82).x,geo(40.62,-73.82).z)}),planFlight,setPlan:P=>{PLAN=P;},loadRegion,skipToDescent,cycleTime,AIRPORTS,get REGION(){return REGION;},get scene(){return scene;},get camera(){return camera;},get renderer(){return renderer;},buildAircraft,setAircraftState,apEngage,apArmApp,apAdjust,vspeeds,mass,step,IN,act,startFlight,newGame,AIRCRAFT,progress,save,ENDS,RWYS,setPlane:id=>{progress.plane=id;},setMission:i=>{progress.mission=i;}};
 boot();
 })();

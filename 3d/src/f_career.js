@@ -20,24 +20,24 @@ const ECON={
   prices:{b738:2200000,a320:2500000,b789:12000000,b77w:9000000,a359:14000000,b744:1500000,a388:8000000,c130:3000000,c17:10000000},
   usedPrice:0.62,usedCondition:72,sellFraction:0.85,leaseMonthly:0.03,leaseDeposit:1,
   loanBaseRate:0.07,loanRiskRate:0.06,loanTerms:[12,24,36,60],
-  daysPerFlight:1,daysPerMonth:30,maxTransactions:400,minCondition:25,jobsPerAirport:7
+  maxLoan:25000000,daysPerFlight:1,daysPerMonth:30,maxTransactions:400,minCondition:25,jobsPerAirport:7
 };
 const RANKS=[[0,'Second officer'],[20,'First officer'],[60,'Senior first officer'],[150,'Captain'],[400,'Senior captain'],[1000,'Training captain']];
 const CAREER_KEY='tu95-bear-3d-career-v1';
 let CAREER=null;
 function loadCareer(){try{const c=JSON.parse(localStorage.getItem(CAREER_KEY)||'null');if(c&&c.v===1)CAREER=c;}catch(e){}return CAREER;}
-function saveCareer(){if(!CAREER)return;CAREER.updated=Date.now();try{localStorage.setItem(CAREER_KEY,JSON.stringify(CAREER));}catch(e){}if(typeof CLOUD!=='undefined')CLOUD.saveCareer&&CLOUD.saveCareer();}
+function saveCareer(){if(!CAREER)return;CAREER.updated=Date.now();try{localStorage.setItem(CAREER_KEY,JSON.stringify(CAREER));}catch(e){}CLOUD.saveCareer();}
 const careerAircraft=()=>AIRCRAFT.filter(a=>ECON.prices[a.id]!==undefined);
 const cr=n=>`${n<0?'−':''}${Math.round(Math.abs(n)).toLocaleString('en-GB')} cr`;
 function rankFor(h){let r=RANKS[0][1];for(const [m,n] of RANKS)if(h>=m)r=n;return r;}
 function crewClass(sp){if(sp.id==='a388')return'a388';if(sp.id==='c130')return'turboprop';if(sp.cat!=='airliner')return'freighter';return sp.geo&&sp.geo.D>5?'wide':'narrow';}
 function marketValue(f){return ECON.prices[f.type]*(0.4+0.6*f.condition/100);}
 function newCareer(name,base){const c={v:1,created:Date.now(),pilot:{name:name||progress.name||'Pilot',base,hours:0,landings:0,smooth:0,flights:0},
-  day:1,cash:0,fleet:[],tx:[],loans:[],months:[],month:{n:1,revenue:0,costs:0,flights:0},jobs:{},seq:1,active:null};
+  day:1,cash:0,fleet:[],tx:[],loans:[],months:[],month:{n:1,revenue:0,costs:0,flights:0},jobs:{},seq:1,txN:0,active:null};
   CAREER=c;tx('Opening balance',ECON.startCash,'bank');
   c.fleet.push({id:'f'+(c.seq++),name:'Bear 01',type:ECON.startAircraft,own:'owned',condition:ECON.startCondition,hours:0,loc:base,bought:c.day,paid:0});
   saveCareer();return c;}
-function tx(desc,amount,kind){const c=CAREER;c.cash=Math.round(c.cash+amount);c.tx.unshift({d:Math.floor(c.day),desc,amount:Math.round(amount),bal:c.cash,kind:kind||'other'});
+function tx(desc,amount,kind){const c=CAREER;c.cash=Math.round(c.cash+amount);c.txN=(c.txN||0)+1;c.tx.unshift({id:`${c.created}-${c.txN}`,n:c.txN,d:Math.floor(c.day),desc,amount:Math.round(amount),bal:c.cash,kind:kind||'other'});
   if(c.tx.length>ECON.maxTransactions)c.tx.length=ECON.maxTransactions;
   // the monthly summary is operating results: aircraft purchases and sales, and loan principal, are capital
   if(kind!=='bank'&&kind!=='loan'&&kind!=='fleet'){if(amount>0)c.month.revenue+=amount;else c.month.costs-=amount;}}
@@ -102,7 +102,7 @@ function endOfMonth(){const c=CAREER;
 function loanOffer(){const c=CAREER;const fleetVal=c.fleet.filter(f=>f.own==='owned').reduce((a,f)=>a+marketValue(f),0);const debt=c.loans.reduce((a,L)=>a+L.remaining,0);
   const recent=c.months.slice(0,3);const avgNet=recent.length?recent.reduce((a,m)=>a+m.net,0)/recent.length:0;
   const max=Math.max(0,Math.round((fleetVal*0.5+Math.max(0,avgNet)*6+200000-debt)/10000)*10000);const rate=ECON.loanBaseRate+ECON.loanRiskRate*clamp(debt/Math.max(1,fleetVal),0,1);return{max,rate,debt};}
-function takeLoan(amount,months){const o=loanOffer();amount=Math.min(amount,o.max);if(amount<=0)return false;const r=o.rate/12;const monthly=amount*r/(1-Math.pow(1+r,-months));
+function takeLoan(amount,months){const o=loanOffer();amount=Math.min(amount,o.max,ECON.maxLoan);if(amount<=0)return false;const r=o.rate/12;const monthly=amount*r/(1-Math.pow(1+r,-months));
   CAREER.loans.push({id:'L'+(CAREER.seq++),principal:amount,rate:o.rate,months,paid:0,monthly:Math.round(monthly),remaining:amount,day:CAREER.day});tx(`Loan of ${cr(amount)} over ${months} months at ${(o.rate*100).toFixed(1)}%`,amount,'loan');saveCareer();return true;}
 function repayLoan(id){const c=CAREER,L=c.loans.find(x=>x.id===id);if(!L)return;const amt=Math.min(L.remaining,c.cash);if(amt<=0)return;L.remaining-=amt;tx('Early loan repayment',-amt,'loan');c.loans=c.loans.filter(x=>x.remaining>0.5);saveCareer();}
 function buyAircraft(type,used,lease){const c=CAREER,sp=AIRCRAFT_BY_ID[type],price=ECON.prices[type]*(used?ECON.usedPrice:1),n=c.fleet.length+1;

@@ -2,7 +2,7 @@
   "name": "tu95-bear",
   "version": "1.0.0",
   "private": true,
-  "description": "Ту-95 Bear: a 2D heavy-aircraft flight game, plus a 3D version set at Lahore's Allama Iqbal International Airport, by @harrisbasra",
+  "description": "\u0422\u0443-95 Bear: a 2D heavy-aircraft flight game, plus a 3D version set at Lahore's Allama Iqbal International Airport, by @harrisbasra",
   "author": "Harris Khalid (https://github.com/harrisbasra)",
   "license": "MIT",
   "homepage": "https://harrisbasra.github.io/tu95-bear/",
@@ -30,7 +30,9 @@
     "setup": "git config core.hooksPath scripts/hooks",
     "start": "npx --yes serve -l 8080 .",
     "build:3d": "node scripts/build-3d.mjs",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-tu95 \"node scripts/test-rules.mjs\"",
+    "test:cloud": "firebase emulators:exec --only auth,firestore --project tu95-bear-harrisbasra \"python3 scripts/test-cloud.py\""
   },
   "engines": {
     "node": ">=18"

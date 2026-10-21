@@ -1,15 +1,64 @@
 rules_version = '2';
+// Cloud saves for Ту-95 Bear 3D. Each signed-in pilot can read and write only their own data:
+//   pilots/{uid}          name, progress (mission stars and settings) and the career (profile, fleet, loans, months)
+//   pilots/{uid}/tx/{id}  bank transactions, one document each, written once
+// The checks below keep documents well-formed and reject obviously impossible numbers. They are not a guarantee:
+// a game that runs in the browser can always be tampered with (see README.md).
 service cloud.firestore {
   match /databases/{database}/documents {
-    // One document per signed-in pilot: their name and their mission stars.
+    function signedIn(uid) { return request.auth != null && request.auth.uid == uid; }
+    function num(x, lo, hi) { return (x is int || x is float) && x >= lo && x <= hi; }
+    function str(x, max) { return x is string && x.size() <= max; }
+    function validProgress(p) {
+      return p is map && p.keys().hasOnly(['stars', 'plane', 'region'])
+        && (!('stars' in p) || (p.stars is map && p.stars.size() <= 64))
+        && (!('plane' in p) || str(p.plane, 16))
+        && (!('region' in p) || str(p.region, 8));
+    }
+    function validPilot(p) {
+      return p is map && p.keys().hasOnly(['name', 'base', 'hours', 'landings', 'smooth', 'flights'])
+        && str(p.name, 24) && str(p.base, 8) && num(p.hours, 0, 100000)
+        && num(p.landings, 0, 1000000) && num(p.smooth, 0, 1000000) && num(p.flights, 0, 1000000);
+    }
+    function validCareer(c) {
+      return c is map
+        && c.keys().hasOnly(['v', 'created', 'updated', 'pilot', 'day', 'cash', 'fleet', 'loans', 'months', 'month', 'seq', 'txN', 'active'])
+        && c.v == 1 && num(c.day, 1, 1000000) && validPilot(c.pilot)
+        // anti-cheat: a balance far beyond anything the economy can produce is rejected
+        && num(c.cash, -100000000, 2000000000)
+        && c.fleet is list && c.fleet.size() <= 40
+        && c.loans is list && c.loans.size() <= 20
+        && c.months is list && c.months.size() <= 24
+        && c.month is map && num(c.seq, 0, 100000000) && num(c.txN, 0, 100000000);
+    }
+    // between two saves the balance can't move by more than a big aircraft sale or loan, and hours never go backwards
+    function plausibleChange(before, after) {
+      return !('career' in before) || before.career == null || after.career.created != before.career.created
+        || (math.abs(after.career.cash - before.career.cash) <= 60000000 && after.career.pilot.hours >= before.career.pilot.hours);
+    }
+    function validPilotDoc(d) {
+      return d.keys().hasOnly(['name', 'progress', 'career', 'updatedAt'])
+        && str(d.name, 24) && validProgress(d.progress)
+        && (!('career' in d) || d.career == null || validCareer(d.career))
+        && d.updatedAt == request.time;
+    }
+
     match /pilots/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
-      allow create, update: if request.auth != null && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['name', 'progress', 'updatedAt'])
-        && request.resource.data.name is string
-        && request.resource.data.name.size() <= 24
-        && request.resource.data.progress is map;
-      allow delete: if request.auth != null && request.auth.uid == uid;
+      allow read, delete: if signedIn(uid);
+      allow create: if signedIn(uid) && validPilotDoc(request.resource.data);
+      allow update: if signedIn(uid) && validPilotDoc(request.resource.data)
+        && (!('career' in request.resource.data) || request.resource.data.career == null || plausibleChange(resource.data, request.resource.data));
+
+      match /tx/{id} {
+        allow read, delete: if signedIn(uid);
+        allow create: if signedIn(uid) && id.size() <= 40
+          && request.resource.data.keys().hasOnly(['n', 'd', 'desc', 'amount', 'bal', 'kind', 'career'])
+          && num(request.resource.data.n, 0, 100000000) && num(request.resource.data.d, 0, 1000000)
+          && str(request.resource.data.desc, 120) && str(request.resource.data.kind, 12)
+          && num(request.resource.data.amount, -30000000, 30000000) && num(request.resource.data.bal, -100000000, 2000000000)
+          && num(request.resource.data.career, 0, 9999999999999);
+        allow update: if false;
+      }
     }
   }
 }

@@ -1,0 +1,13 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "tx",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "career", "order": "ASCENDING" },
+        { "fieldPath": "n", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

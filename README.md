@@ -114,7 +114,8 @@ A full 3D version, with **Allama Iqbal International Airport (OPLA), Lahore** as
   - **Touch controls:** a stick, a power slider, and flap, gear, brake, speedbrake and autopilot buttons.
   - **Graphics setting:** low, medium or high scales shadows, the city and the cockpit display refresh rate.
 - **Seven Lahore missions:** free flight, a departure, a straight-in approach, the Lahore circuit, an Old City flypast at dusk, a night arrival in a crosswind and an autoland. You can also fly any route on the world map, or a local flight at any airport.
-- **Pilot name and optional cloud saves.** Progress saves in the browser, or to Firebase after [a few setup steps](docs/FIREBASE.md).
+- **Cloud saves for everything.** Sign in with Google and your pilot name, stars, career, fleet and bank statement follow you to any device. It works offline and syncs when you're back. Without signing in, everything saves in the browser. Setup: [docs/FIREBASE.md](docs/FIREBASE.md).
+- **About cheating:** the cloud rules reject malformed saves and impossible numbers, such as absurd balances, sudden jumps or flight hours going backwards. A game that runs in your browser can still be modified by someone determined, so treat career balances as for fun, not as a leaderboard.
 
 | | |
 |:---:|:---:|
