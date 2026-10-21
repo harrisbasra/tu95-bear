@@ -196,7 +196,7 @@ function buildMenu(){
 function show(el,v){el.classList.toggle('hidden',!v);}
 let isTouch=matchMedia('(pointer: coarse)').matches;
 function startAttract(){game=newGame(progress.mission||0,'attract');}
-function toMenu(){show($('#result'),false);show($('#pause'),false);show($('#touch'),false);show($('#btn-pause'),false);show($('#btn-cam'),false);show($('#btn-time'),false);show($('#btn-skip'),false);show($('#map'),false);startAttract();buildMenu();show($('#menu'),true);}
+function toMenu(){if(PLAN&&PLAN.job)PLAN=null;show($('#result'),false);show($('#pause'),false);show($('#touch'),false);show($('#btn-pause'),false);show($('#btn-cam'),false);show($('#btn-time'),false);show($('#btn-skip'),false);show($('#map'),false);startAttract();buildMenu();show($('#menu'),true);}
 // map data that couldn't be loaded is remembered, and the airport is built with the generic layout instead
 const NO_DATA=new Set();const hasData=i=>!!(window.TU95_OSM&&TU95_OSM[i]);
 async function ensureData(icao){const ap=AIRPORT_BY_ICAO[icao];if(ap&&ap.osm&&!hasData(icao)&&!NO_DATA.has(icao)){try{await loadScript(`data/${icao}.js`);}catch(e){NO_DATA.add(icao);console.warn(e.message);}}}
@@ -211,7 +211,8 @@ function showResult(g){show($('#touch'),false);show($('#btn-pause'),false);show(
   $('#r-title').textContent=ok?'Mission complete':'Mission failed';$('#r-reason').textContent=g.reason;const st=ok?g.starsWon:0;$('#r-stars').innerHTML=ok?`${'★'.repeat(st)}<span class="off">${'★'.repeat(3-st)}</span>`:'';
   const dl=$('#r-stats');dl.innerHTML='';const add=(k,v)=>{const a=document.createElement('dt');a.textContent=k;const b=document.createElement('dd');b.textContent=v;dl.append(a,b);};
   add('Pilot',progress.name||'Unnamed pilot');add('Aircraft',g.plane.spec.name);add('Flight time',`${Math.floor(g.time/60)}:${String(Math.floor(g.time%60)).padStart(2,'0')}`);
-  if(g.M.route){const P=g.M.route;add('Route',`${P.dep} to ${P.dest}, ${Math.round(P.dist/1000).toLocaleString('en-GB')} km`);add('Fuel used',`${(Math.max(0,g.startFuel-g.plane.fuelKg)/1000).toFixed(1)} t, ${(g.plane.fuelKg/1000).toFixed(1)} t left`);if(g.skippedKm)add('Skipped',`${Math.round(g.skippedKm).toLocaleString('en-GB')} km of cruise`);}
+  if(g.career){$('#r-title').textContent=ok?'Flight complete':g.career.crashed?'Aircraft lost':'Flight not completed';careerResultRows(g.career,add);}
+  else if(g.M.route){const P=g.M.route;add('Route',`${P.dep} to ${P.dest}, ${Math.round(P.dist/1000).toLocaleString('en-GB')} km`);add('Fuel used',`${(Math.max(0,g.startFuel-g.plane.fuelKg)/1000).toFixed(1)} t, ${(g.plane.fuelKg/1000).toFixed(1)} t left`);if(g.skippedKm)add('Skipped',`${Math.round(g.skippedKm).toLocaleString('en-GB')} km of cruise`);}
   if(g.stats.sink!==null){add('Touchdown',`${g.stats.sink.toFixed(1)} m/s`);add('From centreline',`${g.stats.offset.toFixed(0)} m`);}
   if(ok&&st<3&&g.M.key!=='depart')add('Three stars','Touch down at 1.5 m/s or less within 8 m of the centreline');
   show($('#result'),true);setTimeout(()=>$('#r-retry').focus({preventScroll:true}),30);}
@@ -257,7 +258,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){for(const 
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',()=>{down=null;if(game)game.cam.dragging=false;});})();
 /* ---------- wiring ---------- */
 function wire(){
-  $('#btn-go').addEventListener('click',()=>{PLAN=null;startFlight();});wireMap();
+  $('#btn-go').addEventListener('click',()=>{PLAN=null;startFlight();});wireMap();wireCareer();
   $('#btn-keys').addEventListener('click',e=>{const k=$('#keys');k.hidden=!k.hidden;e.currentTarget.setAttribute('aria-expanded',String(!k.hidden));});
   $('#o-assist').addEventListener('change',e=>{progress.assist=e.target.checked;save();});$('#o-land').addEventListener('change',e=>{progress.landAssist=e.target.checked;save();});
   $('#o-invert').addEventListener('change',e=>{progress.invert=e.target.checked;save();});$('#o-sound').addEventListener('change',e=>{AU.init();AU.setOn(e.target.checked);});
@@ -302,6 +303,6 @@ function boot(){
   renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=qual().shadows;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   camera=new THREE.PerspectiveCamera(60,1,0.5,60000);wire();
   loadRegion(progress.region||'OPLA').then(()=>{resize();startAttract();buildMenu();show($('#loading'),false);show($('#menu'),true);requestAnimationFrame(frame);CLOUD.init();});}
-window.__bear3d={get game(){return game;},debug:()=>({obst:game&&obstacleH(game.plane.pos.x,game.plane.pos.z),grid:game&&W3.grid.get(gridKey(game.plane.pos.x,game.plane.pos.z)),boxes:game&&(W3.boxes.get(Math.floor(game.plane.pos.x/100)+","+Math.floor(game.plane.pos.z/100))||[]).length,apl:game&&approachLimit(game.plane.pos.x,game.plane.pos.z),onRw:game&&!!onRunway(game.plane.pos.x,game.plane.pos.z,200),pos:game&&[Math.round(game.plane.pos.x),Math.round(game.plane.pos.y),Math.round(game.plane.pos.z)],water:WATER.length,hills:HILLS.length,rivers:RIVERS.length,city:CITY_C.length,region:REGION.icao,meshes:scene.children.length,inW:inWater(geo(40.62,-73.82).x,geo(40.62,-73.82).z)}),planFlight,setPlan:P=>{PLAN=P;},loadRegion,skipToDescent,cycleTime,AIRPORTS,get REGION(){return REGION;},get scene(){return scene;},get camera(){return camera;},get renderer(){return renderer;},buildAircraft,setAircraftState,apEngage,apArmApp,apAdjust,vspeeds,mass,step,IN,act,startFlight,newGame,AIRCRAFT,progress,save,ENDS,RWYS,setPlane:id=>{progress.plane=id;},setMission:i=>{progress.mission=i;}};
+window.__bear3d={get game(){return game;},ECON,get CAREER(){return CAREER;},newCareer,jobsAt,jobQuote,canFly,startJob,buyAircraft,takeLoan,repairAircraft,sellAircraft,advanceDays,debug:()=>({obst:game&&obstacleH(game.plane.pos.x,game.plane.pos.z),grid:game&&W3.grid.get(gridKey(game.plane.pos.x,game.plane.pos.z)),boxes:game&&(W3.boxes.get(Math.floor(game.plane.pos.x/100)+","+Math.floor(game.plane.pos.z/100))||[]).length,apl:game&&approachLimit(game.plane.pos.x,game.plane.pos.z),onRw:game&&!!onRunway(game.plane.pos.x,game.plane.pos.z,200),pos:game&&[Math.round(game.plane.pos.x),Math.round(game.plane.pos.y),Math.round(game.plane.pos.z)],water:WATER.length,hills:HILLS.length,rivers:RIVERS.length,city:CITY_C.length,region:REGION.icao,meshes:scene.children.length,inW:inWater(geo(40.62,-73.82).x,geo(40.62,-73.82).z)}),planFlight,setPlan:P=>{PLAN=P;},loadRegion,skipToDescent,cycleTime,AIRPORTS,get REGION(){return REGION;},get scene(){return scene;},get camera(){return camera;},get renderer(){return renderer;},buildAircraft,setAircraftState,apEngage,apArmApp,apAdjust,vspeeds,mass,step,IN,act,startFlight,newGame,AIRCRAFT,progress,save,ENDS,RWYS,setPlane:id=>{progress.plane=id;},setMission:i=>{progress.mission=i;}};
 boot();
 })();

@@ -83,7 +83,23 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .map-side label{display:flex;flex-direction:column;gap:2px;color:var(--muted);font-size:13px}
 .map-side select{font:inherit;font-size:15px;background:var(--olive);color:var(--cream);border:1.5px solid var(--olive-line);border-radius:3px;padding:4px 6px}
 .m-info{font-size:14px;margin:4px 0;color:var(--cream)}.m-info dt{color:var(--muted)}.m-info .warn{color:#ffb3a8}
-.primary:disabled{opacity:.45;cursor:not-allowed}
+.primary:disabled,.ghost:disabled{opacity:.45;cursor:not-allowed}
+.card.career{max-width:900px;max-height:calc(100vh - 32px);overflow:auto}
+.career h3{font-family:"Russo One",sans-serif;font-weight:400;font-size:18px;margin:16px 0 6px}
+.career .cats .ghost{color:var(--ink);border-color:rgba(28,32,24,.3)}.career .cats button[aria-selected="true"]{border-color:var(--red);background:rgba(194,59,43,.12)}
+.c-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}.c-sub{margin:0;color:#5b5f4d}
+.c-bal{text-align:right}.c-bal span{display:block;color:#5b5f4d;font-size:14px}.c-bal strong{font-family:"Russo One",sans-serif;font-size:24px;font-weight:400}
+.neg{color:#a5281b}.bad{color:#a5281b}.c-msg{min-height:1.3em;margin:4px 0;font-weight:700}.c-msg.bad{color:#a5281b}.c-note{color:#5b5f4d;font-size:15px}
+.c-field{display:flex;flex-direction:column;gap:2px;margin:8px 0;color:#5b5f4d;font-size:14px}
+.career input,.career select{font:inherit;font-size:16px;padding:5px 8px;border:1.5px solid rgba(28,32,24,.3);border-radius:3px;background:#fbf7ea;color:var(--ink);user-select:text;-webkit-user-select:text}
+.c-jobs li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 12px}.c-job{display:flex;flex-direction:column}.c-job .sm{font-size:14px;color:#5b5f4d}.c-job .sm.bad{color:#a5281b}
+.c-pay{display:flex;gap:10px;align-items:center;white-space:nowrap}.log.c-jobs .c-pay .primary{background:var(--red);color:#fff6ec;width:auto;padding:6px 16px;font-size:16px;display:inline-block}.log.c-jobs .c-pay .primary:disabled{background:#9c8f80}
+.c-ferry,.c-loan{align-items:center;margin-top:10px}
+.c-card{border:1px solid rgba(28,32,24,.18);border-radius:3px;padding:10px 12px;margin:8px 0;background:#fbf7ea}.c-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.c-row.sm{font-size:14px;color:#5b5f4d}
+.c-cond{position:relative;height:18px;background:rgba(28,32,24,.12);border-radius:2px;margin:6px 0}.c-cond i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}.c-cond span{position:relative;font-size:12px;font-weight:700;padding-left:6px;line-height:18px}
+.c-table{width:100%;border-collapse:collapse;font-size:15px}.c-table th{text-align:left;color:#5b5f4d;font-weight:700;border-bottom:1px solid rgba(28,32,24,.25);padding:4px 6px}.c-table td{border-bottom:1px solid rgba(28,32,24,.1);padding:4px 6px;vertical-align:top}
+.c-btns{white-space:nowrap}.c-btns .ghost{padding:4px 8px;font-size:14px;margin:1px}.c-stmt td:nth-child(3),.c-stmt td:nth-child(4){white-space:nowrap;text-align:right}
+@media (max-width:600px){.c-table{font-size:13px}.c-btns .ghost{display:block;width:100%}.c-jobs li{flex-direction:column;align-items:stretch}.c-pay{justify-content:space-between}}
 @media (max-width:760px){.map-in{grid-template-columns:1fr;grid-template-rows:42vh auto;height:auto;min-height:100%}.map-screen{overflow:auto}}
 .credit-m{font-size:13px;color:var(--muted);margin-top:14px}
 .card{background:var(--paper);color:var(--ink);border-radius:3px;max-width:520px;width:100%;padding:22px 24px 18px;box-shadow:0 24px 60px rgba(0,0,0,.45);margin:auto}
@@ -144,7 +160,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
         <label>Graphics <select id="o-quality"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low (phones)</option></select></label>
       </div>
       <div class="pad-row"><p id="pad-status"></p><button id="pad-hid" class="ghost" hidden>Connect DualSense lights and triggers</button></div>
-      <div class="go-row"><button id="btn-go" class="primary">Fly</button><button id="btn-map" class="ghost">Fly between airports</button><button id="btn-keys" class="ghost" aria-expanded="false">Controls</button></div>
+      <div class="go-row"><button id="btn-go" class="primary">Fly</button><button id="btn-map" class="ghost">Fly between airports</button><button id="btn-career" class="ghost">Career</button><button id="btn-keys" class="ghost" aria-expanded="false">Controls</button></div>
       <div id="keys" class="keys" hidden>
         <kbd>↑ / ↓</kbd><span>Nose up / nose down (swap with “Pilot-style pitch”)</span>
         <kbd>← / →</kbd><span>Roll left / right. On the ground: steer</span>
@@ -184,6 +200,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
     </div>
   </div>
 </div>
+<div id="career" class="screen dim hidden"><div class="card career" id="career-in" role="dialog" aria-label="Career"></div></div>
 <div id="result" class="screen dim hidden">
   <div class="card" role="dialog" aria-labelledby="r-title">
     <h2 id="r-title"></h2><p id="r-reason"></p>
@@ -1591,10 +1608,13 @@ function newGame(mi,mode){
   for(const r of ringDefs){const mesh=new THREE.Mesh(new THREE.TorusGeometry(70,4,10,48),new THREE.MeshBasicMaterial({color:'#ffbe46',transparent:true,opacity:0.9,fog:false}));
     mesh.position.set(r.x,r.y,r.z);mesh.rotation.y=Math.atan2(r.nx,r.nz);scene.add(mesh);g.rings.push(Object.assign({mesh,state:'wait',prev:null},r));}
   if(g.rings.length)g.rings[0].state='next';
+  // a worn career aircraft gives a little less thrust
+  if(M.route&&M.route.job&&CAREER){const f=CAREER.fleet.find(x=>x.id===M.route.job.fleet);if(f)p.engineMax=clamp(0.9+f.condition/1000,0.9,1);}
   finishStep(p);g.startFuel=p.fuelKg;if(!p.ap.on)apSync(p);setAircraftState(A,p,0);syncModel(g);
   return g;}
 function finish(g,ok,reason){
   if(g.status!=='play')return;g.status=ok?'success':'fail';g.reason=reason;g.endT=g.t+(ok?1.6:2.8);
+  if(g.mode==='play'&&g.M.route&&g.M.route.job&&CAREER)g.career=settleJob(g,ok);
   if(ok){const s=g.stats,M=g.M;let st=1;
     if(M.key==='depart')st=g.time<75?3:g.time<110?2:1;
     else{st=s.sink!==null&&s.sink<=1.5&&s.offset<8?3:s.sink!==null&&s.sink<=3?2:1;}
@@ -1612,6 +1632,8 @@ function missionUpdate(g,dt){
     r.prev=d;}
   const stopped=p.onGround&&p.v<1.5&&g.flags.flew;
   if(M.route)routeUpdate(g,dt);
+  // overspeed: over VMO or MMO (reported in a career flight)
+  if(!p.onGround&&(p.ias*3.6>p.spec.vmoKmh*1.02||(p.spec.mmo&&p.mach>p.spec.mmo+0.01)))g.flags.overspeedT=(g.flags.overspeedT||0)+dt;
   switch(M.key){
     case 'depart':if(!p.onGround&&p.agl>=600&&p.gearPos<0.03&&flapsUp(p))finish(g,true,'A clean departure from Lahore.');break;
     case 'route':{if(!stopped)break;const P=M.route,dest=AIRPORT_BY_ICAO[P.dest];
@@ -1738,6 +1760,122 @@ function skipToDescent(g){const P=g.M.route,p=g.plane;if(!P){toast(g,'Skipping a
   p.gearDown=false;p.gearPos=0;p.flapIdx=0;p.flapPos=0;placeInAir(p,q.x,q.z,alt,(hdg+360)%360,250*KT,0.4,0);
   p.ap.on=true;p.ap.at=true;p.ap.lat='NAV';p.ap.vnav=true;apSync(p);p.ap.spd=250*KT;g.timeScale=1;g.M.dest=P.arrEnd;g.cam.init=false;finishStep(p);
   toast(g,`Skipped ${Math.round(skipped/1000).toLocaleString('en-GB')} km and burned ${Math.round(used).toLocaleString('en-GB')} kg of fuel. Descending to ${dest.city}`);}
+
+
+/* ---------- career: jobs, fleet, bank ---------- */
+// Virtual currency only: "credits" (cr) have no real value, and there is nothing to buy with real money.
+// Every number that shapes the economy lives in ECON, so it can be tuned in one place. The figures are loosely based on
+// real airline costs, but scaled for a game: aircraft cost about a tenth of their real market value, and fares are
+// generous, so a new fleet member is a few evenings' flying away rather than a decade.
+const ECON={
+  startCash:150000,startAircraft:'b738',startCondition:78,
+  // revenue
+  fareBase:40,fareKm:0.1,loadFactor:[0.62,0.95],cargoBase:900,cargoTkm:0.4,
+  onTimeBonus:0.08,lateMinutesFree:15,latePerMinute:0.004,latePenaltyMax:0.35,
+  landingBonus:{smooth:0.08,firm:0,hard:-0.15},centrelinePenalty:0.05,
+  // costs
+  fuelPrice:{OPLA:0.95,OPIS:0.95,OPKC:0.9,OMDB:0.75,EGLL:1.05,KJFK:0.85,LTFM:0.9,OEJN:0.7}, // credits per kg
+  landingFee:{OPLA:6,OPIS:6,OPKC:6,OMDB:9,EGLL:25,KJFK:18,LTFM:10,OEJN:8},                // credits per tonne of MTOW
+  crewPerHour:{narrow:900,wide:1500,a388:2200,turboprop:700,freighter:1200},
+  maintPerHourOfValue:0.00006,wearPerHour:0.35,hardLandingWear:5,hardLandingInspection:0.005,repairPerPoint:0.0035,
+  overspeedFine:15000,diversionRevenue:0.3,diversionPerPax:150,crashInsurance:0.7,crashPerPax:500,
+  // fleet and bank
+  prices:{b738:2200000,a320:2500000,b789:12000000,b77w:9000000,a359:14000000,b744:1500000,a388:8000000,c130:3000000,c17:10000000},
+  usedPrice:0.62,usedCondition:72,sellFraction:0.85,leaseMonthly:0.03,leaseDeposit:1,
+  loanBaseRate:0.07,loanRiskRate:0.06,loanTerms:[12,24,36,60],
+  daysPerFlight:1,daysPerMonth:30,maxTransactions:400,minCondition:25,jobsPerAirport:7
+};
+const RANKS=[[0,'Second officer'],[20,'First officer'],[60,'Senior first officer'],[150,'Captain'],[400,'Senior captain'],[1000,'Training captain']];
+const CAREER_KEY='tu95-bear-3d-career-v1';
+let CAREER=null;
+function loadCareer(){try{const c=JSON.parse(localStorage.getItem(CAREER_KEY)||'null');if(c&&c.v===1)CAREER=c;}catch(e){}return CAREER;}
+function saveCareer(){if(!CAREER)return;CAREER.updated=Date.now();try{localStorage.setItem(CAREER_KEY,JSON.stringify(CAREER));}catch(e){}if(typeof CLOUD!=='undefined')CLOUD.saveCareer&&CLOUD.saveCareer();}
+const careerAircraft=()=>AIRCRAFT.filter(a=>ECON.prices[a.id]!==undefined);
+const cr=n=>`${n<0?'−':''}${Math.round(Math.abs(n)).toLocaleString('en-GB')} cr`;
+function rankFor(h){let r=RANKS[0][1];for(const [m,n] of RANKS)if(h>=m)r=n;return r;}
+function crewClass(sp){if(sp.id==='a388')return'a388';if(sp.id==='c130')return'turboprop';if(sp.cat!=='airliner')return'freighter';return sp.geo&&sp.geo.D>5?'wide':'narrow';}
+function marketValue(f){return ECON.prices[f.type]*(0.4+0.6*f.condition/100);}
+function newCareer(name,base){const c={v:1,created:Date.now(),pilot:{name:name||progress.name||'Pilot',base,hours:0,landings:0,smooth:0,flights:0},
+  day:1,cash:0,fleet:[],tx:[],loans:[],months:[],month:{n:1,revenue:0,costs:0,flights:0},jobs:{},seq:1,active:null};
+  CAREER=c;tx('Opening balance',ECON.startCash,'bank');
+  c.fleet.push({id:'f'+(c.seq++),name:'Bear 01',type:ECON.startAircraft,own:'owned',condition:ECON.startCondition,hours:0,loc:base,bought:c.day,paid:0});
+  saveCareer();return c;}
+function tx(desc,amount,kind){const c=CAREER;c.cash=Math.round(c.cash+amount);c.tx.unshift({d:Math.floor(c.day),desc,amount:Math.round(amount),bal:c.cash,kind:kind||'other'});
+  if(c.tx.length>ECON.maxTransactions)c.tx.length=ECON.maxTransactions;
+  // the monthly summary is operating results: aircraft purchases and sales, and loan principal, are capital
+  if(kind!=='bank'&&kind!=='loan'&&kind!=='fleet'){if(amount>0)c.month.revenue+=amount;else c.month.costs-=amount;}}
+/* ---- jobs ---- */
+// Each airport offers a handful of passenger and cargo jobs to the others, refreshed every day.
+function jobsAt(icao){const c=CAREER,key=icao+'@'+Math.floor(c.day);if(c.jobs.key===key)return c.jobs.list;
+  const r=rng(Math.floor(c.day)*131+icao.charCodeAt(0)*7+icao.charCodeAt(3));const list=[];
+  const dests=AIRPORTS.filter(a=>a.icao!==icao);
+  for(let i=0;i<ECON.jobsPerAirport;i++){const d=dests[Math.floor(r()*dests.length)];const cargo=r()<0.3;const dist=gcDist(AIRPORT_BY_ICAO[icao].ref,d.ref);
+    const lf=lerp(ECON.loadFactor[0],ECON.loadFactor[1],r());const urgent=r()<0.25;
+    list.push({id:`${key}#${i}`,from:icao,to:d.icao,kind:cargo?'cargo':'pax',lf,urgent,dist,
+      title:cargo?`${urgent?'Urgent freight':'Freight'} to ${d.city}`:`${urgent?'Charter':'Scheduled flight'} to ${d.city}`});}
+  c.jobs={key,list};return list;}
+// what a job pays with a given aircraft, before bonuses and penalties
+function jobQuote(job,f){const sp=AIRCRAFT_BY_ID[f.type];const km=job.dist/1000;
+  if(job.kind==='pax'){if(!sp.pax)return null;const pax=Math.round(sp.pax*job.lf);const fare=(ECON.fareBase+ECON.fareKm*km)*(job.urgent?1.25:1);return{pax,payload:Math.min(sp.payload,pax*95),pay:Math.round(pax*fare)};}
+  const t=Math.round(sp.payload*job.lf/1000*10)/10;return{t,payload:Math.round(t*1000),pay:Math.round((ECON.cargoBase*t+ECON.cargoTkm*t*km)*(job.urgent?1.3:1))};}
+function canFly(job,f){if(f.loc!==job.from)return`${f.name} is at ${f.loc}, not ${job.from}`;if(f.condition<ECON.minCondition)return`${f.name} needs maintenance before it can fly`;
+  const sp=AIRCRAFT_BY_ID[f.type],q=jobQuote(job,f);if(!q)return`${sp.name} can’t carry passengers`;
+  const P=planFlight(sp,job.from,job.to,{load:q.payload/sp.payload});if(!P.range)return`Beyond the ${sp.name}’s range with this load`;return null;}
+function startJob(job,f,opts){const sp=AIRCRAFT_BY_ID[f.type],q=jobQuote(job,f);const P=planFlight(sp,job.from,job.to,Object.assign({load:q.payload/sp.payload},opts||{}));
+  P.job={id:job.id,kind:job.kind,from:job.from,to:job.to,quote:q,fleet:f.id,sched:P.hours,urgent:job.urgent,title:job.title};CAREER.active=P.job;saveCareer();
+  progress.plane=sp.id;save();PLAN=P;return P;}
+function ferryJob(f,to){const sp=AIRCRAFT_BY_ID[f.type];const P=planFlight(sp,f.loc,to,{load:0});P.job={id:'ferry',kind:'ferry',from:f.loc,to,quote:{pay:0,payload:0},fleet:f.id,sched:P.hours,title:`Ferry ${f.name} to ${AIRPORT_BY_ICAO[to].city}`};
+  CAREER.active=P.job;saveCareer();progress.plane=sp.id;save();PLAN=P;return P;}
+// Settle a finished career flight: pay, bonuses and penalties, then the real costs of the flight.
+function settleJob(g,ok){const P=g.M.route,J=P&&P.job,c=CAREER;if(!J||!c)return null;const f=c.fleet.find(x=>x.id===J.fleet);if(!f)return null;
+  const sp=AIRCRAFT_BY_ID[f.type],p=g.plane,lines=[];const L=(k,v)=>{lines.push([k,v]);return v;};
+  const hours=(g.time+(g.skippedSec||0))/3600,landedAt=REGION.icao,crashed=!p.alive,arrived=ok&&landedAt===J.to;
+  let revenue=0;
+  if(J.kind!=='ferry'){
+    if(arrived){revenue=L(J.kind==='pax'?`${J.quote.pax} passengers`:`${J.quote.t} t of cargo`,J.quote.pay);
+      const late=(hours-J.sched)*60-ECON.lateMinutesFree;
+      if(late<=0)revenue+=L('On time',J.quote.pay*ECON.onTimeBonus);else revenue-=L(`Late by ${Math.round(late+ECON.lateMinutesFree)} min`,J.quote.pay*Math.min(ECON.latePenaltyMax,late*ECON.latePerMinute))*1;
+      const s=g.stats.sink||0;const lb=s<1.5?ECON.landingBonus.smooth:s<3?ECON.landingBonus.firm:ECON.landingBonus.hard;if(lb)revenue+=L(s<1.5?`Smooth landing (${s.toFixed(1)} m/s)`:`Hard landing (${s.toFixed(1)} m/s)`,J.quote.pay*lb);
+      if((g.stats.offset||0)>10)revenue-=L(`${Math.round(g.stats.offset)} m off the centreline`,J.quote.pay*ECON.centrelinePenalty)*1;}
+    else if(!crashed&&p.onGround){revenue=L(`Diverted to ${landedAt}: part payment`,J.quote.pay*ECON.diversionRevenue);if(J.quote.pax)revenue-=L('Passenger compensation',J.quote.pax*ECON.diversionPerPax);}}
+  // costs from the flight itself
+  const fuelUsed=Math.max(0,g.startFuel-p.fuelKg),fp=ECON.fuelPrice[J.from]||0.9;
+  const costs=[[`Fuel, ${(fuelUsed/1000).toFixed(1)} t at ${J.from}`,fuelUsed*fp],[`Crew, ${hours.toFixed(1)} h`,hours*ECON.crewPerHour[crewClass(sp)]],[`Maintenance reserve`,ECON.prices[f.type]*ECON.maintPerHourOfValue*hours]];
+  if(p.onGround&&!crashed)costs.push([`Landing fee at ${landedAt}`,(ECON.landingFee[landedAt]||8)*sp.mtow/1000]);
+  if((g.flags.overspeedT||0)>5)costs.push(['Overspeed fine',ECON.overspeedFine]);
+  const s=g.stats.sink||0;if(s>=3.05&&!crashed)costs.push(['Hard-landing inspection',ECON.prices[f.type]*ECON.hardLandingInspection]);
+  // the aircraft
+  f.hours+=hours;f.condition=Math.max(0,f.condition-ECON.wearPerHour*hours-(s>=3.05?ECON.hardLandingWear*(1+(s-3.05)):0));
+  if(crashed){const ins=f.own==='owned'?marketValue(f)*ECON.crashInsurance:0;if(J.quote.pax)costs.push(['Passenger compensation',J.quote.pax*ECON.crashPerPax]);
+    if(ins)revenue+=L('Insurance pay-out (hull loss)',ins);else costs.push(['Leased aircraft lost: lessor claim',ECON.prices[f.type]*0.25]);c.fleet=c.fleet.filter(x=>x!==f);}
+  else if(p.onGround)f.loc=landedAt;
+  // the pilot
+  c.pilot.hours+=hours;c.pilot.flights++;if(p.onGround&&!crashed){c.pilot.landings++;if(s<1.5)c.pilot.smooth++;}
+  // post it all to the bank
+  const label=J.title;if(revenue)tx(`${label}: revenue`,revenue,'revenue');let costTotal=0;for(const [k,v] of costs){tx(`${label}: ${k.toLowerCase()}`,-v,'cost');costTotal+=v;}
+  c.month.flights++;advanceDays(Math.max(ECON.daysPerFlight,hours/24));c.active=null;saveCareer();
+  return{lines,costs,revenue,costTotal,net:revenue-costTotal,cash:c.cash,fleet:f,crashed};}
+/* ---- time, months, leases and loans ---- */
+function advanceDays(d){const c=CAREER;const before=Math.floor((c.day-1)/ECON.daysPerMonth);c.day+=d;const after=Math.floor((c.day-1)/ECON.daysPerMonth);for(let m=before;m<after;m++)endOfMonth();}
+function endOfMonth(){const c=CAREER;
+  for(const f of c.fleet)if(f.own==='leased')tx(`Lease: ${f.name} (${AIRCRAFT_BY_ID[f.type].name})`,-f.lease,'cost');
+  for(const L of c.loans){if(L.remaining<=0)continue;const interest=L.remaining*L.rate/12,pay=Math.min(L.monthly,L.remaining+interest);L.remaining=Math.max(0,L.remaining+interest-pay);L.paid++;tx(`Loan repayment (${L.paid} of ${L.months})`,-pay,'loan');c.month.costs+=interest;}
+  c.loans=c.loans.filter(L=>L.remaining>0.5);
+  c.months.unshift(Object.assign({},c.month,{net:c.month.revenue-c.month.costs,cash:c.cash}));if(c.months.length>24)c.months.length=24;c.month={n:c.month.n+1,revenue:0,costs:0,flights:0};}
+function loanOffer(){const c=CAREER;const fleetVal=c.fleet.filter(f=>f.own==='owned').reduce((a,f)=>a+marketValue(f),0);const debt=c.loans.reduce((a,L)=>a+L.remaining,0);
+  const recent=c.months.slice(0,3);const avgNet=recent.length?recent.reduce((a,m)=>a+m.net,0)/recent.length:0;
+  const max=Math.max(0,Math.round((fleetVal*0.5+Math.max(0,avgNet)*6+200000-debt)/10000)*10000);const rate=ECON.loanBaseRate+ECON.loanRiskRate*clamp(debt/Math.max(1,fleetVal),0,1);return{max,rate,debt};}
+function takeLoan(amount,months){const o=loanOffer();amount=Math.min(amount,o.max);if(amount<=0)return false;const r=o.rate/12;const monthly=amount*r/(1-Math.pow(1+r,-months));
+  CAREER.loans.push({id:'L'+(CAREER.seq++),principal:amount,rate:o.rate,months,paid:0,monthly:Math.round(monthly),remaining:amount,day:CAREER.day});tx(`Loan of ${cr(amount)} over ${months} months at ${(o.rate*100).toFixed(1)}%`,amount,'loan');saveCareer();return true;}
+function repayLoan(id){const c=CAREER,L=c.loans.find(x=>x.id===id);if(!L)return;const amt=Math.min(L.remaining,c.cash);if(amt<=0)return;L.remaining-=amt;tx('Early loan repayment',-amt,'loan');c.loans=c.loans.filter(x=>x.remaining>0.5);saveCareer();}
+function buyAircraft(type,used,lease){const c=CAREER,sp=AIRCRAFT_BY_ID[type],price=ECON.prices[type]*(used?ECON.usedPrice:1),n=c.fleet.length+1;
+  const f={id:'f'+(c.seq++),name:`Bear ${String(n).padStart(2,'0')}`,type,own:lease?'leased':'owned',condition:used?ECON.usedCondition:100,hours:0,loc:c.pilot.base,bought:c.day,paid:lease?0:price,lease:lease?Math.round(ECON.prices[type]*ECON.leaseMonthly*(used?0.7:1)):0};
+  const due=lease?f.lease*ECON.leaseDeposit:price;if(due>c.cash)return`You need ${cr(due)}: ${cr(c.cash)} in the bank`;
+  c.fleet.push(f);tx(lease?`Lease deposit: ${f.name} (${sp.name})`:`Bought ${f.name} (${used?'used ':''}${sp.name})`,-due,'fleet');saveCareer();return null;}
+function sellAircraft(id){const c=CAREER,f=c.fleet.find(x=>x.id===id);if(!f||c.fleet.length<2)return'You need at least one aircraft';
+  if(f.own==='leased'){c.fleet=c.fleet.filter(x=>x!==f);tx(`Returned ${f.name} to the lessor`,0,'fleet');}else{const v=marketValue(f)*ECON.sellFraction;c.fleet=c.fleet.filter(x=>x!==f);tx(`Sold ${f.name} (${AIRCRAFT_BY_ID[f.type].name})`,v,'fleet');}saveCareer();return null;}
+function repairAircraft(id){const c=CAREER,f=c.fleet.find(x=>x.id===id);if(!f)return;const pts=100-f.condition,cost=ECON.prices[f.type]*ECON.repairPerPoint*pts;if(cost>c.cash)return`Repairs cost ${cr(cost)}`;
+  f.condition=100;tx(`Maintenance check: ${f.name}`,-cost,'cost');advanceDays(1);saveCareer();return null;}
 
 
 /* ---------- 3D cockpits ---------- */
@@ -2137,6 +2275,86 @@ function wireMap(){const cv=$('#map-cv');
   addEventListener('resize',drawMap);}
 
 
+/* ---------- career screens ---------- */
+const CUI={tab:'jobs',fleet:null,confirm:null};
+function el(tag,attrs,...kids){const e=document.createElement(tag);for(const k in attrs||{}){if(k==='on')for(const ev in attrs.on)e.addEventListener(ev,attrs.on[ev]);else if(k==='class')e.className=attrs[k];else if(attrs[k]!==undefined&&attrs[k]!==false)e.setAttribute(k,attrs[k]===true?'':attrs[k]);}
+  for(const c of kids.flat()){if(c===null||c===undefined||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)));}return e;}
+function openCareer(){AU.init();loadCareer();show($('#menu'),false);show($('#career'),true);renderCareer();}
+function closeCareer(){show($('#career'),false);show($('#menu'),true);buildMenu();}
+function careerMsg(t,bad){const m=$('#career-msg');if(m){m.textContent=t||'';m.className='c-msg'+(bad?' bad':'');}}
+function renderCareer(){const root=$('#career-in');root.innerHTML='';
+  if(!CAREER){const name=el('input',{type:'text',maxlength:24,value:progress.name||'',placeholder:'Your name','aria-label':'Pilot name'});
+    const base=el('select',{'aria-label':'Home base'},AIRPORTS.map(a=>el('option',{value:a.icao,selected:a.icao==='OPLA'},`${a.city} (${a.iata})`)));
+    root.append(el('h2',{},'Start a career'),
+      el('p',{},`You start with one used ${AIRCRAFT_BY_ID[ECON.startAircraft].name} at your home base and ${cr(ECON.startCash)}. Fly passenger and cargo jobs between the eight airports, then lease, buy and borrow to grow your fleet.`),
+      el('p',{class:'c-note'},'Credits (cr) are a virtual currency for this game only. They have no real value and can’t be bought or sold.'),
+      el('label',{class:'c-field'},'Pilot name',name),el('label',{class:'c-field'},'Home base',base),
+      el('div',{class:'row'},el('button',{class:'primary',on:{click:()=>{const n=name.value.trim().slice(0,24)||'Pilot';progress.name=n;save();newCareer(n,base.value);renderCareer();}}},'Start career'),el('button',{class:'ghost',on:{click:closeCareer}},'Back')),
+      el('p',{class:'credit'},'Ту-95 Bear 3D by ',el('strong',{},'@harrisbasra™')));return;}
+  const c=CAREER,P=c.pilot;
+  root.append(el('div',{class:'c-head'},el('div',{},el('h2',{},P.name),el('p',{class:'c-sub'},`${rankFor(P.hours)} · ${P.hours.toFixed(1)} h · ${P.landings} landings · based at ${AIRPORT_BY_ICAO[P.base].city} · day ${Math.floor(c.day)}`)),
+    el('div',{class:'c-bal'},el('span',{},'Balance'),el('strong',{class:c.cash<0?'neg':''},cr(c.cash)))));
+  root.append(el('div',{class:'cats',role:'tablist'},[['jobs','Jobs'],['fleet','Fleet'],['bank','Bank'],['profile','Profile']].map(([k,n])=>el('button',{class:'ghost',role:'tab','aria-selected':String(CUI.tab===k),on:{click:()=>{CUI.tab=k;CUI.confirm=null;renderCareer();}}},n))));
+  root.append(el('p',{id:'career-msg',class:'c-msg'}));
+  const body=el('div',{class:'c-body'});root.append(body);
+  ({jobs:careerJobs,fleet:careerFleet,bank:careerBank,profile:careerProfile})[CUI.tab](body);
+  root.append(el('div',{class:'row c-foot'},el('button',{class:'ghost',on:{click:closeCareer}},'Back to the menu')),el('p',{class:'credit'},'Virtual credits only. Ту-95 Bear 3D by ',el('strong',{},'@harrisbasra™')));}
+function careerJobs(body){const c=CAREER;if(!c.fleet.length){body.append(el('p',{},'You have no aircraft. Lease or buy one in the Fleet tab.'));return;}
+  if(!CUI.fleet||!c.fleet.find(f=>f.id===CUI.fleet))CUI.fleet=c.fleet[0].id;const f=c.fleet.find(x=>x.id===CUI.fleet),sp=AIRCRAFT_BY_ID[f.type];
+  body.append(el('label',{class:'c-field'},'Aircraft',el('select',{on:{change:e=>{CUI.fleet=e.target.value;renderCareer();}}},c.fleet.map(x=>el('option',{value:x.id,selected:x.id===f.id},`${x.name}: ${AIRCRAFT_BY_ID[x.type].name} at ${x.loc} (${Math.round(x.condition)}%)`)))));
+  if(c.active)body.append(el('p',{class:'c-note'},`Flight in progress: ${c.active.title}. `,el('button',{class:'ghost',on:{click:()=>{const J=c.active,f2=c.fleet.find(x=>x.id===J.fleet);if(!f2){c.active=null;saveCareer();renderCareer();return;}if(!PLAN||!PLAN.job||PLAN.job.id!==J.id){const sp2=AIRCRAFT_BY_ID[f2.type];PLAN=planFlight(sp2,J.from,J.to,{load:(J.quote.payload||0)/sp2.payload});PLAN.job=J;progress.plane=sp2.id;}show($('#career'),false);startFlight();}}},'Resume'),' ',el('button',{class:'ghost',on:{click:()=>{c.active=null;PLAN=null;saveCareer();renderCareer();}}},'Cancel it')));
+  const list=el('ol',{class:'log c-jobs'});
+  for(const job of jobsAt(f.loc)){const q=jobQuote(job,f),why=canFly(job,f),d=AIRPORT_BY_ICAO[job.to];
+    const est=q?planFlight(sp,job.from,job.to,{load:q.payload/sp.payload}):null;
+    list.append(el('li',{},el('div',{class:'c-job'},el('span',{class:'nm'},job.title),
+      el('span',{class:'sm'},`${job.from} to ${job.to} (${d.name}) · ${Math.round(job.dist/1000).toLocaleString('en-GB')} km${est?` · about ${Math.floor(est.hours)} h ${String(Math.round((est.hours%1)*60)).padStart(2,'0')}`:''} · ${q?(q.pax?`${q.pax} passengers`:`${q.t} t`):'—'}`),
+      why?el('span',{class:'sm bad'},why):null),
+      el('div',{class:'c-pay'},el('strong',{},q?cr(q.pay):'—'),el('button',{class:'primary',disabled:!!why,on:{click:()=>{startJob(job,f);show($('#career'),false);startFlight();}}},'Fly'))));}
+  body.append(list);
+  const to=el('select',{'aria-label':'Ferry to'},AIRPORTS.filter(a=>a.icao!==f.loc).map(a=>el('option',{value:a.icao},`${a.city} (${a.iata})`)));
+  body.append(el('div',{class:'row c-ferry'},el('span',{},`Ferry ${f.name} empty to`),to,el('button',{class:'ghost',on:{click:()=>{if(f.condition<ECON.minCondition){careerMsg('Repair the aircraft first',true);return;}const P=ferryJob(f,to.value);if(!P.range){careerMsg('That’s beyond its range',true);CAREER.active=null;PLAN=null;return;}show($('#career'),false);startFlight();}}},'Fly the ferry')));}
+function careerFleet(body){const c=CAREER;
+  for(const f of c.fleet){const sp=AIRCRAFT_BY_ID[f.type],rep=ECON.prices[f.type]*ECON.repairPerPoint*(100-f.condition);
+    const confirmKey='sell'+f.id;
+    body.append(el('div',{class:'c-card'},el('div',{class:'c-row'},el('strong',{},`${f.name}: ${sp.name}`),el('span',{},f.own==='leased'?`Leased, ${cr(f.lease)} a month`:`Owned, worth about ${cr(marketValue(f))}`)),
+      el('div',{class:'c-row sm'},`At ${f.loc} · ${f.hours.toFixed(1)} flight hours`),
+      el('div',{class:'c-cond',title:'Condition'},el('i',{style:`width:${Math.round(f.condition)}%;background:${f.condition<ECON.minCondition?'#c23b2b':f.condition<55?'#e3a33a':'#5fae4f'}`}),el('span',{},`Condition ${Math.round(f.condition)}%${f.condition<ECON.minCondition?': grounded':''}`)),
+      el('div',{class:'row'},el('button',{class:'ghost',disabled:f.condition>=99.5,on:{click:()=>{const e=repairAircraft(f.id);careerMsg(e||`${f.name} is back to 100%`,!!e);if(!e)renderCareer();}}},`Maintenance check (${cr(rep)})`),
+        el('button',{class:'ghost',disabled:c.fleet.length<2,on:{click:()=>{if(CUI.confirm!==confirmKey){CUI.confirm=confirmKey;renderCareer();careerMsg(`Tap again to ${f.own==='leased'?'return':'sell'} ${f.name}`);return;}CUI.confirm=null;const e=sellAircraft(f.id);careerMsg(e||'Done',!!e);renderCareer();}}},CUI.confirm===confirmKey?'Tap again to confirm':f.own==='leased'?'Return to lessor':`Sell (${cr(marketValue(f)*ECON.sellFraction)})`))));}
+  body.append(el('h3',{},'Market'),el('p',{class:'c-note'},'New and used aircraft are delivered to your home base. Leases are charged every 30 days.'));
+  const t=el('table',{class:'c-table'},el('tr',{},['Aircraft','New','Used','Lease a month',''].map(h=>el('th',{},h))));
+  for(const sp of careerAircraft()){const p=ECON.prices[sp.id];const buy=(used,lease)=>()=>{const e=buyAircraft(sp.id,used,lease);careerMsg(e||`${sp.name} added to the fleet`,!!e);if(!e)renderCareer();};
+    t.append(el('tr',{},el('td',{},sp.name,el('br'),el('small',{},sp.pax?`${sp.pax} seats`:`${Math.round(sp.payload/1000)} t cargo`)),el('td',{},cr(p)),el('td',{},cr(p*ECON.usedPrice)),el('td',{},cr(p*ECON.leaseMonthly)),
+      el('td',{class:'c-btns'},el('button',{class:'ghost',on:{click:buy(false,false)}},'Buy'),el('button',{class:'ghost',on:{click:buy(true,false)}},'Buy used'),el('button',{class:'ghost',on:{click:buy(false,true)}},'Lease'))));}
+  body.append(t);}
+function careerBank(body){const c=CAREER,o=loanOffer();
+  body.append(el('h3',{},'Loans'));
+  if(c.loans.length){const t=el('table',{class:'c-table'},el('tr',{},['Loan','Rate','Monthly','Left',''].map(h=>el('th',{},h))));
+    for(const L of c.loans)t.append(el('tr',{},el('td',{},`${cr(L.principal)}, ${L.paid} of ${L.months} paid`),el('td',{},`${(L.rate*100).toFixed(1)}%`),el('td',{},cr(L.monthly)),el('td',{},cr(L.remaining)),el('td',{},el('button',{class:'ghost',on:{click:()=>{repayLoan(L.id);renderCareer();}}},'Repay'))));body.append(t);}
+  else body.append(el('p',{class:'c-note'},'No loans.'));
+  const amt=el('select',{'aria-label':'Amount'},[0.25,0.5,0.75,1].map(k=>Math.round(o.max*k/10000)*10000).filter((v,i,a)=>v>0&&a.indexOf(v)===i).map(v=>el('option',{value:v},cr(v))));
+  const term=el('select',{'aria-label':'Term'},ECON.loanTerms.map(m=>el('option',{value:m,selected:m===36},`${m} months`)));
+  body.append(o.max>0?el('div',{class:'row c-loan'},el('span',{},`The bank will lend up to ${cr(o.max)} at ${(o.rate*100).toFixed(1)}% a year.`),amt,term,
+    el('button',{class:'ghost',on:{click:()=>{const ok=takeLoan(+amt.value,+term.value);careerMsg(ok?'Loan paid into your account':'The bank said no',!ok);renderCareer();}}},'Take the loan')):el('p',{class:'c-note'},'The bank won’t lend more until your fleet or income grows.'));
+  body.append(el('h3',{},'Monthly summaries'));
+  const all=[Object.assign({},c.month,{net:c.month.revenue-c.month.costs,cash:c.cash,current:true})].concat(c.months);
+  const ms=el('table',{class:'c-table'},el('tr',{},['Month','Flights','Revenue','Costs','Net','Balance'].map(h=>el('th',{},h))));
+  for(const m of all.slice(0,12))ms.append(el('tr',{},el('td',{},`${m.n}${m.current?' (so far)':''}`),el('td',{},m.flights),el('td',{},cr(m.revenue)),el('td',{},cr(m.costs)),el('td',{class:m.net<0?'neg':''},cr(m.net)),el('td',{},cr(m.cash))));body.append(ms);
+  body.append(el('h3',{},'Statement'));
+  const st=el('table',{class:'c-table c-stmt'},el('tr',{},['Day','Description','Amount','Balance'].map(h=>el('th',{},h))));
+  for(const t of c.tx.slice(0,80))st.append(el('tr',{},el('td',{},t.d),el('td',{},t.desc),el('td',{class:t.amount<0?'neg':''},cr(t.amount)),el('td',{},cr(t.bal))));body.append(st);}
+function careerProfile(body){const c=CAREER,P=c.pilot;const next=RANKS.find(r=>r[0]>P.hours);
+  const dl=el('dl',{class:'stats'});const add=(k,v)=>dl.append(el('dt',{},k),el('dd',{},v));
+  add('Rank',rankFor(P.hours)+(next?` (${next[1]} at ${next[0]} h)`:''));add('Flight hours',P.hours.toFixed(1));add('Flights',P.flights);add('Landings',`${P.landings}, ${P.landings?Math.round(P.smooth/P.landings*100):0}% smooth`);
+  add('Home base',`${AIRPORT_BY_ICAO[P.base].name}, ${AIRPORT_BY_ICAO[P.base].city}`);add('Fleet',`${c.fleet.length} aircraft`);add('Career day',Math.floor(c.day));body.append(dl);
+  const base=el('select',{},AIRPORTS.map(a=>el('option',{value:a.icao,selected:a.icao===P.base},`${a.city} (${a.iata})`)));
+  body.append(el('div',{class:'row'},el('span',{},'Move home base to'),base,el('button',{class:'ghost',on:{click:()=>{P.base=base.value;saveCareer();renderCareer();careerMsg('New deliveries will go to '+AIRPORT_BY_ICAO[P.base].city);}}},'Move')));
+  body.append(el('div',{class:'row'},el('button',{class:'ghost',on:{click:()=>{if(CUI.confirm!=='reset'){CUI.confirm='reset';renderCareer();careerMsg('Tap again to delete this career and start over. This can’t be undone.',true);return;}
+    CUI.confirm=null;CAREER=null;try{localStorage.removeItem(CAREER_KEY);}catch(e){}if(typeof CLOUD!=='undefined'&&CLOUD.deleteCareer)CLOUD.deleteCareer();renderCareer();}}},CUI.confirm==='reset'?'Tap again to confirm':'Reset career')));}
+function careerResultRows(r,add){for(const [k,v] of r.lines)add(k,cr(v));for(const [k,v] of r.costs)add(k,cr(-v));add('Net for the flight',cr(r.net));add('Bank balance',cr(r.cash));add('Aircraft condition',`${Math.round(r.fleet.condition)}%`);}
+function wireCareer(){$('#btn-career').addEventListener('click',openCareer);}
+
+
 /* ---------- units ---------- */
 // The game panel uses km/h and metres by default; "aviation units" switches it to knots and feet, as real cockpits use.
 const spdText=kmh=>progress.units==='aviation'?`${Math.round(kmh/KT)} kt`:`${Math.round(kmh)} km/h`;
@@ -2334,7 +2552,7 @@ function buildMenu(){
 function show(el,v){el.classList.toggle('hidden',!v);}
 let isTouch=matchMedia('(pointer: coarse)').matches;
 function startAttract(){game=newGame(progress.mission||0,'attract');}
-function toMenu(){show($('#result'),false);show($('#pause'),false);show($('#touch'),false);show($('#btn-pause'),false);show($('#btn-cam'),false);show($('#btn-time'),false);show($('#btn-skip'),false);show($('#map'),false);startAttract();buildMenu();show($('#menu'),true);}
+function toMenu(){if(PLAN&&PLAN.job)PLAN=null;show($('#result'),false);show($('#pause'),false);show($('#touch'),false);show($('#btn-pause'),false);show($('#btn-cam'),false);show($('#btn-time'),false);show($('#btn-skip'),false);show($('#map'),false);startAttract();buildMenu();show($('#menu'),true);}
 // map data that couldn't be loaded is remembered, and the airport is built with the generic layout instead
 const NO_DATA=new Set();const hasData=i=>!!(window.TU95_OSM&&TU95_OSM[i]);
 async function ensureData(icao){const ap=AIRPORT_BY_ICAO[icao];if(ap&&ap.osm&&!hasData(icao)&&!NO_DATA.has(icao)){try{await loadScript(`data/${icao}.js`);}catch(e){NO_DATA.add(icao);console.warn(e.message);}}}
@@ -2349,7 +2567,8 @@ function showResult(g){show($('#touch'),false);show($('#btn-pause'),false);show(
   $('#r-title').textContent=ok?'Mission complete':'Mission failed';$('#r-reason').textContent=g.reason;const st=ok?g.starsWon:0;$('#r-stars').innerHTML=ok?`${'★'.repeat(st)}<span class="off">${'★'.repeat(3-st)}</span>`:'';
   const dl=$('#r-stats');dl.innerHTML='';const add=(k,v)=>{const a=document.createElement('dt');a.textContent=k;const b=document.createElement('dd');b.textContent=v;dl.append(a,b);};
   add('Pilot',progress.name||'Unnamed pilot');add('Aircraft',g.plane.spec.name);add('Flight time',`${Math.floor(g.time/60)}:${String(Math.floor(g.time%60)).padStart(2,'0')}`);
-  if(g.M.route){const P=g.M.route;add('Route',`${P.dep} to ${P.dest}, ${Math.round(P.dist/1000).toLocaleString('en-GB')} km`);add('Fuel used',`${(Math.max(0,g.startFuel-g.plane.fuelKg)/1000).toFixed(1)} t, ${(g.plane.fuelKg/1000).toFixed(1)} t left`);if(g.skippedKm)add('Skipped',`${Math.round(g.skippedKm).toLocaleString('en-GB')} km of cruise`);}
+  if(g.career){$('#r-title').textContent=ok?'Flight complete':g.career.crashed?'Aircraft lost':'Flight not completed';careerResultRows(g.career,add);}
+  else if(g.M.route){const P=g.M.route;add('Route',`${P.dep} to ${P.dest}, ${Math.round(P.dist/1000).toLocaleString('en-GB')} km`);add('Fuel used',`${(Math.max(0,g.startFuel-g.plane.fuelKg)/1000).toFixed(1)} t, ${(g.plane.fuelKg/1000).toFixed(1)} t left`);if(g.skippedKm)add('Skipped',`${Math.round(g.skippedKm).toLocaleString('en-GB')} km of cruise`);}
   if(g.stats.sink!==null){add('Touchdown',`${g.stats.sink.toFixed(1)} m/s`);add('From centreline',`${g.stats.offset.toFixed(0)} m`);}
   if(ok&&st<3&&g.M.key!=='depart')add('Three stars','Touch down at 1.5 m/s or less within 8 m of the centreline');
   show($('#result'),true);setTimeout(()=>$('#r-retry').focus({preventScroll:true}),30);}
@@ -2395,7 +2614,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){for(const 
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',()=>{down=null;if(game)game.cam.dragging=false;});})();
 /* ---------- wiring ---------- */
 function wire(){
-  $('#btn-go').addEventListener('click',()=>{PLAN=null;startFlight();});wireMap();
+  $('#btn-go').addEventListener('click',()=>{PLAN=null;startFlight();});wireMap();wireCareer();
   $('#btn-keys').addEventListener('click',e=>{const k=$('#keys');k.hidden=!k.hidden;e.currentTarget.setAttribute('aria-expanded',String(!k.hidden));});
   $('#o-assist').addEventListener('change',e=>{progress.assist=e.target.checked;save();});$('#o-land').addEventListener('change',e=>{progress.landAssist=e.target.checked;save();});
   $('#o-invert').addEventListener('change',e=>{progress.invert=e.target.checked;save();});$('#o-sound').addEventListener('change',e=>{AU.init();AU.setOn(e.target.checked);});
@@ -2440,7 +2659,7 @@ function boot(){
   renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=qual().shadows;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   camera=new THREE.PerspectiveCamera(60,1,0.5,60000);wire();
   loadRegion(progress.region||'OPLA').then(()=>{resize();startAttract();buildMenu();show($('#loading'),false);show($('#menu'),true);requestAnimationFrame(frame);CLOUD.init();});}
-window.__bear3d={get game(){return game;},debug:()=>({obst:game&&obstacleH(game.plane.pos.x,game.plane.pos.z),grid:game&&W3.grid.get(gridKey(game.plane.pos.x,game.plane.pos.z)),boxes:game&&(W3.boxes.get(Math.floor(game.plane.pos.x/100)+","+Math.floor(game.plane.pos.z/100))||[]).length,apl:game&&approachLimit(game.plane.pos.x,game.plane.pos.z),onRw:game&&!!onRunway(game.plane.pos.x,game.plane.pos.z,200),pos:game&&[Math.round(game.plane.pos.x),Math.round(game.plane.pos.y),Math.round(game.plane.pos.z)],water:WATER.length,hills:HILLS.length,rivers:RIVERS.length,city:CITY_C.length,region:REGION.icao,meshes:scene.children.length,inW:inWater(geo(40.62,-73.82).x,geo(40.62,-73.82).z)}),planFlight,setPlan:P=>{PLAN=P;},loadRegion,skipToDescent,cycleTime,AIRPORTS,get REGION(){return REGION;},get scene(){return scene;},get camera(){return camera;},get renderer(){return renderer;},buildAircraft,setAircraftState,apEngage,apArmApp,apAdjust,vspeeds,mass,step,IN,act,startFlight,newGame,AIRCRAFT,progress,save,ENDS,RWYS,setPlane:id=>{progress.plane=id;},setMission:i=>{progress.mission=i;}};
+window.__bear3d={get game(){return game;},ECON,get CAREER(){return CAREER;},newCareer,jobsAt,jobQuote,canFly,startJob,buyAircraft,takeLoan,repairAircraft,sellAircraft,advanceDays,debug:()=>({obst:game&&obstacleH(game.plane.pos.x,game.plane.pos.z),grid:game&&W3.grid.get(gridKey(game.plane.pos.x,game.plane.pos.z)),boxes:game&&(W3.boxes.get(Math.floor(game.plane.pos.x/100)+","+Math.floor(game.plane.pos.z/100))||[]).length,apl:game&&approachLimit(game.plane.pos.x,game.plane.pos.z),onRw:game&&!!onRunway(game.plane.pos.x,game.plane.pos.z,200),pos:game&&[Math.round(game.plane.pos.x),Math.round(game.plane.pos.y),Math.round(game.plane.pos.z)],water:WATER.length,hills:HILLS.length,rivers:RIVERS.length,city:CITY_C.length,region:REGION.icao,meshes:scene.children.length,inW:inWater(geo(40.62,-73.82).x,geo(40.62,-73.82).z)}),planFlight,setPlan:P=>{PLAN=P;},loadRegion,skipToDescent,cycleTime,AIRPORTS,get REGION(){return REGION;},get scene(){return scene;},get camera(){return camera;},get renderer(){return renderer;},buildAircraft,setAircraftState,apEngage,apArmApp,apAdjust,vspeeds,mass,step,IN,act,startFlight,newGame,AIRCRAFT,progress,save,ENDS,RWYS,setPlane:id=>{progress.plane=id;},setMission:i=>{progress.mission=i;}};
 boot();
 })();
 

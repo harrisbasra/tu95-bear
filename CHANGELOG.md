@@ -5,6 +5,18 @@ Notable changes to this project are recorded here. The format follows [Keep a Ch
 ## [Unreleased]
 
 ### Added
+- **Career mode in the 3D game:**
+  - **Profile:** pilot profile and ranks, plus a home base.
+  - **Jobs:** daily passenger and cargo jobs at every airport, paid by distance and load, with on-time and landing-quality bonuses and penalties.
+  - **Costs:** real fuel burn, landing fees, crew, maintenance and wear, overspeed fines, diversions and hull losses.
+  - **Fleet:** leasing, buying new or used, selling and maintenance checks.
+  - **Bank:** a bank account with a statement, loans and monthly summaries.
+  - **Virtual credits only.** Every economy setting is in one `ECON` object.
+- **Career fly-tests:** `CAREER=n python3 scripts/flytest.py` flies n consecutive career jobs.
+
+## Stage 3
+
+### Added
 - **Seven more airports in the 3D game:** Islamabad, Karachi, Dubai, London Heathrow, New York JFK, Istanbul and Jeddah, with Lahore as home base.
   - **Runways:** real runway data from OurAirports, including displaced thresholds.
   - **Layouts:** OpenStreetMap layouts where available.

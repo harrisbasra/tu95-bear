@@ -3,7 +3,7 @@
 // The JavaScript files are joined in order inside one closure, so they share scope.
 import { readFileSync, writeFileSync } from 'node:fs';
 
-export const PARTS = ['b_core.js', 'b_airports.js', 'c_models.js', 'c_airliners.js', 'd_world.js', 'd_airport.js', 'e_physics.js', 'e_autopilot.js', 'f_game.js', 'f_route.js', 'g_cockpit.js', 'g_pad.js', 'g_map.js', 'g_ui.js'];
+export const PARTS = ['b_core.js', 'b_airports.js', 'c_models.js', 'c_airliners.js', 'd_world.js', 'd_airport.js', 'e_physics.js', 'e_autopilot.js', 'f_game.js', 'f_route.js', 'f_career.js', 'g_cockpit.js', 'g_pad.js', 'g_map.js', 'g_career.js', 'g_ui.js'];
 
 const src = f => readFileSync(new URL(`../3d/src/${f}`, import.meta.url), 'utf8');
 let html = src('shell.html');

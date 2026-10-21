@@ -84,6 +84,13 @@ A full 3D version, with **Allama Iqbal International Airport (OPLA), Lahore** as
   - **Planning:** the planner chooses the runways, a cruise level and the fuel for your aircraft and load, and warns you when a route is beyond its range.
   - **Navigation:** NAV follows the great-circle route to the final approach fix; VNAV holds the cruise level, then descends on a 3° path.
   - **Long cruises:** speed up time (up to ×32) or skip straight to the descent. Skipping burns the fuel the skipped cruise would have used.
+- **Career mode.** Start with a used 737-800 at your home base and fly passenger and cargo jobs between the eight airports.
+  - **What you're paid:** distance and load, plus bonuses or penalties for arriving on time and for the landing (touchdown rate and centreline).
+  - **Penalties:** fines for overspeed, part payment and compensation for diversions, and a hull loss if you crash.
+  - **Costs from the flight you actually flew:** the fuel the flight model burned at that airport's price, landing fees by aircraft weight, crew hours and maintenance.
+  - **Fleet:** hard landings add wear, worn aircraft lose a little thrust, and below 25% they're grounded until a maintenance check. Lease, buy new or used, and sell.
+  - **Bank:** a bank account with a statement, loans with interest and monthly repayments, and monthly summaries. You rise through the ranks as your hours build.
+  - **Virtual credits only.** Credits have no real value, and nothing in the game takes real money. The whole economy is tunable from one `ECON` object in `3d/src/f_career.js`. It is balanced for a game, not real airline finances: aircraft cost about a tenth of their real market value.
 - **Allama Iqbal International, mapped.**
   - **From OpenStreetMap:** taxiways (B to Z), aprons, stands, jet bridges and the footprints of the 2,500 buildings around the field.
   - **The main terminal:** on the east side, with its long arched facade (simplified).
@@ -117,6 +124,8 @@ A full 3D version, with **Allama Iqbal International Airport (OPLA), Lahore** as
 | **A380-800** on short final to 36R | **Classic cockpit** in the Tu-95 |
 | <img src="docs/screenshots/3d-world-map.png" alt="World map planner with a Lahore to Heathrow route in a 787-9"> | <img src="docs/screenshots/3d-dubai.png" alt="Downtown Dubai with the Burj Khalifa"> |
 | **The world map**: plan a route, check the fuel and fly | **Dubai** with the Burj Khalifa (simplified) |
+| <img src="docs/screenshots/3d-career.png" alt="Career jobs list at Lahore, with pay for each job and range checks"> | <img src="docs/screenshots/3d-glass-cockpit.png" alt="747-400 glass cockpit on final"> |
+| **Career mode**: jobs from your aircraft's airport | **Glass cockpit** on final |
 | <img src="docs/screenshots/3d-jfk.png" alt="JFK from the air with Jamaica Bay behind"> | <img src="docs/screenshots/3d-night.png" alt="Night approach to 18L with the city lights to the west"> |
 | **New York JFK** from OpenStreetMap, with Jamaica Bay | **Night arrival** on 18L at Lahore |
 
@@ -182,10 +191,12 @@ The 3D game uses [three.js](https://threejs.org/) r128 from cdnjs and otherwise 
 | `e_physics.js` | The 3D flight model, ground handling and touchdown checks |
 | `e_autopilot.js` | Autopilot and autothrottle, approach mode and autoland |
 | `f_game.js` | Missions, rings, effects and cameras |
+| `f_career.js` | Career mode: the `ECON` settings, jobs, settlement, fleet, bank, loans and months |
 | `f_route.js` | Flights between airports: planning, great-circle navigation, region hand-offs, time acceleration and skipping ahead |
 | `g_cockpit.js` | 3D cockpits, with live canvas displays and clickable autopilot panels |
 | `g_pad.js` | Gamepad input, rumble, and the DualSense lightbar, LEDs and adaptive triggers over WebHID |
 | `g_map.js` | The world map and flight planner |
+| `g_career.js` | The career screens: jobs, fleet and market, bank and profile |
 | `g_ui.js` | Instrument panel, radar, audio, input, cloud saves, menus and the main loop |
 
 ## Missions

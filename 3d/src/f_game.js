@@ -39,10 +39,13 @@ function newGame(mi,mode){
   for(const r of ringDefs){const mesh=new THREE.Mesh(new THREE.TorusGeometry(70,4,10,48),new THREE.MeshBasicMaterial({color:'#ffbe46',transparent:true,opacity:0.9,fog:false}));
     mesh.position.set(r.x,r.y,r.z);mesh.rotation.y=Math.atan2(r.nx,r.nz);scene.add(mesh);g.rings.push(Object.assign({mesh,state:'wait',prev:null},r));}
   if(g.rings.length)g.rings[0].state='next';
+  // a worn career aircraft gives a little less thrust
+  if(M.route&&M.route.job&&CAREER){const f=CAREER.fleet.find(x=>x.id===M.route.job.fleet);if(f)p.engineMax=clamp(0.9+f.condition/1000,0.9,1);}
   finishStep(p);g.startFuel=p.fuelKg;if(!p.ap.on)apSync(p);setAircraftState(A,p,0);syncModel(g);
   return g;}
 function finish(g,ok,reason){
   if(g.status!=='play')return;g.status=ok?'success':'fail';g.reason=reason;g.endT=g.t+(ok?1.6:2.8);
+  if(g.mode==='play'&&g.M.route&&g.M.route.job&&CAREER)g.career=settleJob(g,ok);
   if(ok){const s=g.stats,M=g.M;let st=1;
     if(M.key==='depart')st=g.time<75?3:g.time<110?2:1;
     else{st=s.sink!==null&&s.sink<=1.5&&s.offset<8?3:s.sink!==null&&s.sink<=3?2:1;}
@@ -60,6 +63,8 @@ function missionUpdate(g,dt){
     r.prev=d;}
   const stopped=p.onGround&&p.v<1.5&&g.flags.flew;
   if(M.route)routeUpdate(g,dt);
+  // overspeed: over VMO or MMO (reported in a career flight)
+  if(!p.onGround&&(p.ias*3.6>p.spec.vmoKmh*1.02||(p.spec.mmo&&p.mach>p.spec.mmo+0.01)))g.flags.overspeedT=(g.flags.overspeedT||0)+dt;
   switch(M.key){
     case 'depart':if(!p.onGround&&p.agl>=600&&p.gearPos<0.03&&flapsUp(p))finish(g,true,'A clean departure from Lahore.');break;
     case 'route':{if(!stopped)break;const P=M.route,dest=AIRPORT_BY_ICAO[P.dest];

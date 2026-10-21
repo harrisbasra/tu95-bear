@@ -111,7 +111,8 @@ async ({id, mission}) => {
     if (Math.round(t*10) % (window.__fine?10:100) === 0) log.push([Math.round(t), Math.round(p.agl), Math.round(kmh), +p.vs.toFixed(1)].concat(window.__fine?[+p.thr.toFixed(2),+p.rpm.toFixed(2),+(p.bank*57.3).toFixed(1),+(p.pitch*57.3).toFixed(1),+(p.alpha*57.3).toFixed(1),end?Math.round((p.pos.x-end.T.x)*(-end.dz)+(p.pos.z-end.T.z)*end.dx):0,+(p.hdg*57.3).toFixed(1)]:[]));
   }
   const dbg = B.debug ? B.debug() : null;
-  return {dbg, status: g.status, reason: g.reason || '(timed out)', time: Math.round(t), stars: g.starsWon || 0,
+  const car = g.career ? {net: Math.round(g.career.net), cash: g.career.cash, lines: g.career.lines.map(l => [l[0], Math.round(l[1])]), costs: g.career.costs.map(l => [l[0], Math.round(l[1])])} : null;
+  return {car, dbg, status: g.status, reason: g.reason || '(timed out)', time: Math.round(t), stars: g.starsWon || 0,
           sink: g.stats.sink, offset: g.stats.offset, log: log.slice(window.__fine?-3000:-6).filter(r=>!window.__fine||r[4]!=='ROLLOUT'), end: end ? [Math.round(-((p.pos.x-end.T.x)*end.dx+(p.pos.z-end.T.z)*end.dz)), Math.round((p.pos.x-end.T.x)*(-end.dz)+(p.pos.z-end.T.z)*end.dx)] : null};
 }
 """
@@ -133,6 +134,20 @@ with sync_playwright() as pw:
     if os.environ.get('FINE'): page.add_init_script('window.__fine=1')
     page.goto(URL)
     page.wait_for_function('window.__bear3d && !document.querySelector("#menu").classList.contains("hidden")', timeout=60000)
+    if os.environ.get('CAREER'):
+        # CAREER=n: start a career at Lahore and fly n jobs in a row with the first aircraft
+        page.evaluate("() => { const B = window.__bear3d; B.newCareer('Test pilot', 'OPLA'); }")
+        res = []
+        for n in range(int(os.environ['CAREER'])):
+            job = page.evaluate("() => { const B = window.__bear3d, C = B.CAREER, f = C.fleet[0]; const j = B.jobsAt(f.loc).find(j => !B.canFly(j, f) && j.dist > 200000) || B.jobsAt(f.loc).find(j => !B.canFly(j, f)); if (!j) return null; B.startJob(j, f); return {title: j.title, from: j.from, to: j.to, type: f.type, pay: B.jobQuote(j, f).pay}; }")
+            if not job: print('no flyable job'); break
+            page.evaluate('window.__hold = false')
+            r = page.evaluate(AUTOPILOT, {'id': job['type'], 'mission': 0})
+            ok = r['status'] == 'success'; res.append(ok)
+            print(f"{'PASS' if ok else 'FAIL'} {job['from']}-{job['to']} {job['title']:34} quote {job['pay']:>7}  net {r['car']['net'] if r['car'] else '-':>8}  cash {r['car']['cash'] if r['car'] else '-':>9}  {r['reason'][:60]}")
+            if r['car'] and os.environ.get('FINE'): print('    ', r['car']['lines'], r['car']['costs'])
+        print(page.evaluate("() => { const C = window.__bear3d.CAREER; return {day: C.day, cash: C.cash, hours: +C.pilot.hours.toFixed(1), cond: Math.round(C.fleet[0].condition), loc: C.fleet[0].loc, tx: C.tx.length}; }"))
+        br.close(); sys.exit(0 if all(res) else 1)
     ids = ONLY or page.evaluate('window.__bear3d.AIRCRAFT.map(a => a.id)')
     ROUTES = [r.split(':') for r in os.environ['ROUTES'].split(',')] if os.environ.get('ROUTES') else None
     for id in ids:

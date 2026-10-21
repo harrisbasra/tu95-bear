@@ -83,7 +83,23 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .map-side label{display:flex;flex-direction:column;gap:2px;color:var(--muted);font-size:13px}
 .map-side select{font:inherit;font-size:15px;background:var(--olive);color:var(--cream);border:1.5px solid var(--olive-line);border-radius:3px;padding:4px 6px}
 .m-info{font-size:14px;margin:4px 0;color:var(--cream)}.m-info dt{color:var(--muted)}.m-info .warn{color:#ffb3a8}
-.primary:disabled{opacity:.45;cursor:not-allowed}
+.primary:disabled,.ghost:disabled{opacity:.45;cursor:not-allowed}
+.card.career{max-width:900px;max-height:calc(100vh - 32px);overflow:auto}
+.career h3{font-family:"Russo One",sans-serif;font-weight:400;font-size:18px;margin:16px 0 6px}
+.career .cats .ghost{color:var(--ink);border-color:rgba(28,32,24,.3)}.career .cats button[aria-selected="true"]{border-color:var(--red);background:rgba(194,59,43,.12)}
+.c-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}.c-sub{margin:0;color:#5b5f4d}
+.c-bal{text-align:right}.c-bal span{display:block;color:#5b5f4d;font-size:14px}.c-bal strong{font-family:"Russo One",sans-serif;font-size:24px;font-weight:400}
+.neg{color:#a5281b}.bad{color:#a5281b}.c-msg{min-height:1.3em;margin:4px 0;font-weight:700}.c-msg.bad{color:#a5281b}.c-note{color:#5b5f4d;font-size:15px}
+.c-field{display:flex;flex-direction:column;gap:2px;margin:8px 0;color:#5b5f4d;font-size:14px}
+.career input,.career select{font:inherit;font-size:16px;padding:5px 8px;border:1.5px solid rgba(28,32,24,.3);border-radius:3px;background:#fbf7ea;color:var(--ink);user-select:text;-webkit-user-select:text}
+.c-jobs li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 12px}.c-job{display:flex;flex-direction:column}.c-job .sm{font-size:14px;color:#5b5f4d}.c-job .sm.bad{color:#a5281b}
+.c-pay{display:flex;gap:10px;align-items:center;white-space:nowrap}.log.c-jobs .c-pay .primary{background:var(--red);color:#fff6ec;width:auto;padding:6px 16px;font-size:16px;display:inline-block}.log.c-jobs .c-pay .primary:disabled{background:#9c8f80}
+.c-ferry,.c-loan{align-items:center;margin-top:10px}
+.c-card{border:1px solid rgba(28,32,24,.18);border-radius:3px;padding:10px 12px;margin:8px 0;background:#fbf7ea}.c-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.c-row.sm{font-size:14px;color:#5b5f4d}
+.c-cond{position:relative;height:18px;background:rgba(28,32,24,.12);border-radius:2px;margin:6px 0}.c-cond i{position:absolute;left:0;top:0;bottom:0;border-radius:2px}.c-cond span{position:relative;font-size:12px;font-weight:700;padding-left:6px;line-height:18px}
+.c-table{width:100%;border-collapse:collapse;font-size:15px}.c-table th{text-align:left;color:#5b5f4d;font-weight:700;border-bottom:1px solid rgba(28,32,24,.25);padding:4px 6px}.c-table td{border-bottom:1px solid rgba(28,32,24,.1);padding:4px 6px;vertical-align:top}
+.c-btns{white-space:nowrap}.c-btns .ghost{padding:4px 8px;font-size:14px;margin:1px}.c-stmt td:nth-child(3),.c-stmt td:nth-child(4){white-space:nowrap;text-align:right}
+@media (max-width:600px){.c-table{font-size:13px}.c-btns .ghost{display:block;width:100%}.c-jobs li{flex-direction:column;align-items:stretch}.c-pay{justify-content:space-between}}
 @media (max-width:760px){.map-in{grid-template-columns:1fr;grid-template-rows:42vh auto;height:auto;min-height:100%}.map-screen{overflow:auto}}
 .credit-m{font-size:13px;color:var(--muted);margin-top:14px}
 .card{background:var(--paper);color:var(--ink);border-radius:3px;max-width:520px;width:100%;padding:22px 24px 18px;box-shadow:0 24px 60px rgba(0,0,0,.45);margin:auto}
@@ -144,7 +160,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
         <label>Graphics <select id="o-quality"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low (phones)</option></select></label>
       </div>
       <div class="pad-row"><p id="pad-status"></p><button id="pad-hid" class="ghost" hidden>Connect DualSense lights and triggers</button></div>
-      <div class="go-row"><button id="btn-go" class="primary">Fly</button><button id="btn-map" class="ghost">Fly between airports</button><button id="btn-keys" class="ghost" aria-expanded="false">Controls</button></div>
+      <div class="go-row"><button id="btn-go" class="primary">Fly</button><button id="btn-map" class="ghost">Fly between airports</button><button id="btn-career" class="ghost">Career</button><button id="btn-keys" class="ghost" aria-expanded="false">Controls</button></div>
       <div id="keys" class="keys" hidden>
         <kbd>↑ / ↓</kbd><span>Nose up / nose down (swap with “Pilot-style pitch”)</span>
         <kbd>← / →</kbd><span>Roll left / right. On the ground: steer</span>
@@ -184,6 +200,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
     </div>
   </div>
 </div>
+<div id="career" class="screen dim hidden"><div class="card career" id="career-in" role="dialog" aria-label="Career"></div></div>
 <div id="result" class="screen dim hidden">
   <div class="card" role="dialog" aria-labelledby="r-title">
     <h2 id="r-title"></h2><p id="r-reason"></p>
