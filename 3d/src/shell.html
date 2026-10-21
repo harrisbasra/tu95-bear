@@ -75,6 +75,16 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .pad-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:15px;color:var(--muted)}.pad-row p{margin:0}
 .cats{display:flex;gap:6px;margin:0 0 8px}.cats button[aria-selected="true"]{border-color:var(--red);background:rgba(194,59,43,.18)}
 .credit-m a{color:inherit}
+.map-screen{background:var(--olive-deep);padding:0}
+.map-in{display:grid;grid-template-columns:minmax(0,1fr) 360px;width:100%;height:100%}
+#map-cv{width:100%;height:100%;display:block;touch-action:manipulation}
+.map-side{background:rgba(20,25,17,.92);padding:calc(env(safe-area-inset-top,0px) + 16px) calc(env(safe-area-inset-right,0px) + 16px) 16px 16px;overflow:auto;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.map-side .sub{margin:0}.map-side .hint{margin:0;color:var(--muted);font-size:14px}
+.map-side label{display:flex;flex-direction:column;gap:2px;color:var(--muted);font-size:13px}
+.map-side select{font:inherit;font-size:15px;background:var(--olive);color:var(--cream);border:1.5px solid var(--olive-line);border-radius:3px;padding:4px 6px}
+.m-info{font-size:14px;margin:4px 0;color:var(--cream)}.m-info dt{color:var(--muted)}.m-info .warn{color:#ffb3a8}
+.primary:disabled{opacity:.45;cursor:not-allowed}
+@media (max-width:760px){.map-in{grid-template-columns:1fr;grid-template-rows:42vh auto;height:auto;min-height:100%}.map-screen{overflow:auto}}
 .credit-m{font-size:13px;color:var(--muted);margin-top:14px}
 .card{background:var(--paper);color:var(--ink);border-radius:3px;max-width:520px;width:100%;padding:22px 24px 18px;box-shadow:0 24px 60px rgba(0,0,0,.45);margin:auto}
 .card h2{font-family:"Russo One",sans-serif;font-weight:400;font-size:28px;line-height:1.05;margin:0 0 6px}
@@ -86,6 +96,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
 .card .opts{color:#4a4e3f}
 .hud-btn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 10px);width:40px;height:40px;border-radius:3px;border:1.5px solid rgba(235,229,203,.5);background:rgba(25,30,21,.55);color:var(--cream);font-weight:700;display:flex;align-items:center;justify-content:center}
 .hud-btn.cam{right:calc(env(safe-area-inset-right,0px) + 56px);width:auto;padding:0 10px;font-size:15px}
+.hud-btn.time{right:calc(env(safe-area-inset-right,0px) + 142px);width:auto;padding:0 10px;font-size:15px}.hud-btn.skip{right:calc(env(safe-area-inset-right,0px) + 196px);width:auto;padding:0 10px;font-size:15px}
 .touch{position:fixed;left:0;right:0;bottom:calc(var(--panel-h,120px) + 8px);display:flex;justify-content:space-between;align-items:flex-end;padding:0 calc(env(safe-area-inset-right,0px) + 10px) 0 calc(env(safe-area-inset-left,0px) + 10px);pointer-events:none}
 .stick{width:132px;height:132px;border-radius:50%;border:1.5px solid rgba(235,229,203,.5);background:rgba(25,30,21,.35);position:relative;pointer-events:auto;touch-action:none}
 .stick .knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(235,229,203,.7)}
@@ -133,7 +144,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
         <label>Graphics <select id="o-quality"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low (phones)</option></select></label>
       </div>
       <div class="pad-row"><p id="pad-status"></p><button id="pad-hid" class="ghost" hidden>Connect DualSense lights and triggers</button></div>
-      <div class="go-row"><button id="btn-go" class="primary">Fly</button><button id="btn-keys" class="ghost" aria-expanded="false">Controls</button></div>
+      <div class="go-row"><button id="btn-go" class="primary">Fly</button><button id="btn-map" class="ghost">Fly between airports</button><button id="btn-keys" class="ghost" aria-expanded="false">Controls</button></div>
       <div id="keys" class="keys" hidden>
         <kbd>↑ / ↓</kbd><span>Nose up / nose down (swap with “Pilot-style pitch”)</span>
         <kbd>← / →</kbd><span>Roll left / right. On the ground: steer</span>
@@ -155,6 +166,24 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
   </div>
 </div>
 
+<div id="map" class="screen map-screen hidden">
+  <div class="map-in">
+    <canvas id="map-cv" aria-label="World map with the airports"></canvas>
+    <div class="map-side">
+      <h2 class="sub">Plan a flight</h2>
+      <p class="hint">Tap an airport for the departure, then another for the destination. Pick the same airport twice for a local flight.</p>
+      <label>From <select id="m-dep"></select></label>
+      <label>To <select id="m-dest"></select></label>
+      <label>Aircraft <select id="m-plane"></select></label>
+      <label>Load <select id="m-load"><option value="0.3">Light (30%)</option><option value="0.6" selected>Typical (60%)</option><option value="0.9">Full (90%)</option></select></label>
+      <label>Start <select id="m-start"><option value="runway">On the runway</option><option value="approach">On final approach at the destination</option></select></label>
+      <label>Time <select id="m-sky"><option value="day">Day</option><option value="evening">Evening</option><option value="night">Night</option></select></label>
+      <dl class="stats m-info" id="m-info"></dl>
+      <div class="row"><button id="m-fly" class="primary">Fly</button><button id="m-back" class="ghost">Back</button></div>
+      <p class="credit-m">Runways from published data (OurAirports). Airport layouts from OpenStreetMap. Cities and landmarks are simplified.</p>
+    </div>
+  </div>
+</div>
 <div id="result" class="screen dim hidden">
   <div class="card" role="dialog" aria-labelledby="r-title">
     <h2 id="r-title"></h2><p id="r-reason"></p>
@@ -176,6 +205,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-
   </div>
 </div>
 <button id="btn-cam" class="hud-btn cam hidden">Camera</button>
+<button id="btn-time" class="hud-btn time hidden" aria-label="Time acceleration">×1</button>
+<button id="btn-skip" class="hud-btn skip hidden">Skip ahead</button>
 <button id="btn-pause" class="hud-btn hidden" aria-label="Pause">II</button>
 <div id="touch" class="touch hidden">
   <div class="stick" id="stick"><div class="knob" id="knob"></div></div>

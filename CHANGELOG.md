@@ -5,6 +5,31 @@ Notable changes to this project are recorded here. The format follows [Keep a Ch
 ## [Unreleased]
 
 ### Added
+- **Seven more airports in the 3D game:** Islamabad, Karachi, Dubai, London Heathrow, New York JFK, Istanbul and Jeddah, with Lahore as home base.
+  - **Runways:** real runway data from OurAirports, including displaced thresholds.
+  - **Layouts:** OpenStreetMap layouts where available.
+  - **Surroundings:** per-region cities, coasts, rivers, hills, visibility and simplified landmarks.
+- **A world map and flight planner:**
+  - **Planning:** pick a departure and destination; the planner chooses the runways, cruise level, fuel and payload, and warns when a route is beyond the aircraft's range.
+- **Flights between airports:**
+  - **Navigation:** NAV and VNAV autopilot modes, a VNAV descent that holds speed with the speedbrake.
+  - **Long cruises:** time acceleration up to ×32, and a skip to the descent that burns the right fuel.
+  - **Local flights:** fly out and back to the same airport.
+- **Airport loading:** airports load one region at a time; their map data lives in `3d/data` and loads on demand.
+- **Tools:** `scripts/world-map.mjs`, and route tests in `scripts/flytest.py` (`ROUTES=OPLA:OPIS,…`).
+
+### Changed
+- **Indicated airspeed:** speeds are now indicated airspeed everywhere, so approach speeds stay right at high airports.
+- **Airport collisions:** airport buildings and parked aircraft collide by their own footprints. Their heights respect the runway obstacle surfaces.
+- **Autopilot:** glide-path tracking is tighter.
+
+### Fixed
+- **PAPI guide:** the approach guide showed "Too high" while exactly on the glide path.
+- **Approach mode:** it could capture the reciprocal runway's localiser on a planned flight.
+
+## Stage 2
+
+### Added
 - **Seven airliners** in the 3D game: Boeing 737-800, 747-400, 777-300ER and 787-9, and Airbus A320, A350-900 and A380-800.
   - **Published data:** weights, wing areas, thrust, spans, speeds and flap detents come from published sources.
   - **Shapes:** each has its own wingtip, real bogie layouts (including body gear) and an invented house colour scheme.

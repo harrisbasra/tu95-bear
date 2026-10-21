@@ -147,7 +147,8 @@ function drawND(c,w,h,g,d){frame512(c,w,h);if(!g)return;const p=g.plane,ap=p.ap;
     c.strokeStyle='#ff5ad8';c.beginPath();c.moveTo(f[0],f[1]-8);c.lineTo(f[0]+8,f[1]);c.lineTo(f[0],f[1]+8);c.lineTo(f[0]-8,f[1]);c.closePath();c.stroke();txt(c,'FI'+e.name,f[0]+12,f[1]+5,'#ff5ad8',15,'left',false);
     txt(c,'RW'+e.name,t[0]+10,t[1]-6,'#fff',15,'left',false);}
   for(const r of g.rings){const a=X(r.x,r.z);c.strokeStyle=r.state==='next'?'#ff5ad8':'#fff';c.beginPath();c.moveTo(a[0],a[1]-8);c.lineTo(a[0]+8,a[1]);c.lineTo(a[0],a[1]+8);c.lineTo(a[0]-8,a[1]);c.closePath();c.stroke();}
-  const ap2=X(-60,-1900);txt(c,'OPLA',ap2[0]+8,ap2[1],'#3cdcff',16,'left');
+  if(RWYS.length){const ap2=X(0,0);txt(c,REGION.icao,ap2[0]+12,ap2[1],'#3cdcff',16,'left');}
+  if(g.nav&&!(e&&REGION.icao===(g.M.route&&g.M.route.dest))){const t=geo(g.nav.target[0],g.nav.target[1]),a=X(p.pos.x,p.pos.z),b=X(t.x,t.z);c.strokeStyle='#ff5ad8';c.lineWidth=3;c.beginPath();c.moveTo(...a);c.lineTo(...b);c.stroke();txt(c,g.nav.passed?'RW':'FAF',b[0]+10,b[1],'#ff5ad8',15,'left',false);}
   // compass arc
   c.strokeStyle='#fff';c.lineWidth=2;c.beginPath();c.arc(cx,cy,R,Math.PI*1.13,Math.PI*1.87);c.stroke();
   for(let a=0;a<360;a+=5){const ang=(a*D2R-hdg)-Math.PI/2;if(Math.abs(wrapPi(a*D2R-hdg))>0.8)continue;const r0=a%10?R-10:R-18;c.beginPath();c.moveTo(cx+Math.cos(ang)*R,cy+Math.sin(ang)*R);c.lineTo(cx+Math.cos(ang)*r0,cy+Math.sin(ang)*r0);c.stroke();
@@ -161,6 +162,7 @@ function drawND(c,w,h,g,d){frame512(c,w,h);if(!g)return;const p=g.plane,ap=p.ap;
   txt(c,String(Math.round(((hdg*R2D)+360)%360)).padStart(3,'0')+' MAG',256,27,'#3cff6a',20,'center');
   const wv=g.wind.length();if(wv>0.5){const wd=(Math.atan2(-g.wind.x,g.wind.z)*R2D+360)%360;txt(c,`${String(Math.round(wd)).padStart(3,'0')}°/${Math.round(wv/0.5144)}`,500,27,'#fff',18,'right');}
   if(e){const dist=Math.hypot(p.pos.x-e.T.x,p.pos.z-e.T.z)/1852;txt(c,`RW${e.name}  ${dist.toFixed(1)} NM`,500,64,'#ff5ad8',17,'right',false);}
+  else if(g.nav){txt(c,`${g.M.route.dest}  ${(g.nav.remaining/1852).toFixed(0)} NM`,500,64,'#ff5ad8',17,'right',false);}
 }
 function arcGauge(c,x,y,r,v,max,label,readout,red){c.strokeStyle='#fff';c.lineWidth=3;c.beginPath();c.arc(x,y,r,Math.PI,Math.PI*1.75+0.0001);c.stroke();
   if(red){c.strokeStyle='#d00';c.beginPath();c.arc(x,y,r,Math.PI+Math.PI*0.75*red,Math.PI*1.75);c.stroke();}
@@ -191,7 +193,7 @@ function drawLower(c,w,h,g){frame512(c,w,h);if(!g)return;const p=g.plane,sp=p.sp
 }
 // MCP (Boeing) or FCU (Airbus): windows and buttons in one strip, with click regions
 // u ranges across the 1024-unit strip: the − and + knobs beside each window, then the buttons
-const MCP_REGIONS=[['spd',-1,0.02,0.14],['spd',1,0.148,0.18],['at',0,0.18,0.26],['hdg',-1,0.28,0.396],['hdg',1,0.396,0.43],['app',0,0.44,0.52],['ap',0,0.54,0.64],['alt',-1,0.67,0.815],['alt',1,0.815,0.85]];
+const MCP_REGIONS=[['spd',-1,0.02,0.14],['spd',1,0.148,0.18],['at',0,0.18,0.26],['hdg',-1,0.28,0.396],['hdg',1,0.396,0.43],['app',0,0.44,0.52],['ap',0,0.54,0.64],['alt',-1,0.67,0.815],['alt',1,0.815,0.85],['nav',0,0.85,0.922],['vnav',0,0.922,1]];
 function drawMCP(c,w,h,g){c.setTransform(w/1024,0,0,h/90,0,0);const airbus=g&&g.plane.spec.cockpitType==='airbus';c.fillStyle=airbus?'#3d4752':'#3a3f44';c.fillRect(0,0,1024,90);if(!g)return;const ap=g.plane.ap;
   const win=(x,wd,s,lbl)=>{c.fillStyle='#0b0d0e';c.fillRect(x,30,wd,38);txt(c,s,x+wd-8,59,'#ff9a3c',30,'right');txt(c,lbl,x+wd/2,22,'#e8e6dc',15,'center');};
   const btn=(x,wd,lbl,on)=>{c.fillStyle='#22262a';c.fillRect(x,28,wd,44);c.fillStyle=on?'#3cff6a':'#555';c.fillRect(x+6,32,wd-12,6);txt(c,lbl,x+wd/2,62,'#e8e6dc',16,'center');};
@@ -201,7 +203,7 @@ function drawMCP(c,w,h,g){c.setTransform(w/1024,0,0,h/90,0,0);const airbus=g&&g.
   win(290,80,String(Math.round(ap.hdg)).padStart(3,'0'),'HDG');knob(393,'−');knob(418,'+');
   btn(452,80,airbus?'APPR':'APP',ap.app);btn(555,100,airbus?'AP1':'CMD A',ap.on);
   win(690,110,String(Math.round(ap.alt/FT/100)*100),'ALT');knob(822,'−');knob(847,'+');
-  win(880,130,ap.on&&ap.vert!=='ALT'?String(Math.round(g.plane.vs/FT*60/100)*100):'-----',airbus?'V/S':'V/S');}
+  btn(870,70,airbus?'NAV':'LNAV',ap.lat==='NAV');btn(948,70,airbus?'MNGD':'VNAV',ap.vnav);}
 function clickMCP(g,u){for(const [act,dir,u0,u1] of MCP_REGIONS){if(u>=u0&&u<u1){if(dir)apAdjust(g,act,dir);else window.__bear3d.act(act);AU.clunk();return true;}}return false;}
 function drawOverhead(c,w,h){c.setTransform(w/512,0,0,h/512,0,0);c.fillStyle='#5b656d';c.fillRect(0,0,512,512);const r=rng(3);
   for(let row=0;row<6;row++){c.strokeStyle='rgba(255,255,255,.35)';c.strokeRect(14,14+row*82,484,74);

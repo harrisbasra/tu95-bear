@@ -7,7 +7,8 @@ const _q=new THREE.Quaternion(),_v=V(),_v2=V();
 function isa(y){const h=Math.max(-500,y+ELEV);const T=h<11000?288.15-0.0065*h:216.65;
   const P=h<11000?101325*Math.pow(T/288.15,5.2559):22632*Math.exp(-(h-11000)/6341.6);return{T,rho:P/(287.05*T),a:Math.sqrt(401.87*T)};}
 function rho(y){return isa(y).rho;}
-const RHO_FIELD=isa(0).rho;
+// Published speeds are indicated airspeeds, so lift calibration and V-speeds use sea-level density.
+const RHO_FIELD=1.225;
 function quatFrom(hdg,pitch,bank){const q=new THREE.Quaternion().setFromAxisAngle(AX.y,Math.PI/2-hdg);q.multiply(_q.setFromAxisAngle(AX.z,pitch));q.multiply(_q.setFromAxisAngle(AX.x,bank));return q;}
 function axes(p){p.F.set(1,0,0).applyQuaternion(p.q);p.U.set(0,1,0).applyQuaternion(p.q);p.R.set(0,0,1).applyQuaternion(p.q);}
 function attitude(p){axes(p);return{hdg:Math.atan2(p.F.x,-p.F.z),pitch:Math.asin(clamp(p.F.y,-1,1)),bank:Math.atan2(-p.R.y,p.U.y)};}
@@ -52,7 +53,7 @@ function prepSpec(a){
 }
 
 /* ---- the aircraft state ---- */
-function newPlane(sp,kind){const L=loadout(sp,kind||'takeoff');
+function newPlane(sp,kind,load){const L=load||loadout(sp,kind||'takeoff');
   return{spec:sp,pos:V(),vel:V(),q:new THREE.Quaternion(),F:V(),U:V(),R:V(),thr:0,rpm:0,ab:0,flapIdx:0,flapPos:0,gearDown:false,gearPos:0,onGround:false,brake:false,
     sweep:sp.swing?sp.swing.min:0,payload:L.payload,fuelKg:L.fuel,fuel:L.fuel/sp.fuelCap,engineMax:1,alive:true,v:0,agl:0,alpha:0,beta:0,stalled:false,liftT:0,
     hdg:0,pitch:0,bank:0,vs:0,ias:0,mach:0,spd:0,gsp:0,rev:0,ff:0,m:sp.oew+L.payload+L.fuel,ap:newAP()};}
@@ -61,7 +62,7 @@ function placeOnRunway(p,endName,at){const e=END(endName);p.hdg=e.hdg*D2R;p.pitc
   p.pos.set(e.T.x+e.dx*at,0,e.T.z+e.dz*at);p.pos.y=restY(p);p.vel.set(0,0,0);p.onGround=true;p.gearDown=true;p.gearPos=1;p.flapIdx=p.spec.toFlap;p.flapPos=flapTarget(p);axes(p);}
 function sweepTarget(p,kmh){const w=p.spec.swing;if(!flapsUp(p)||p.flapPos>0.02||p.gearDown)return w.min;return lerp(w.min,w.max,smooth((kmh-480)/600));}
 function placeInAir(p,x,z,agl,hdgDeg,kmh,thr,flapIdx){
-  const sp=p.spec,v=kmh/3.6;p.pos.set(x,agl,z);p.hdg=hdgDeg*D2R;p.thr=thr;p.rpm=thr;p.gearDown=false;p.gearPos=0;p.flapIdx=flapIdx||0;p.flapPos=flapTarget(p);p.onGround=false;
+  const sp=p.spec,v=kmh/3.6*Math.sqrt(1.225/rho(agl));p.pos.set(x,agl,z);p.hdg=hdgDeg*D2R;p.thr=thr;p.rpm=thr;p.gearDown=false;p.gearPos=0;p.flapIdx=flapIdx||0;p.flapPos=flapTarget(p);p.onGround=false;
   if(sp.swing)p.sweep=sweepTarget(p,kmh);const sw=sp.swing?(p.sweep-sp.swing.min)/(sp.swing.max-sp.swing.min):0;
   const q=0.5*rho(agl)*v*v,CL0=sp.cl0+flapCamber(sp,p.flapPos*(1-sw)),CLn=mass(p)*G/(q*sp.S);const a=clamp((CLn-CL0)/(sp.cla*(1-0.3*sw))-sp.inc,-0.05,0.2);
   p.pitch=a;p.q.copy(quatFrom(p.hdg,a,0));axes(p);p.vel.set(Math.sin(p.hdg)*v,0,-Math.cos(p.hdg)*v);}
@@ -134,7 +135,7 @@ function stepPlane(g,dt){
   // fuel burn: thrust-specific fuel consumption for jets, power-specific for turboprops
   if(running){const sfc=sp.engType==='turboprop'?0:(sp.engType==='lowbypass'?1.6e-5:1.0e-5)*(1+0.6*M);
     p.ff=sp.engType==='turboprop'?6.9e-8*sp.power*Math.max(0.06,p.rpm):sfc*Math.max(fwd,sp.T*0.04)*(1+1.6*p.ab);
-    p.fuelKg=Math.max(0,p.fuelKg-p.ff*dt*(g.timeScale||1));p.fuel=p.fuelKg/sp.fuelCap;}else p.ff=0;
+    p.fuelKg=Math.max(0,p.fuelKg-p.ff*dt);p.fuel=p.fuelKg/sp.fuelCap;}else p.ff=0;
   const L=q*S*CL,Dg=q*S*CD;
   const vh=v>0.5?_v2.copy(va).divideScalar(v):_v2.copy(p.F);
   const liftDir=V().copy(p.U).addScaledVector(vh,-p.U.dot(vh));if(liftDir.lengthSq()>1e-6)liftDir.normalize();
@@ -171,18 +172,20 @@ function stepPlane(g,dt){
   checkContact(g);
   finishStep(p);
 }
-function finishStep(p){p.v=p.vel.length();const a=attitude(p);p.hdg=a.hdg;p.pitch=a.pitch;p.bank=a.bank;p.agl=p.pos.y-p.spec.gearH;p.vs=p.vel.y;}
+function finishStep(p){p.v=p.vel.length();const a=attitude(p);p.hdg=a.hdg;p.pitch=a.pitch;p.bank=a.bank;p.th=HILLS.length?terrainH(p.pos.x,p.pos.z):0;p.agl=p.pos.y-p.spec.gearH-p.th;p.vs=p.vel.y;}
 const _w=V();
 function checkContact(g){
   const p=g.plane,A=g.A,sp=p.spec;if(!p.alive)return;
   const pts=p.gearPos>0.97?A.pts.gear.concat(A.pts.body):A.pts.body;
   let best=null,bp=0;
+  if(p.th>0){for(const pt of pts){localToWorld(p,pt,_w);if(_w.y<terrainH(_w.x,_w.z))return crash(g,'You flew into the hills. Keep at least 600 m above the ground near high terrain, and watch the “Pull up” warning.');}}
   for(const pt of pts){localToWorld(p,pt,_w);const gh=obstacleH(_w.x,_w.z);const pen=0-_w.y;const penB=gh-_w.y;
     if(gh>0&&penB>=0&&(!best||penB>bp)){best={k:'building',x:_w.x,z:_w.z};bp=penB;}
     else if(pen>=0&&(!best||pen>bp)){best={k:pt[3],x:_w.x,z:_w.z};bp=pen;}}
   if(!best)return;
   if(g.mode==='attract'){p.pos.y+=bp;p.vel.y=Math.max(0,p.vel.y);return;}
   if(best.k==='building')return crash(g,'You flew into a building. Stay above the rooftops, and keep at least 300 m up over the city.');
+  if(inWater(best.x,best.z)&&!onPavement(best.x,best.z))return crash(g,p.gearPos>0.97?'You came down in the water, short of the runway. Stay on the glide path: two white and two red PAPI lights.':'You ditched in the water.');
   const sink=-p.vel.y,kmh=p.v*3.6,att=attitude(p);
   const gearOk=p.gearPos>0.97;
   if(gearOk&&(best.k==='main'||best.k==='nose')&&p.vel.y>-0.2&&p.liftT>0){p.pos.y+=bp+0.001;if(p.vel.y<0)p.vel.y=0;return;}

@@ -44,9 +44,9 @@ A 2D flight game written in one dependency-free HTML file. Take off, land, threa
 
 <p align="center"><img src="docs/screenshots/eject.png" alt="Burning bomber in a night storm, heading for the signal fires" width="49%"><br><b>Last flight:</b> bail out over the signal fires before the tanks go</p>
 
-## 3D: Lahore (beta)
+## 3D: Lahore and the world (beta)
 
-A full 3D version set at **Allama Iqbal International Airport (OPLA), Lahore**. Fly it at [harrisbasra.github.io/tu95-bear/3d](https://harrisbasra.github.io/tu95-bear/3d/), or pick **3D** under **Version** on either menu. The game remembers your choice, and `?2d` always opens the 2D game.
+A full 3D version, with **Allama Iqbal International Airport (OPLA), Lahore** as home base and seven more airports a world map away. Fly it at [harrisbasra.github.io/tu95-bear/3d](https://harrisbasra.github.io/tu95-bear/3d/), or pick **3D** under **Version** on either menu. The game remembers your choice, and `?2d` always opens the 2D game.
 
 <img src="docs/screenshots/3d-glass-cockpit.png" alt="747-400 glass cockpit on a 3 km final to runway 36R, with live PFD, ND and engine displays and the MCP" width="900">
 
@@ -69,6 +69,21 @@ A full 3D version set at **Allama Iqbal International Airport (OPLA), Lahore**. 
 - **Autopilot and autothrottle** on every aircraft.
   - **Modes:** heading, altitude and speed hold.
   - **Approach mode:** captures the localiser and glide path, then flares, retards, rolls out on the centreline and brakes with reverse thrust. It's a full autoland.
+- **Eight airports, one region at a time.**
+  - **Pakistan:** Lahore (OPLA), Islamabad (OPIS) and Karachi (OPKC).
+  - **Elsewhere:** Dubai (OMDB), London Heathrow (EGLL), New York JFK (KJFK), Istanbul (LTFM) and Jeddah (OEJN).
+  - **Runways:** every runway uses published threshold coordinates, lengths, widths and elevations, including displaced thresholds (JFK and Dubai have big ones). Each has markings, lighting, PAPIs and approach lights.
+  - **Layouts:** taxiways, aprons, stands, jet bridges and terminals come from OpenStreetMap wherever the data could be fetched (all but Istanbul and Jeddah so far, which use a generic layout).
+  - **Surroundings:** each airport has its city, coast, rivers and hills, and simplified, labelled landmarks:
+    - **Pakistan:** Faisal Mosque, Mazar-e-Quaid.
+    - **Gulf:** Burj Khalifa, Burj Al Arab, King Fahd's Fountain.
+    - **London:** Windsor Castle, the Shard.
+    - **New York:** the Empire State Building, One World Trade Center, the Statue of Liberty.
+    - **Istanbul:** Hagia Sophia, the Blue Mosque.
+- **Fly between them.** Pick a departure and a destination on the world map, then fly the whole trip.
+  - **Planning:** the planner chooses the runways, a cruise level and the fuel for your aircraft and load, and warns you when a route is beyond its range.
+  - **Navigation:** NAV follows the great-circle route to the final approach fix; VNAV holds the cruise level, then descends on a 3° path.
+  - **Long cruises:** speed up time (up to ×32) or skip straight to the descent. Skipping burns the fuel the skipped cruise would have used.
 - **Allama Iqbal International, mapped.**
   - **From OpenStreetMap:** taxiways (B to Z), aprons, stands, jet bridges and the footprints of the 2,500 buildings around the field.
   - **The main terminal:** on the east side, with its long arched facade (simplified).
@@ -91,7 +106,7 @@ A full 3D version set at **Allama Iqbal International Airport (OPLA), Lahore**. 
 - **Plays on phones.**
   - **Touch controls:** a stick, a power slider, and flap, gear, brake, speedbrake and autopilot buttons.
   - **Graphics setting:** low, medium or high scales shadows, the city and the cockpit display refresh rate.
-- **Seven missions:** free flight, a departure, a straight-in approach, the Lahore circuit, an Old City flypast at dusk, a night arrival in a crosswind and an autoland.
+- **Seven Lahore missions:** free flight, a departure, a straight-in approach, the Lahore circuit, an Old City flypast at dusk, a night arrival in a crosswind and an autoland. You can also fly any route on the world map, or a local flight at any airport.
 - **Pilot name and optional cloud saves.** Progress saves in the browser, or to Firebase after [a few setup steps](docs/FIREBASE.md).
 
 | | |
@@ -100,8 +115,10 @@ A full 3D version set at **Allama Iqbal International Airport (OPLA), Lahore**. 
 | **The hangar**: bombers and transports, and airliners | **The terminal** with airliners on the stands |
 | <img src="docs/screenshots/3d-a380-final.png" alt="A380-800 on short final to runway 36R over the city"> | <img src="docs/screenshots/3d-classic-cockpit.png" alt="Tu-95 classic cockpit with round gauges on final"> |
 | **A380-800** on short final to 36R | **Classic cockpit** in the Tu-95 |
-| <img src="docs/screenshots/3d-night.png" alt="Night approach to 18L with the city lights to the west"> | <img src="docs/screenshots/3d-oldcity.png" alt="C-130J over Lahore's old city at dusk"> |
-| **Night arrival** on 18L | **Old City flypast** at dusk |
+| <img src="docs/screenshots/3d-world-map.png" alt="World map planner with a Lahore to Heathrow route in a 787-9"> | <img src="docs/screenshots/3d-dubai.png" alt="Downtown Dubai with the Burj Khalifa"> |
+| **The world map**: plan a route, check the fuel and fly | **Dubai** with the Burj Khalifa (simplified) |
+| <img src="docs/screenshots/3d-jfk.png" alt="JFK from the air with Jamaica Bay behind"> | <img src="docs/screenshots/3d-night.png" alt="Night approach to 18L with the city lights to the west"> |
+| **New York JFK** from OpenStreetMap, with Jamaica Bay | **Night arrival** on 18L at Lahore |
 
 ### 3D controls
 
@@ -114,6 +131,8 @@ A full 3D version set at **Allama Iqbal International Airport (OPLA), Lahore**. 
 | <kbd>F</kbd> / <kbd>V</kbd> | Flaps: extend / retract one notch (real detents, such as 1, 5, 15, 30 on a Boeing or 1, 1+F, 2, 3, Full on an Airbus) |
 | <kbd>G</kbd> / <kbd>B</kbd> / <kbd>Q</kbd> | Gear / brakes / speedbrake |
 | <kbd>Z</kbd> / <kbd>X</kbd> / <kbd>T</kbd> | Autopilot on or off / arm the approach / autothrottle |
+| <kbd>N</kbd> / <kbd>J</kbd> | NAV (follow the route) / VNAV (cruise level and descent path) |
+| <kbd>Y</kbd> / <kbd>K</kbd> | Speed up time (on the autopilot, above 900 m) / skip to the descent |
 | <kbd>,</kbd> <kbd>.</kbd> · <kbd>−</kbd> <kbd>=</kbd> · <kbd>9</kbd> <kbd>0</kbd> | Autopilot heading, altitude and speed down / up |
 | <kbd>C</kbd> | Camera: chase, cockpit, tower. Drag to look around; double-tap to recentre |
 | <kbd>P</kbd> / <kbd>Esc</kbd>, <kbd>R</kbd> | Pause, restart |
@@ -137,6 +156,10 @@ On touch screens, a stick on the left flies the aircraft and a slider on the rig
   - EASA and FAA type-certificate data, and USAF fact sheets.
   - Standard references for the Tupolev types.
   - Reference speeds (Vref) and turboprop static thrust are estimates from published data. Planform details are approximate.
+- **Airports:**
+  - Runway ends, displaced thresholds, lengths and widths come from [OurAirports](https://ourairports.com/data/) (public domain), which is compiled from the national AIPs. ILS is assumed on every runway end at the big international airports; Lahore's is verified.
+  - Coastlines, rivers, hills, city districts and visibility are simplified, and so are the landmark models.
+  - The world map uses [Natural Earth](https://www.naturalearthdata.com/) 1:110m land (public domain).
 - **Lahore:**
   - Runway thresholds come from OurAirports and the published AIP data.
   - Taxiways, aprons, stands, jet bridges and building footprints come from OpenStreetMap.
@@ -145,22 +168,24 @@ On touch screens, a stick on the left flies the aircraft and a slider on the rig
 
 ### 3D source
 
-The 3D game uses [three.js](https://threejs.org/) r128 from cdnjs and otherwise follows the same no-build-step spirit: `3d/index.html` is committed and served as-is. It is generated from the readable sources in [`3d/src`](3d/src), which are joined in order inside one closure. After editing them, run `npm run build:3d`; `npm run check` fails if the two are out of sync.
+The 3D game uses [three.js](https://threejs.org/) r128 from cdnjs and otherwise follows the same no-build-step spirit: `3d/index.html` is committed and served as-is. It is generated from the readable sources in [`3d/src`](3d/src), which are joined in order inside one closure. After editing them, run `npm run build:3d`; `npm run check` fails if the two are out of sync. Each airport's map data and the world outline live in [`3d/data`](3d/data) and load only when needed.
 
 | File | What's in it |
 |---|---|
 | `shell.html` | Markup and styles for the menus, overlays and touch controls |
-| `b_core.js` | Utilities, Lahore geography, runway survey data and the bomber and transport specs |
+| `b_core.js` | Utilities, the region geography (`setRegion`), units and the bomber and transport specs |
+| `b_airports.js` | The airports: runways, elevations, districts, water, hills and landmarks. Add an airport here |
 | `c_models.js` | Procedural bombers and transports built from fuselage stations, aerofoil slabs and engine pods |
 | `c_airliners.js` | Airliner specs and the airliner builder: fuselage texture, cranked wings, wingtips, nacelles, bogies |
 | `d_world.js` | Sky, terrain, runways and their lighting, the city, landmarks, river, trees and clouds |
-| `d_opla_osm.js` | Lahore airport map data, generated from OpenStreetMap by `scripts/osm-airport.mjs` (ODbL) |
-| `d_airport.js` | Builds the taxiways, aprons, stands, jet bridges, buildings and parked airliners from that data |
+| `d_airport.js` | Builds the taxiways, aprons, stands, jet bridges, buildings and parked airliners from the airport's map data |
 | `e_physics.js` | The 3D flight model, ground handling and touchdown checks |
 | `e_autopilot.js` | Autopilot and autothrottle, approach mode and autoland |
 | `f_game.js` | Missions, rings, effects and cameras |
+| `f_route.js` | Flights between airports: planning, great-circle navigation, region hand-offs, time acceleration and skipping ahead |
 | `g_cockpit.js` | 3D cockpits, with live canvas displays and clickable autopilot panels |
 | `g_pad.js` | Gamepad input, rumble, and the DualSense lightbar, LEDs and adaptive triggers over WebHID |
+| `g_map.js` | The world map and flight planner |
 | `g_ui.js` | Instrument panel, radar, audio, input, cloud saves, menus and the main loop |
 
 ## Missions
@@ -259,7 +284,7 @@ The code is released under the [MIT License](LICENSE). © 2026 Harris Khalid ([@
 
 "Ту-95 Bear" and the @harrisbasra™ name and branding identify the original game and are not covered by the code license. If you publish a fork, please give it your own name and keep the original credit. Aircraft names, including Boeing 737, 747, 777 and 787 and Airbus A320, A350 and A380, belong to their respective manufacturers and operators. They are used here only to describe the aircraft, and this project is not affiliated with or endorsed by any of them. Airport and landmark layouts are simplified.
 
-The Lahore airport map data in `3d/src/d_opla_osm.js` is derived from [OpenStreetMap](https://www.openstreetmap.org/copyright), © OpenStreetMap contributors, and is available under the [Open Database Licence](https://opendatacommons.org/licenses/odbl/).
+The airport map data in `3d/data/` (every file except `world.js`) is derived from [OpenStreetMap](https://www.openstreetmap.org/copyright), © OpenStreetMap contributors, and is available under the [Open Database Licence](https://opendatacommons.org/licenses/odbl/).
 
 <div align="center">
 

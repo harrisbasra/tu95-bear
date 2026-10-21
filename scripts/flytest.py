@@ -23,14 +23,17 @@ async ({id, mission}) => {
   window.__hold = true;                       // stop the rAF loop; we step by hand
   await new Promise(r => setTimeout(r, 100));
   B.setPlane(id); B.setMission(mission); B.progress.assist = true; B.progress.landAssist = true;
-  B.startFlight();
+  const old = B.game; B.startFlight();
+  // flights between airports may load a region first
+  for (let i = 0; i < 600 && !(B.game && B.game !== old && B.game.mode === 'play'); i++) await new Promise(r => setTimeout(r, 100));
   const g = B.game, p = g.plane, sp = p.spec, IN = B.IN, h = 1/120;
   IN.stickP = 0; IN.stickR = 0; IN.thrSet = null; IN.brake = false; IN.pitch = 0; IN.roll = 0; IN.yaw = 0;
   const D2R = Math.PI/180, clamp = (v,a,b)=>v<a?a:v>b?b:v;
   const wrap = a => { while (a > Math.PI) a -= 2*Math.PI; while (a < -Math.PI) a += 2*Math.PI; return a; };
   const log = []; let t = 0, thr = 0.4, configured = false, maxSink = 0;
   const end = g.M.dest ? B.ENDS.find(e => e.name === g.M.dest) : null;
-  while (t < 600 && g.status === 'play') {
+  const tmax = g.M.key === 'route' ? 2400 : 600;
+  while (t < tmax && g.status === 'play') {
     const kmh = p.v*3.6;
     if (g.M.key === 'depart') {
       thr = 1;
@@ -40,6 +43,28 @@ async ({id, mission}) => {
         if (p.agl > 30 && p.gearDown) B.act('gear');
         if (p.agl > 150 && p.flapIdx > 0 && kmh > sp.rotKmh*1.3) B.act('flapsUp');
       }
+    } else if (g.M.key === 'route') {
+      // takeoff by hand, then NAV + VNAV, skip to the descent, and an autoland at the destination
+      const P = g.M.route; IN.yaw = 0;
+      if (!g.flags.ap) {
+        thr = 1;
+        if (p.onGround) { IN.pitch = kmh > sp.rotKmh ? 0.7 : 0; IN.roll = 0; }
+        else { IN.pitch = clamp((8*D2R - p.pitch)*4, -1, 1); IN.roll = clamp(-p.bank*2, -1, 1);
+          if (p.agl > 30 && p.gearDown) B.act('gear'); if (p.agl > 150 && p.flapIdx > 0 && kmh > sp.rotKmh*1.3) B.act('flapsUp');
+          if (p.agl > 400 && p.flapIdx === 0) { IN.pitch = 0; IN.roll = 0; B.apEngage(g, true); B.act('nav'); B.act('vnav'); g.flags.ap = true; } }
+        IN.thrSet = g.flags.ap ? null : thr;
+      } else {
+        IN.pitch = 0; IN.roll = 0; IN.thrSet = null;
+        if (!g.flags.skipped && p.agl > 2500 && B.REGION.icao !== P.dest) { B.skipToDescent(g); g.flags.skipped = true; }
+        if (B.REGION.icao === P.dest && g.nav) {
+          if (!p.ap.app && g.nav.dFaf < 6000) B.apArmApp(g);
+          if (g.nav.dFaf < 14000 && !p.gearDown) B.act('gear');
+          if (g.nav.dFaf < 20000 && p.flapIdx < sp.ldgFlap && kmh < (sp.flaps[p.flapIdx+1].vfe || 999) - 15 && Math.round(t*2) % 4 === 0) B.act('flaps');
+        }
+      }
+      for (let i = 0; i < 6; i++) { B.step(g, h); t += h; if (g.status !== 'play') break; }
+      if (Math.round(t*10) % 100 === 0) log.push([Math.round(t), B.REGION.icao, Math.round(p.agl), Math.round(p.ias*3.6), p.ap.lat, p.ap.vert, g.nav ? Math.round(g.nav.dFaf) : null, +p.thr.toFixed(2), p.ap.at, Math.round(p.ap.spd), +p.vs.toFixed(1)]);
+      continue;
     } else if (g.M.key === 'autoland') {
       // hands off: arm the approach, then configure like a crew would
       IN.pitch = 0; IN.roll = 0; IN.yaw = 0; IN.thrSet = null;
@@ -85,7 +110,8 @@ async ({id, mission}) => {
     if (p.vs < 0) maxSink = Math.max(maxSink, -p.vs);
     if (Math.round(t*10) % (window.__fine?10:100) === 0) log.push([Math.round(t), Math.round(p.agl), Math.round(kmh), +p.vs.toFixed(1)].concat(window.__fine?[+p.thr.toFixed(2),+p.rpm.toFixed(2),+(p.bank*57.3).toFixed(1),+(p.pitch*57.3).toFixed(1),+(p.alpha*57.3).toFixed(1),end?Math.round((p.pos.x-end.T.x)*(-end.dz)+(p.pos.z-end.T.z)*end.dx):0,+(p.hdg*57.3).toFixed(1)]:[]));
   }
-  return {status: g.status, reason: g.reason || '(timed out)', time: Math.round(t), stars: g.starsWon || 0,
+  const dbg = B.debug ? B.debug() : null;
+  return {dbg, status: g.status, reason: g.reason || '(timed out)', time: Math.round(t), stars: g.starsWon || 0,
           sink: g.stats.sink, offset: g.stats.offset, log: log.slice(window.__fine?-3000:-6).filter(r=>!window.__fine||r[4]!=='ROLLOUT'), end: end ? [Math.round(-((p.pos.x-end.T.x)*end.dx+(p.pos.z-end.T.z)*end.dz)), Math.round((p.pos.x-end.T.x)*(-end.dz)+(p.pos.z-end.T.z)*end.dx)] : null};
 }
 """
@@ -108,14 +134,18 @@ with sync_playwright() as pw:
     page.goto(URL)
     page.wait_for_function('window.__bear3d && !document.querySelector("#menu").classList.contains("hidden")', timeout=60000)
     ids = ONLY or page.evaluate('window.__bear3d.AIRCRAFT.map(a => a.id)')
+    ROUTES = [r.split(':') for r in os.environ['ROUTES'].split(',')] if os.environ.get('ROUTES') else None
     for id in ids:
-        for mission in ([int(m) for m in os.environ['MISSIONS'].split(',')] if os.environ.get('MISSIONS') else (1, 2, 5)):
+        for mission in (ROUTES or [int(m) for m in os.environ['MISSIONS'].split(',')] if os.environ.get('MISSIONS') or ROUTES else (1, 2, 5)):
             page.evaluate('window.__hold = false')
-            r = page.evaluate(AUTOPILOT, {'id': id, 'mission': mission})
+            if ROUTES:
+                page.evaluate("([id, a, b]) => { const B = window.__bear3d; B.setPlan(B.planFlight(B.AIRCRAFT.find(x => x.id === id), a, b, {})); }", [id, mission[0], mission[1]])
+                page.wait_for_timeout(200)
+            r = page.evaluate(AUTOPILOT, {'id': id, 'mission': 0 if ROUTES else mission})
             ok = r['status'] == 'success'
             sink = f"{r['sink']:.2f} m/s" if r['sink'] is not None else '-'
-            print(f"{'PASS' if ok else 'FAIL'} {id:8} m{mission}  {r['time']:4}s  stars {r['stars']}  sink {sink}  {r['reason']}")
-            if not ok or os.environ.get('FINE'): print('    ', r['log'], 'along/lat at end', r['end'])
+            print(f"{'PASS' if ok else 'FAIL'} {id:8} {('m'+str(mission)) if not ROUTES else ':'.join(mission)}  {r['time']:4}s  stars {r['stars']}  sink {sink}  {r['reason']}")
+            if not ok or os.environ.get('FINE'): print('    ', r['log'], 'along/lat at end', r['end'], r.get('dbg') if os.environ.get('FINE') else '')
             results.append(ok)
     if errors: print('PAGE ERRORS:', errors)
     br.close()

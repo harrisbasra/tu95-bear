@@ -5,19 +5,23 @@
 //   vertical ALT (climb or descend to the selected altitude and hold it), or G/S once the glide path is captured
 //   then FLARE, RETARD and ROLLOUT for an automatic landing, with autobrake and reverse thrust.
 // Altitudes are kept in metres above sea level and speeds as indicated km/h; the panels show feet and knots.
-function newAP(){return{on:false,at:false,lat:'HDG',vert:'ALT',hdg:0,alt:0,spd:0,app:false,loc:false,gs:false,flare:false,retard:false,rollout:false,
+function newAP(){return{on:false,at:false,vnav:false,lat:'HDG',vert:'ALT',hdg:0,alt:0,spd:0,app:false,loc:false,gs:false,flare:false,retard:false,rollout:false,
   steer:0,brake:false,revOn:false,end:null,fdP:0,fdR:0,lastIas:null,override:0,msg:''};}
 function apSync(p){const a=p.ap;a.hdg=Math.round(((p.hdg*R2D)+360)%360);a.alt=Math.round((p.pos.y+ELEV)/FT/100)*100*FT;a.spd=Math.round((p.ias||p.vel.length()*Math.sqrt(rho(p.pos.y)/1.225))*3.6/KT)*KT;}
 function apEngage(g,on){const p=g.plane,a=p.ap;if(on===undefined)on=!a.on;
   if(on){if(p.onGround){toast(g,'The autopilot can only be engaged in the air');return;}if(p.agl<120){toast(g,'Climb above 120 m before engaging the autopilot');return;}
-    if(!a.on&&!a.at)apSync(p);a.on=true;a.at=true;a.lat=a.loc?'LOC':'HDG';a.vert=a.gs?'G/S':'ALT';toast(g,'Autopilot on');AU.blip(1200);}
+    if(!a.on&&!a.at)apSync(p);a.on=true;a.at=true;a.lat=a.loc?'LOC':a.lat==='NAV'&&g.nav?'NAV':'HDG';a.vert=a.gs?'G/S':'ALT';toast(g,'Autopilot on');AU.blip(1200);}
   else{apOff(g,'Autopilot off');}}
 function apOff(g,why){const a=g.plane.ap;const was=a.on;a.on=false;a.flare=a.retard=false;a.loc=a.gs=false;a.app=false;a.rollout=false;a.brake=false;a.revOn=false;
   if(was){toast(g,why||'Autopilot off');AU.blip(520);setTimeout(()=>AU.blip(440),160);}}
 function apArmApp(g){const p=g.plane,a=p.ap;if(a.app){a.app=false;a.loc=a.gs=false;a.lat='HDG';a.vert='ALT';toast(g,'Approach mode off');return;}
-  const ap=approach(g);if(!ap){toast(g,'No runway ahead. Turn toward the airport first, then arm the approach');return;}
+  // a planned arrival runway wins; otherwise the runway ahead
+  const planned=g.M.dest&&END(g.M.dest);const ap=planned?{e:planned}:approach(g);if(!ap){toast(g,'No runway ahead. Turn toward the airport first, then arm the approach');return;}
   a.end=ap.e;a.app=true;if(!a.on)apEngage(g,true);toast(g,`Approach armed for runway ${ap.e.name}`);}
-function apAdjust(g,what,dir){const a=g.plane.ap;
+function apNav(g){const a=g.plane.ap;if(!g.nav){toast(g,'NAV follows a flight plan: plan a flight from the world map');return;}if(a.lat==='NAV'){a.lat='HDG';toast(g,'Heading select');return;}
+  if(!a.on)apEngage(g,true);if(!a.on)return;a.lat='NAV';toast(g,'NAV: following the route');}
+function apVnav(g){const a=g.plane.ap;if(!g.nav){toast(g,'VNAV follows a flight plan: plan a flight from the world map');return;}a.vnav=!a.vnav;if(a.vnav&&!a.on)apEngage(g,true);if(a.vnav&&!a.at)a.at=true;toast(g,a.vnav?'VNAV: cruise altitude, then a 3° descent; managed speed':'VNAV off');}
+function apAdjust(g,what,dir){const a=g.plane.ap;if(a.vnav&&(what==='alt'||what==='spd')){a.vnav=false;toast(g,'VNAV off: selected altitude and speed');}
   if(what==='hdg')a.hdg=((Math.round(a.hdg/5)*5+dir*5)+360)%360;
   if(what==='alt')a.alt=Math.max(1000*FT,Math.round(a.alt/FT/500)*500*FT+dir*500*FT);
   if(what==='spd')a.spd=clamp(Math.round(a.spd/KT/5)*5*KT+dir*5*KT,100*KT,g.plane.spec.vmoKmh);}
@@ -30,6 +34,7 @@ function apControl(g,dt,inp){
   if(a.at&&inp.thrMoved&&!a.retard){a.at=false;toast(g,'Autothrottle off');}
   const e=a.end,rh=e?e.hdg*D2R:0;let along=0,lat=0;
   if(e){const rx=p.pos.x-e.T.x,rz=p.pos.z-e.T.z;along=-(rx*e.dx+rz*e.dz);lat=rx*(-e.dz)+rz*e.dx;}
+  if(a.vnav&&g.nav&&!a.gs){a.alt=g.nav.altT;a.spd=g.nav.spdT;}
   let spdT=a.spd;
   if(a.on){
     // approach mode: capture the localiser, then the glide path
@@ -40,7 +45,8 @@ function apControl(g,dt,inp){
       if(a.gs)spdT=vspeeds(sp,p.m).vapp;}
     // lateral
     let bankCmd;
-    if(a.lat==='LOC'){const track=Math.atan2(p.vel.x,-p.vel.z);const want=rh-clamp(lat*0.004,-0.45,0.45);bankCmd=clamp(wrapPi(want-track)*2.5,-0.35,0.35);}
+    if(a.lat==='NAV'&&g.nav){const track=Math.atan2(p.vel.x,-p.vel.z);bankCmd=clamp(wrapPi(g.nav.track-track)*1.2,-25*D2R,25*D2R);a.hdg=Math.round(((g.nav.track*R2D)+360)%360);}
+    else if(a.lat==='LOC'){const track=Math.atan2(p.vel.x,-p.vel.z);const want=rh-clamp(lat*0.004,-0.45,0.45);bankCmd=clamp(wrapPi(want-track)*2.5,-0.35,0.35);}
     else bankCmd=clamp(wrapPi(a.hdg*D2R-p.hdg)*1.2,-25*D2R,25*D2R);
     const auth=clamp(p.v/75,0.05,1);
     // vertical
@@ -52,8 +58,13 @@ function apControl(g,dt,inp){
     else{const h=p.pos.y+ELEV,err=a.alt-h;vsCmd=clamp(err*0.08,-10,9);
       // don't climb so steeply the speed bleeds away
       if(ias<spdT-25)vsCmd=Math.min(vsCmd,(ias-(spdT-40))*0.15);
-      if(Math.abs(err)<15)a.vert='ALT';else a.vert=err>0?'CLB':'DES';}
-    let dA=a.flare?clamp((vsCmd-p.vs)*3/v,-0.03,0.12):clamp((vsCmd-p.vs)*0.25/v,-0.05,0.05);
+      if(Math.abs(err)<15)a.vert='ALT';else a.vert=err>0?'CLB':'DES';
+      // descending fast: give up some of the path to hold the speed, and ask for drag (the speedbrake) if that isn't enough
+      // near the airport (VNAV within 30 km of the final approach fix) the path wins and the speedbrake does the slowing
+      if(a.vert==='DES'&&a.at){const over=ias-spdT,near=a.vnav&&g.nav&&g.nav.dFaf<30000;if(over>20&&!near)vsCmd=Math.max(vsCmd,vsCmd*clamp(1-(over-20)/40,0.12,1));
+        if(over>(near?12:30)&&!IN.spd&&p.spec.spoilers){IN.spd=true;a.autoSpd=true;toast(g,'More drag: speedbrake out');}}
+      if(a.autoSpd&&(ias<spdT+8||a.vert!=='DES')){IN.spd=false;a.autoSpd=false;}}
+    let dA=a.flare?clamp((vsCmd-p.vs)*3/v,-0.03,0.12):a.gs?clamp((vsCmd-p.vs)*0.6/v,-0.06,0.06):clamp((vsCmd-p.vs)*0.3/v,-0.05,0.05);
     const kp=0.55*clamp(v/90,0.2,1.4);
     let pin=dA*kp/(sp.pitch*auth);
     if(a.flare){const pmax=sp.bicycle?0.02:sp.tailLim*0.55,pmin=sp.bicycle?-0.01:0.035;if(p.pitch>pmax)pin=Math.min(pin,(pmax-p.pitch)*6);

@@ -16,14 +16,14 @@ function toast(g,text){g.toasts.push({text,t:g.t});if(g.toasts.length>3)g.toasts
 function clearGame(){if(!game)return;if(game.A)scene.remove(game.A.g);for(const r of game.rings)scene.remove(r.mesh);for(const f of game.fx)scene.remove(f.s);game=null;}
 function newGame(mi,mode){
   clearGame();
-  const M=MISSIONS3[mi],sp=currentSpec();
-  const kind=M.start.air||M.start.agl&&!M.start.rw?'landing':'takeoff';const p=newPlane(sp,mode==='attract'?'takeoff':kind);const A=buildAircraft(sp);scene.add(A.g);
-  const g={mi,M,mode,status:'play',plane:p,A,wind:V(),t:0,time:0,toasts:[],stats:{sink:null,offset:0},flags:{},rings:[],fx:[],
+  const M=typeof mi==='object'?mi:MISSIONS3[mi],sp=currentSpec();
+  const kind=M.start.air||M.start.agl&&!M.start.rw?'landing':'takeoff';const p=newPlane(sp,mode==='attract'?'takeoff':kind,M.route&&mode!=='attract'?{payload:M.route.payload,fuel:M.route.start==='approach'?Math.min(M.route.fuel,Math.max(sp.fuelCap*0.08,M.route.fuel-M.route.trip)):M.route.fuel}:null);const A=buildAircraft(sp);scene.add(A.g);
+  const g={mi:typeof mi==='object'?-1:mi,M:Object.assign({},M),mode,timeScale:1,status:'play',plane:p,A,wind:V(),t:0,time:0,toasts:[],stats:{sink:null,offset:0},flags:{},rings:[],fx:[],
     opts:{assist:progress.assist,landAssist:progress.landAssist},cam:{mode:progress.camMode||'chase',pos:V(),init:false,orbit:0},endT:0,shown:false};
   if(M.wind)g.wind.set(M.wind[0],0,M.wind[1]);
   applySky(mode==='attract'?'day':M.sky);
   const st=M.start;
-  if(mode==='attract'){placeOnRunway(p,'36R',60);}
+  if(mode==='attract'){placeOnRunway(p,mainEnd().name,60);}
   else if(st.rw)placeOnRunway(p,st.rw,st.at);
   else if(st.air){const e=END(st.air);const agl=st.agl||st.dist*Math.tan(3*D2R)+sp.gearH;
     // start with a manoeuvring flap setting at a comfortable speed for this weight
@@ -31,22 +31,22 @@ function newGame(mi,mode){
     placeInAir(p,e.T.x-e.dx*st.dist,e.T.z-e.dz*st.dist,agl,e.hdg,kmh,0.35,fi);
     if(st.ap){g.opts.assist=true;p.ap.on=true;p.ap.at=true;apSync(p);p.ap.hdg=Math.round(e.hdg);p.ap.alt=Math.round((agl+ELEV)/FT/100)*100*FT;}}
   else placeInAir(p,st.x,st.z,st.agl,st.hdg,Math.max(st.kmh,stallKmh(sp,mass(p),0)*1.4),0.55);
-  const ringDefs=M.rings?M.rings.slice():[];
-  if(M.oldcity){const mn=LANDMARKS.minar,bd=LANDMARKS.badshahi;let dx=mn.x-st.x,dz=mn.z-st.z;const l=Math.hypot(dx,dz);dx/=l;dz/=l;
+  const ringDefs=M.rings&&mode==='play'?M.rings.slice():[];
+  if(M.oldcity&&mode==='play'){const mn=LANDMARKS.minar,bd=LANDMARKS.badshahi;let dx=mn.x-st.x,dz=mn.z-st.z;const l=Math.hypot(dx,dz);dx/=l;dz/=l;
     ringDefs.push({x:mn.x-dx*260+dz*160,z:mn.z-dz*260-dx*160,y:150,nx:dx,nz:dz});
     let ex=bd.x-mn.x,ez=bd.z-mn.z;const l2=Math.hypot(ex,ez);ex/=l2;ez/=l2;
     ringDefs.push({x:bd.x+dz*260+400*dx,z:bd.z-dx*260+400*dz,y:170,nx:dx,nz:dz});}
   for(const r of ringDefs){const mesh=new THREE.Mesh(new THREE.TorusGeometry(70,4,10,48),new THREE.MeshBasicMaterial({color:'#ffbe46',transparent:true,opacity:0.9,fog:false}));
     mesh.position.set(r.x,r.y,r.z);mesh.rotation.y=Math.atan2(r.nx,r.nz);scene.add(mesh);g.rings.push(Object.assign({mesh,state:'wait',prev:null},r));}
   if(g.rings.length)g.rings[0].state='next';
-  finishStep(p);if(!p.ap.on)apSync(p);setAircraftState(A,p,0);syncModel(g);
+  finishStep(p);g.startFuel=p.fuelKg;if(!p.ap.on)apSync(p);setAircraftState(A,p,0);syncModel(g);
   return g;}
 function finish(g,ok,reason){
   if(g.status!=='play')return;g.status=ok?'success':'fail';g.reason=reason;g.endT=g.t+(ok?1.6:2.8);
   if(ok){const s=g.stats,M=g.M;let st=1;
     if(M.key==='depart')st=g.time<75?3:g.time<110?2:1;
     else{st=s.sink!==null&&s.sink<=1.5&&s.offset<8?3:s.sink!==null&&s.sink<=3?2:1;}
-    g.starsWon=st;progress.stars[M.key]=Math.max(progress.stars[M.key]||0,st);save();CLOUD.save();AU.blip(660);setTimeout(()=>AU.blip(990),140);}
+    g.starsWon=st;if(!M.route){progress.stars[M.key]=Math.max(progress.stars[M.key]||0,st);save();}CLOUD.save();AU.blip(660);setTimeout(()=>AU.blip(990),140);}
 }
 function crash(g,reason){const p=g.plane;if(!p.alive)return;padPulse(1,1,700);p.alive=false;explode(g,p.pos.clone());g.A.g.visible=false;AU.boom(true);finish(g,false,reason);}
 function missionUpdate(g,dt){
@@ -59,8 +59,12 @@ function missionUpdate(g,dt){
       else if(rad<=600){r.state='miss';r.mesh.material.color.set('#e04a35');return finish(g,false,`You missed ring ${i+1}. Fly through the middle of each ring in order.`);}}
     r.prev=d;}
   const stopped=p.onGround&&p.v<1.5&&g.flags.flew;
+  if(M.route)routeUpdate(g,dt);
   switch(M.key){
     case 'depart':if(!p.onGround&&p.agl>=600&&p.gearPos<0.03&&flapsUp(p))finish(g,true,'A clean departure from Lahore.');break;
+    case 'route':{if(!stopped)break;const P=M.route,dest=AIRPORT_BY_ICAO[P.dest];
+      if(REGION.icao===P.dest){const rw=onRunway(p.pos.x,p.pos.z,5);finish(g,true,`Arrived at ${dest.name}${rw?', runway '+rw.id:''}. Touchdown at ${(g.stats.sink||0).toFixed(1)} m/s, ${g.stats.offset.toFixed(0)} m from the centreline.`);}
+      else finish(g,false,`You landed at ${REGION.name||'the wrong airport'} instead of ${dest.name}. Follow the magenta route on the ND, or use NAV (N).`);break;}
     default:{
       const ringsDone=g.rings.every(r=>r.state==='ok');
       if(stopped&&ringsDone){const rw=onRunway(p.pos.x,p.pos.z,5);finish(g,true,`Down and stopped${rw?' on runway '+rw.id:''}. Touchdown at ${(g.stats.sink||0).toFixed(1)} m/s, ${g.stats.offset.toFixed(0)} m from the centreline.`);}
@@ -89,7 +93,7 @@ function updateCamera(g,dt){
     camera.fov=progress.fov||62;camera.near=0.05;camera.updateProjectionMatrix();c.init=false;return;}
   detachCockpit();
   camera.near=0.5;camera.updateProjectionMatrix();
-  if(mode==='tower'){camera.position.copy(W3.towerTop);const d=camera.position.distanceTo(p.pos);camera.lookAt(p.pos);camera.fov=clamp(2*Math.atan(sp.len*1.6/Math.max(1,d))*R2D,3,60);camera.updateProjectionMatrix();c.init=false;return;}
+  if(mode==='tower'&&W3.towerTop){camera.position.copy(W3.towerTop);const d=camera.position.distanceTo(p.pos);camera.lookAt(p.pos);camera.fov=clamp(2*Math.atan(sp.len*1.6/Math.max(1,d))*R2D,3,60);camera.updateProjectionMatrix();c.init=false;return;}
   const oy=p.hdg+(c.lookYaw||0);const fh=V().set(Math.sin(oy),0,-Math.cos(oy));const dist=sp.len*1.15+16,h=sp.len*0.22+5+(c.lookPitch||0)*-sp.len*0.6;
   const want=V().copy(p.pos).addScaledVector(fh,-dist);want.y+=h;
   if(!c.init){c.pos.copy(want);c.init=true;}

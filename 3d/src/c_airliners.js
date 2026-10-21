@@ -12,7 +12,7 @@ const AL_COMMON={cat:'airliner',prop:false,engType:'turbofan',cd0:0.019,cl0:0.22
 const AIRLINERS=[
  {id:'b738',name:'737-800',family:'Boeing 737',nick:'Next Generation',role:'Short and medium-haul twin',maker:'boeing',cockpitType:'boeing',
   feel:'Light and responsive. A good first airliner, but keep an eye on the speed: it doesn’t slow down easily.',
-  oew:41413,mtow:79016,mlw:66361,fuelCap:20894,payload:20000,pax:162,S:124.6,span:35.79,len:39.47,T:2*117000,engines:2,
+  cruise:{alt:11000,ld:17.5},oew:41413,mtow:79016,mlw:66361,fuelCap:20894,payload:20000,pax:162,S:124.6,span:35.79,len:39.47,T:2*117000,engines:2,
   vrefKt:151,vrefFlap:7,vmo:340,mmo:0.82,mdd:0.83,pitch:0.17,roll:0.42,rotRate:0.052,tailStrike:11,
   flaps:BOEING_FLAPS([[1,0.1],[2,0.15],[5,0.3],[10,0.42],[15,0.52],[25,0.68],[30,0.85],[40,1]],[250,250,250,210,200,190,175,162]),toFlap:3,ldgFlap:7,
   gearH:3.35,mainX:-1.5,noseX:14.1,
@@ -24,7 +24,7 @@ const AIRLINERS=[
    doors:[0.08,0.92],exits:[0.43,0.48],ftf:4,cockpitEye:[2.6,5.0]}},
  {id:'a320',name:'A320',family:'Airbus A320',nick:'ceo with sharklets',role:'Short and medium-haul twin',maker:'airbus',cockpitType:'airbus',
   feel:'Fly-by-wire and very stable. The sidestick and autothrust make long approaches easy.',
-  oew:42600,mtow:78000,mlw:66000,fuelCap:19000,payload:19900,pax:150,S:122.6,span:35.8,len:37.57,T:2*120100,engines:2,
+  cruise:{alt:11000,ld:17.5},oew:42600,mtow:78000,mlw:66000,fuelCap:19000,payload:19900,pax:150,S:122.6,span:35.8,len:37.57,T:2*120100,engines:2,
   vrefKt:133,vmo:350,mmo:0.82,mdd:0.83,pitch:0.17,roll:0.44,rotRate:0.052,tailStrike:11.7,
   flaps:AIRBUS_FLAPS([230,215,200,185,177]),toFlap:2,ldgFlap:5,
   gearH:3.9,mainX:-1.5,noseX:11.14,
@@ -36,7 +36,7 @@ const AIRLINERS=[
    doors:[0.1,0.9],exits:[0.45,0.5],ftf:3,cockpitEye:[2.5,4.6]}},
  {id:'b789',name:'787-9',family:'Boeing 787',nick:'Dreamliner',role:'Long-haul twin',maker:'boeing',cockpitType:'boeing',
   feel:'Smooth and efficient, with a long flexible wing. Rotate gently: the tail is closer to the runway than it looks.',
-  oew:128850,mtow:254011,mlw:192777,fuelCap:101000,payload:52600,pax:296,S:377,span:60.12,len:62.81,T:2*330000,engines:2,
+  cruise:{alt:11900,ld:17.5},oew:128850,mtow:254011,mlw:192777,fuelCap:101000,payload:52600,pax:296,S:377,span:60.12,len:62.81,T:2*330000,engines:2,
   vrefKt:150,vrefFlap:8,vmo:350,mmo:0.9,mdd:0.88,pitch:0.15,roll:0.32,rotRate:0.05,tailStrike:9.6,
   flaps:BOEING_FLAPS([[1,0.12],[5,0.3],[15,0.5],[17,0.55],[18,0.58],[20,0.62],[25,0.8],[30,1]],[255,235,215,205,200,195,185,175]),toFlap:3,ldgFlap:8,
   gearH:5.5,mainX:-2,noseX:23.86,
@@ -48,7 +48,7 @@ const AIRLINERS=[
    doors:[0.08,0.32,0.62,0.9],ftf:4,cockpitEye:[2.6,5.9],windowScale:1.3}},
  {id:'b77w',name:'777-300ER',family:'Boeing 777',nick:'Triple Seven',role:'Long-haul twin',maker:'boeing',cockpitType:'boeing',
   feel:'Huge, heavy and very powerful. Lots of runway needed, and a low tail-strike angle: hold about 6° at lift-off.',
-  oew:167829,mtow:351534,mlw:251290,fuelCap:145500,payload:69850,pax:396,S:436.8,span:64.8,len:73.86,T:2*513000,engines:2,
+  cruise:{alt:10700,ld:17.5},oew:167829,mtow:351534,mlw:251290,fuelCap:145500,payload:69850,pax:396,S:436.8,span:64.8,len:73.86,T:2*513000,engines:2,
   vrefKt:152,vrefFlap:6,vmo:330,mmo:0.89,mdd:0.87,pitch:0.14,roll:0.3,rotRate:0.045,tailStrike:8.6,
   flaps:BOEING_FLAPS([[1,0.12],[5,0.3],[15,0.5],[20,0.62],[25,0.8],[30,1]],[255,235,215,195,185,170]),toFlap:3,ldgFlap:6,
   gearH:5.8,mainX:-2,noseX:29.22,
@@ -60,7 +60,7 @@ const AIRLINERS=[
    doors:[0.07,0.22,0.52,0.7,0.9],ftf:4,cockpitEye:[2.9,6.3]}},
  {id:'a359',name:'A350-900',family:'Airbus A350',nick:'XWB',role:'Long-haul twin',maker:'airbus',cockpitType:'airbus',
   feel:'Modern, quiet and easy to handle, with a curved wingtip and plenty of thrust.',
-  oew:142400,mtow:280000,mlw:207000,fuelCap:110500,payload:53300,pax:325,S:442,span:64.75,len:66.8,T:2*374500,engines:2,
+  cruise:{alt:11900,ld:17.5},oew:142400,mtow:280000,mlw:207000,fuelCap:110500,payload:53300,pax:325,S:442,span:64.75,len:66.8,T:2*374500,engines:2,
   vrefKt:135,vmo:340,mmo:0.89,mdd:0.88,pitch:0.15,roll:0.33,rotRate:0.05,tailStrike:11.2,
   flaps:AIRBUS_FLAPS([255,220,212,195,186]),toFlap:2,ldgFlap:5,
   gearH:5.6,mainX:-2,noseX:26.67,
@@ -72,7 +72,7 @@ const AIRLINERS=[
    doors:[0.08,0.3,0.62,0.9],ftf:3,cockpitEye:[2.7,5.9],windowScale:1.2}},
  {id:'b744',name:'747-400',family:'Boeing 747',nick:'Jumbo',role:'Four-engined long-haul airliner',maker:'boeing',cockpitType:'boeing',
   feel:'The Queen of the Skies. Big, stable and slow to react: plan every turn and every flare early.',
-  oew:178756,mtow:396893,mlw:285763,fuelCap:174000,payload:63900,pax:416,S:525,span:64.44,len:70.66,T:4*258000,engines:4,
+  cruise:{alt:10700,ld:17.5},oew:178756,mtow:396893,mlw:285763,fuelCap:174000,payload:63900,pax:416,S:525,span:64.44,len:70.66,T:4*258000,engines:4,
   vrefKt:157,vrefFlap:6,vmo:365,mmo:0.92,mdd:0.89,pitch:0.13,roll:0.27,rotRate:0.045,tailStrike:11,
   flaps:BOEING_FLAPS([[1,0.12],[5,0.3],[10,0.45],[20,0.6],[25,0.8],[30,1]],[280,260,240,230,205,180]),toFlap:3,ldgFlap:6,
   gearH:5.7,mainX:-2,noseX:23.6,
@@ -84,7 +84,7 @@ const AIRLINERS=[
    doors:[0.08,0.24,0.47,0.7,0.89],ftf:4,cockpitEye:[3.3,8.7],upperDeck:0.32}},
  {id:'a388',name:'A380-800',family:'Airbus A380',nick:'Superjumbo',role:'Double-deck long-haul airliner',maker:'airbus',cockpitType:'airbus',
   feel:'The largest airliner ever built. Surprisingly gentle, but enormous: the wingtips are 40 m from your seat.',
-  oew:277000,mtow:575000,mlw:394000,fuelCap:254000,payload:89000,pax:525,S:845,span:79.75,len:72.72,T:4*348000,engines:4,
+  cruise:{alt:11300,ld:17.5},oew:277000,mtow:575000,mlw:394000,fuelCap:254000,payload:89000,pax:525,S:845,span:79.75,len:72.72,T:4*348000,engines:4,
   vrefKt:136,vmo:340,mmo:0.89,mdd:0.88,pitch:0.13,roll:0.26,rotRate:0.045,tailStrike:11.3,
   flaps:AIRBUS_FLAPS([263,222,220,196,182]),toFlap:2,ldgFlap:5,
   gearH:6.5,mainX:-2,noseX:31.58,
@@ -95,7 +95,7 @@ const AIRLINERS=[
    gear:{nose:2,noseR:0.6,mains:[{x:0.2,z:7.17,bogie:'2x2',r:0.7},{x:-3.6,z:3.05,bogie:'3x2',r:0.7}]},
    doors:[0.08,0.26,0.47,0.7,0.88],ftf:3,cockpitEye:[4.0,7.1],upperDeck:1}}
 ];
-for(const a of AIRLINERS){for(const k in AL_COMMON)if(a[k]===undefined)a[k]=AL_COMMON[k];
+for(const a of AIRLINERS){for(const k in AL_COMMON)if(a[k]===undefined)a[k]=AL_COMMON[k];a.cruise.mach=a.cruise.mach||Math.round((a.mmo-0.04)*100)/100;
   const G=a.geo;a.cockpit=[G.nose-G.cockpitEye[0],G.cockpitEye[1]-a.gearH];{const st=airlinerStations(a);const ex=a.cockpit[0];let tp=9;for(let i=0;i<st.length-1;i++){if(st[i][0]>=ex&&st[i+1][0]<=ex){tp=lerp(st[i][1],st[i+1][1],(st[i][0]-ex)/(st[i][0]-st[i+1][0]));}}a.cockpit[1]=Math.min(a.cockpit[1],tp-0.4);}a.vne=a.vmo*KT;a.flapMax=a.flaps[1].vfe;
   a.sweep=a.geo.wing.LE-3;
   // lengthen the upswept tail cone until the body clears the ground at the published tail-strike attitude

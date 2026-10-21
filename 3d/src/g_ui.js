@@ -77,7 +77,7 @@ function compass(x,y,r,p,ap){const c=hx;dialFace(x,y,r);const h=p.hdg;c.save();c
     const dev=clamp(ap.loc/2.5,-1,1)*r*0.35;c.strokeStyle='#ff5ad8';c.beginPath();c.moveTo(-dev,-r*0.3);c.lineTo(-dev,r*0.3);c.stroke();c.restore();}
   c.restore();c.textBaseline='alphabetic';c.fillStyle='#f2c46a';c.beginPath();c.moveTo(x,y-r*0.16);c.lineTo(x-7,y+r*0.14);c.lineTo(x,y+r*0.06);c.lineTo(x+7,y+r*0.14);c.fill();
   c.fillStyle='#0a0b08';c.fillRect(x-20,y-r-2,40,17);c.fillStyle='#f2c46a';c.font=`700 13px ${FONT}`;c.textAlign='center';c.fillText(String(Math.round(((h*R2D)+360)%360)).padStart(3,'0')+'°',x,y-r+11);label(x,y+r+19,'Heading');}
-function warnings(g){const p=g.plane,w=[];if(!p.alive||g.status!=='play'||g.mode!=='play')return w;const kmh=p.v*3.6;
+function warnings(g){const p=g.plane,w=[];if(!p.alive||g.status!=='play'||g.mode!=='play')return w;const kmh=p.ias*3.6;
   if(!p.onGround){if(p.stalled)w.push('Stall');const tti=p.vs<-1?p.agl/(-p.vs):99;const ap=g.ap;const onApp=ap&&p.gearPos>0.95&&ap.along<8000&&p.vs>-9;
     if(p.agl<450&&tti<7&&!onApp)w.push('Pull up');if(!p.gearDown&&p.agl<200&&p.vs<-0.5&&kmh<380&&ap&&ap.along<6000)w.push('Gear is up');
     if(Math.abs(p.bank)>0.95)w.push('Bank angle');if(p.flapPos>0.1&&kmh>p.spec.flapMax)w.push('Too fast for the flaps');}
@@ -86,12 +86,15 @@ function objectives(g){const p=g.plane,M=g.M,km=v=>`${(Math.max(0,v)/1000).toFix
   switch(M.key){
     case 'free':return[['Explore Lahore. Land on any runway and stop to finish',null]];
     case 'depart':return[[`Climb to 600 m above ground (${Math.max(0,Math.round(p.agl))} m)`,!p.onGround&&p.agl>=600],['Raise the gear (G)',p.gearPos<0.03&&!p.gearDown],['Retract the flaps (V)',flapsUp(p)&&p.flapPos<0.02]];
+    case 'route':{const P=M.route,dest=AIRPORT_BY_ICAO[P.dest],n=g.nav;const L=[[`${P.dep} to ${P.dest}: runway ${P.arrEnd} at ${dest.city}`,false]];
+      if(n){L.push([`${km(n.remaining)} to go, ${Math.round(p.fuelKg/100)/10} t of fuel`,null]);const a=p.ap;if(!p.onGround&&REGION.icao!==P.dest)L.push([a.on&&a.lat==='NAV'&&a.vnav?(g.timeScale>1?`Cruising at ×${g.timeScale}. Y: faster, K: skip to the descent`:'On the route. Y speeds up time, K skips to the descent'):'Engage NAV (N) and VNAV (J) to follow the route',null]);
+        else if(REGION.icao===P.dest&&!p.ap.app&&!p.onGround)L.push(['Arm the approach (X) when you are lined up',null]);}return L;}
     case 'final':case 'night':case 'autoland':{const e=END(M.dest);const d=Math.hypot(p.pos.x-e.T.x,p.pos.z-e.T.z);return[[`Land on runway ${M.dest} and stop`,false],[`Threshold ${km(d)} away`,null]];}
     default:{const ok=g.rings.filter(r=>r.state==='ok').length;const nx=g.rings.find(r=>r.state==='next');
       return[[`Rings: ${ok} of ${g.rings.length}`,ok===g.rings.length],nx?[`Next ring ${km(Math.hypot(nx.x-p.pos.x,nx.z-p.pos.z))} away, ${Math.round(nx.y)} m up`,null]:['Now land on any runway and stop',false]];}}}
 function drawHUD(g){
   hx.setTransform(DPR,0,0,DPR,0,0);hx.clearRect(0,0,W,H);if(g.mode!=='play')return;
-  const p=g.plane,sp=p.spec,top=viewH,ch=PH-SAFE.b,kmh=p.v*3.6;
+  const p=g.plane,sp=p.spec,top=viewH,ch=PH-SAFE.b,kmh=p.ias*3.6;
   const inCockpit=g.cam.mode==='cockpit'&&p.alive;
   if(!inCockpit){
   const pg=hx.createLinearGradient(0,top,0,H);pg.addColorStop(0,'#46523b');pg.addColorStop(1,'#2c3426');hx.fillStyle=pg;hx.fillRect(0,top,W,PH);hx.fillStyle='#1b2016';hx.fillRect(0,top,W,3);
@@ -118,7 +121,7 @@ function drawHUD(g){
   // approach block
   if(R-x>150){const bx=x;hx.fillStyle='#1d2318';rr(hx,bx,top+10,R-bx,ch-20,4);hx.fill();hx.textAlign='left';
     if(ap){hx.fillStyle='rgba(235,229,203,.85)';hx.font=`700 14px ${FONT}`;hx.fillText(`Runway ${ap.e.name}, ${(Math.max(0,ap.along)/1000).toFixed(1)} km`,bx+12,top+30);
-      const wn=Math.max(0,Math.min(4,Math.round((ap.gs+0.5)/0.33+2)));for(let i=0;i<4;i++)lamp(bx+18+i*20,top+48,6,true,i<wn?'255,255,255':'235,60,45');
+      const wn=Math.max(0,Math.min(4,Math.round(ap.gs/0.33)+2));for(let i=0;i<4;i++)lamp(bx+18+i*20,top+48,6,true,i<wn?'255,255,255':'235,60,45');
       const msg=ap.along<-50?'Over the runway':wn>=4?'Too high':wn===3?'Slightly high':wn===2?'On the glide path':wn===1?'Slightly low':'Too low';hx.fillStyle='rgba(235,229,203,.7)';hx.font=`700 13px ${FONT}`;hx.fillText(msg,bx+104,top+52);
       const sw=Math.min(150,R-bx-24),cy=top+ch-34;hx.strokeStyle='rgba(235,229,203,.5)';hx.lineWidth=1;
       for(let i=-2;i<=2;i++){circ(hx,bx+12+sw/2+i*sw/5,cy,2.5);hx.stroke();}const ld=clamp(-ap.loc/2.5,-1,1);hx.fillStyle='#ff5ad8';hx.beginPath();const lx=bx+12+sw/2+ld*sw*0.4;hx.moveTo(lx,cy-6);hx.lineTo(lx+6,cy);hx.lineTo(lx,cy+6);hx.lineTo(lx-6,cy);hx.fill();
@@ -140,11 +143,13 @@ function drawRadar(g){const p=g.plane,rad=Math.min(78,W*0.11,isTouch?H*0.11:999)
   hx.save();hx.fillStyle='rgba(20,24,17,.62)';circ(hx,cx,cy,rad+4);hx.fill();circ(hx,cx,cy,rad);hx.clip();
   const X=x=>cx+(x-p.pos.x)*k,Y=z=>cy+(z-p.pos.z)*k;
   hx.fillStyle='rgba(210,190,150,.07)';for(const c of CITY_C){hx.beginPath();hx.arc(X(c.x),Y(c.z),Math.sqrt(c.s2/2)*k*1.2,0,7);hx.fill();}
-  hx.strokeStyle='rgba(110,150,170,.7)';hx.lineWidth=3;hx.beginPath();RAVI.forEach((q,i)=>i?hx.lineTo(X(q.x),Y(q.z)):hx.moveTo(X(q.x),Y(q.z)));hx.stroke();
+  hx.fillStyle='rgba(80,120,140,.45)';for(const w of WATER){hx.beginPath();for(let k=0;k<w.p.length;k+=2){k?hx.lineTo(X(w.p[k]),Y(w.p[k+1])):hx.moveTo(X(w.p[k]),Y(w.p[k+1]));}hx.closePath();hx.fill();}
+  hx.strokeStyle='rgba(110,150,170,.7)';hx.lineWidth=3;for(const r of RIVERS){hx.beginPath();r.pts.forEach((q,i)=>i?hx.lineTo(X(q.x),Y(q.z)):hx.moveTo(X(q.x),Y(q.z)));hx.stroke();}
   hx.strokeStyle='#ebe5cb';hx.lineWidth=2.5;for(const rw of RWYS){hx.beginPath();hx.moveTo(X(rw.A.x),Y(rw.A.z));hx.lineTo(X(rw.B.x),Y(rw.B.z));hx.stroke();}
   for(const r of g.rings){hx.fillStyle=r.state==='ok'?'#86d36f':r.state==='next'?'#ffbe46':'rgba(255,190,70,.5)';circ(hx,X(r.x),Y(r.z),3.5);hx.fill();}
-  for(const lm of [LANDMARKS.minar,LANDMARKS.badshahi]){hx.fillStyle='#e9d9b0';circ(hx,X(lm.x),Y(lm.z),2.5);hx.fill();}
-  hx.fillStyle='rgba(235,229,203,.8)';hx.font=`700 10px ${FONT}`;hx.textAlign='center';hx.fillText('Minar',X(LANDMARKS.minar.x),Y(LANDMARKS.minar.z)-6);hx.fillText('OPLA',X(-60),Y(-1900));
+  if(g.nav){const t=geo(g.nav.target[0],g.nav.target[1]);hx.strokeStyle='#ff5ad8';hx.lineWidth=2;hx.beginPath();hx.moveTo(cx,cy);hx.lineTo(X(t.x),Y(t.z));hx.stroke();}
+  hx.font=`700 10px ${FONT}`;hx.textAlign='center';for(const k in LANDMARKS){const lm=LANDMARKS[k];hx.fillStyle='#e9d9b0';circ(hx,X(lm.x),Y(lm.z),2.5);hx.fill();hx.fillStyle='rgba(235,229,203,.8)';hx.fillText(lm.name.split(' ')[0],X(lm.x),Y(lm.z)-6);}
+  if(RWYS.length){hx.fillStyle='rgba(235,229,203,.8)';hx.fillText(REGION.icao,X(0),Y(-1900));}
   hx.restore();hx.save();hx.translate(cx,cy);hx.rotate(p.hdg);hx.fillStyle='#ffe08a';hx.beginPath();hx.moveTo(0,-8);hx.lineTo(5,6);hx.lineTo(0,3);hx.lineTo(-5,6);hx.fill();hx.restore();
   hx.fillStyle='rgba(235,229,203,.8)';hx.font=`700 11px ${FONT}`;hx.textAlign='center';hx.fillText('N',cx,cy-rad+11);hx.fillText(`${range/1000} km`,cx,cy+rad-4);}
 /* ---------- cloud saves (Firebase, optional) ---------- */
@@ -177,7 +182,7 @@ function buildMenu(){
   MISSIONS3.forEach((m,i)=>{const li=document.createElement('li');const b=document.createElement('button');b.setAttribute('aria-pressed',String(progress.mission===i));const st=progress.stars[m.key]||0;
     b.innerHTML=`<span class="n">${i+1}</span><span><span class="nm"></span><span class="sm"></span></span><span class="st" aria-label="${st} of 3 stars">${'★'.repeat(st)}<span class="off">${'★'.repeat(3-st)}</span></span>`;
     b.querySelector('.nm').textContent=m.name;b.querySelector('.sm').textContent=m.summary;
-    b.addEventListener('click',()=>{progress.mission=i;save();buildMenu();});li.appendChild(b);ol.appendChild(li);});
+    b.addEventListener('click',()=>{progress.mission=i;PLAN=null;save();buildMenu();});li.appendChild(b);ol.appendChild(li);});
   // hangar: two categories, each aircraft with a rendered 3D thumbnail (rendered once, then reused)
   const cat=progress.cat||currentSpec().cat||'military';for(const t of document.querySelectorAll('.cats [data-cat]'))t.setAttribute('aria-selected',String(t.dataset.cat===cat));
   const box=$('#planes');if(box.dataset.cat!==cat){box.dataset.cat=cat;box.innerHTML='';AIRCRAFT.filter(sp=>(sp.cat||'military')===cat).forEach(sp=>{const b=document.createElement('button');b.className='pl';b.setAttribute('role','radio');b.dataset.id=sp.id;
@@ -191,13 +196,22 @@ function buildMenu(){
 function show(el,v){el.classList.toggle('hidden',!v);}
 let isTouch=matchMedia('(pointer: coarse)').matches;
 function startAttract(){game=newGame(progress.mission||0,'attract');}
-function toMenu(){show($('#result'),false);show($('#pause'),false);show($('#touch'),false);show($('#btn-pause'),false);show($('#btn-cam'),false);startAttract();buildMenu();show($('#menu'),true);}
-function startFlight(){AU.init();IN.spd=false;show($('#menu'),false);show($('#result'),false);show($('#pause'),false);game=newGame(progress.mission||0,'play');show($('#btn-pause'),true);show($('#btn-cam'),true);show($('#touch'),isTouch);
+function toMenu(){show($('#result'),false);show($('#pause'),false);show($('#touch'),false);show($('#btn-pause'),false);show($('#btn-cam'),false);show($('#btn-time'),false);show($('#btn-skip'),false);show($('#map'),false);startAttract();buildMenu();show($('#menu'),true);}
+// map data that couldn't be loaded is remembered, and the airport is built with the generic layout instead
+const NO_DATA=new Set();const hasData=i=>!!(window.TU95_OSM&&TU95_OSM[i]);
+async function ensureData(icao){const ap=AIRPORT_BY_ICAO[icao];if(ap&&ap.osm&&!hasData(icao)&&!NO_DATA.has(icao)){try{await loadScript(`data/${icao}.js`);}catch(e){NO_DATA.add(icao);console.warn(e.message);}}}
+function startFlight(){AU.init();IN.spd=false;
+  const M=PLAN?routeMission(PLAN):MISSIONS3[progress.mission||0],need=M.region||'OPLA';
+  const pending=PLAN&&[PLAN.dep,PLAN.dest].some(i=>AIRPORT_BY_ICAO[i].osm&&!hasData(i)&&!NO_DATA.has(i));
+  if(!REGION||REGION.icao!==need||pending){const ld=$('#loading');ld.textContent=`Loading ${AIRPORT_BY_ICAO[need].city}…`;show(ld,true);
+    Promise.all(PLAN?[ensureData(PLAN.dep),ensureData(PLAN.dest)]:[]).then(()=>REGION&&REGION.icao===need?null:loadRegion(need)).then(()=>{show(ld,false);startFlight();});return;}
+  show($('#menu'),false);show($('#result'),false);show($('#pause'),false);show($('#map'),false);game=newGame(M,'play');show($('#btn-pause'),true);show($('#btn-cam'),true);show($('#touch'),isTouch);
   toast(game,game.M.summary);acc=0;}
-function showResult(g){show($('#touch'),false);show($('#btn-pause'),false);show($('#btn-cam'),false);const ok=g.status==='success';
+function showResult(g){show($('#touch'),false);show($('#btn-pause'),false);show($('#btn-cam'),false);show($('#btn-time'),false);show($('#btn-skip'),false);const ok=g.status==='success';
   $('#r-title').textContent=ok?'Mission complete':'Mission failed';$('#r-reason').textContent=g.reason;const st=ok?g.starsWon:0;$('#r-stars').innerHTML=ok?`${'★'.repeat(st)}<span class="off">${'★'.repeat(3-st)}</span>`:'';
   const dl=$('#r-stats');dl.innerHTML='';const add=(k,v)=>{const a=document.createElement('dt');a.textContent=k;const b=document.createElement('dd');b.textContent=v;dl.append(a,b);};
   add('Pilot',progress.name||'Unnamed pilot');add('Aircraft',g.plane.spec.name);add('Flight time',`${Math.floor(g.time/60)}:${String(Math.floor(g.time%60)).padStart(2,'0')}`);
+  if(g.M.route){const P=g.M.route;add('Route',`${P.dep} to ${P.dest}, ${Math.round(P.dist/1000).toLocaleString('en-GB')} km`);add('Fuel used',`${(Math.max(0,g.startFuel-g.plane.fuelKg)/1000).toFixed(1)} t, ${(g.plane.fuelKg/1000).toFixed(1)} t left`);if(g.skippedKm)add('Skipped',`${Math.round(g.skippedKm).toLocaleString('en-GB')} km of cruise`);}
   if(g.stats.sink!==null){add('Touchdown',`${g.stats.sink.toFixed(1)} m/s`);add('From centreline',`${g.stats.offset.toFixed(0)} m`);}
   if(ok&&st<3&&g.M.key!=='depart')add('Three stars','Touch down at 1.5 m/s or less within 8 m of the centreline');
   show($('#result'),true);setTimeout(()=>$('#r-retry').focus({preventScroll:true}),30);}
@@ -211,13 +225,13 @@ function readKeys(){let pitch=(KEYS.ArrowUp?1:0)-(KEYS.ArrowDown?1:0);if(progres
 function act(name){const g=game;if(!g||g.mode!=='play'||g.status!=='play')return;const p=g.plane;if(!p.alive)return;
   if(name==='flaps'||name==='flapsUp'){const n=p.spec.flaps.length,i=clamp(p.flapIdx+(name==='flaps'?1:-1),0,n-1);if(i===p.flapIdx){toast(g,name==='flaps'?'Flaps are fully down':'Flaps are already up');return;}
     p.flapIdx=i;const f=p.spec.flaps[i];toast(g,`Flaps ${f.n.toLowerCase()}${f.vfe&&p.ias*3.6>f.vfe?`. Too fast: slow below ${spdText(f.vfe)}`:''}`);AU.clunk();}
-  if(name==='ap')apEngage(g);if(name==='app')apArmApp(g);if(name==='at'){p.ap.at=!p.ap.at;if(p.ap.at&&!p.ap.spd)apSync(p);toast(g,p.ap.at?'Autothrottle on':'Autothrottle off');}
+  if(name==='ap')apEngage(g);if(name==='nav')apNav(g);if(name==='vnav')apVnav(g);if(name==='time')cycleTime(g);if(name==='skip')skipToDescent(g);if(name==='app')apArmApp(g);if(name==='at'){p.ap.at=!p.ap.at;if(p.ap.at&&!p.ap.spd)apSync(p);toast(g,p.ap.at?'Autothrottle on':'Autothrottle off');}
   if(name==='spd'){IN.spd=!IN.spd;toast(g,IN.spd?'Speedbrake out':'Speedbrake in');}
   if(name==='gear'){if(p.onGround){toast(g,'The gear can’t come up on the ground');return;}p.gearDown=!p.gearDown;toast(g,p.gearDown?'Gear coming down':'Gear coming up');AU.clunk();padPulse(0.3,0,120);}}
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT'&&e.target.type==='text')return;const playing=game&&game.mode==='play';
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();KEYS[e.code]=true;
   if(!playing){if((e.code==='KeyP'||e.code==='Escape')&&game&&game.mode==='paused')pause(false);return;}
-  if(e.repeat)return;if(e.code==='KeyF')act('flaps');if(e.code==='KeyV')act('flapsUp');if(e.code==='KeyZ')act('ap');if(e.code==='KeyX')act('app');if(e.code==='KeyT')act('at');if(e.code==='KeyQ')act('spd');
+  if(e.repeat)return;if(e.code==='KeyF')act('flaps');if(e.code==='KeyV')act('flapsUp');if(e.code==='KeyZ')act('ap');if(e.code==='KeyX')act('app');if(e.code==='KeyT')act('at');if(e.code==='KeyN')act('nav');if(e.code==='KeyJ')act('vnav');if(e.code==='KeyY')act('time');if(e.code==='KeyK')act('skip');if(e.code==='KeyQ')act('spd');
   const adj={Comma:['hdg',-1],Period:['hdg',1],Minus:['alt',-1],Equal:['alt',1],Digit9:['spd',-1],Digit0:['spd',1]}[e.code];if(adj){apAdjust(game,adj[0],adj[1]);}
   if(e.code==='KeyG')act('gear');if(e.code==='KeyC')cycleCam();if(e.code==='KeyP'||e.code==='Escape')pause(true);if(e.code==='KeyR')startFlight();});
 addEventListener('keyup',e=>{KEYS[e.code]=false;});
@@ -243,7 +257,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){for(const 
   el.addEventListener('pointerup',up);el.addEventListener('pointercancel',()=>{down=null;if(game)game.cam.dragging=false;});})();
 /* ---------- wiring ---------- */
 function wire(){
-  $('#btn-go').addEventListener('click',startFlight);
+  $('#btn-go').addEventListener('click',()=>{PLAN=null;startFlight();});wireMap();
   $('#btn-keys').addEventListener('click',e=>{const k=$('#keys');k.hidden=!k.hidden;e.currentTarget.setAttribute('aria-expanded',String(!k.hidden));});
   $('#o-assist').addEventListener('change',e=>{progress.assist=e.target.checked;save();});$('#o-land').addEventListener('change',e=>{progress.landAssist=e.target.checked;save();});
   $('#o-invert').addEventListener('change',e=>{progress.invert=e.target.checked;save();});$('#o-sound').addEventListener('change',e=>{AU.init();AU.setOn(e.target.checked);});
@@ -258,7 +272,7 @@ function wire(){
   $('#p-resume').addEventListener('click',()=>pause(false));$('#p-restart').addEventListener('click',startFlight);$('#p-menu').addEventListener('click',toMenu);
   $('#p-assist').addEventListener('change',e=>{game.opts.assist=progress.assist=e.target.checked;save();});$('#p-land').addEventListener('change',e=>{game.opts.landAssist=progress.landAssist=e.target.checked;save();});
   $('#p-invert').addEventListener('change',e=>{progress.invert=e.target.checked;save();});
-  $('#btn-pause').addEventListener('click',()=>pause(true));$('#btn-cam').addEventListener('click',cycleCam);
+  $('#btn-pause').addEventListener('click',()=>pause(true));$('#btn-cam').addEventListener('click',cycleCam);$('#btn-time').addEventListener('click',()=>act('time'));$('#btn-skip').addEventListener('click',()=>act('skip'));
   addEventListener('resize',resize);}
 /* ---------- loop ---------- */
 let last=performance.now(),acc=0;
@@ -266,20 +280,28 @@ function step(g,dt){g.t+=dt;if(g.mode==='play'){stepPlane(g,dt);missionUpdate(g,
   if(g.status!=='play'&&!g.shown&&g.t>=g.endT&&g.mode==='play'){g.shown=true;showResult(g);}}
 function frame(now){const dt=Math.min(0.05,(now-last)/1000);last=now;const g=game;
   readGamepad();
-  if(g&&(g.mode==='play'||g.mode==='attract')){readKeys();acc+=dt;const h=1/120;let n=0;while(acc>=h&&n<10){step(g,h);acc-=h;n++;}if(n>=10)acc=0;}
+  if(g&&(g.mode==='play'||g.mode==='attract')){readKeys();const ts=g.timeScale||1;acc+=dt*ts;const h=1/120;let n=0;const cap=10*ts;while(acc>=h&&n<cap){step(g,h);acc-=h;n++;if(game!==g)break;}if(n>=cap)acc=0;}
   if(g){const p=g.plane;setAircraftState(g.A,p,dt);syncModel(g);
     const L=g.A.parts.lights;L.beacon.visible=Math.sin(g.t*7)>0.5;if(L.beacon2)L.beacon2.visible=Math.sin(g.t*7+2)>0.5;if(L.strobes){const on=(g.t%1.3)<0.07||((g.t-0.15)%1.3+1.3)%1.3<0.07;for(const s of L.strobes)s.visible=on;}
+    if(g.mode==='play'){const r=!!g.M.route&&g.status==='play';const bt=$('#btn-time');if(bt.classList.contains('hidden')===r)show(bt,r);const lbl='×'+(g.timeScale||1);if(bt.textContent!==lbl)bt.textContent=lbl;show($('#btn-skip'),r&&REGION.icao!==g.M.route.dest);}
     updateCamera(g,dt);updateCockpit(g,dt);g.ap=g.mode==='play'?approach(g):null;updatePapi(g);
     const sd=W3.sunDir||new THREE.Vector3(0.5,0.85,0.35);sun.position.copy(p.pos).addScaledVector(sd,600);sun.target.position.copy(p.pos);
     W3.sky.position.copy(camera.position);
     renderer.render(scene,camera);drawHUD(g);
     const active=g.mode==='play'&&p.alive;AU.update(p.rpm,p.v,!!g.warn&&active,active,!p.spec.prop,p.ab);padFeedback(g);}
   requestAnimationFrame(frame);}
+/* ---------- airport regions ---------- */
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Could not load '+src));document.head.appendChild(s);});}
+async function loadRegion(icao){const ap=AIRPORT_BY_ICAO[icao]||AIRPORTS[0];
+  await ensureData(ap.icao);
+  clearGame();setRegion(ap);REGION_OSM=window.TU95_OSM&&TU95_OSM[ap.icao]||null;CK.built=null;buildWorld();applySky('day');progress.region=ap.icao;save();
+  scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});}
 function boot(){
   if(!window.THREE){$('#loading').textContent='Couldn’t load the 3D engine. Check your connection and reload.';return;}
   renderer=new THREE.WebGLRenderer({canvas:glCanvas,antialias:true,logarithmicDepthBuffer:true});maxAniso=renderer.capabilities.getMaxAnisotropy();
   renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.shadowMap.enabled=qual().shadows;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  buildWorld();resize();wire();startAttract();buildMenu();show($('#loading'),false);show($('#menu'),true);requestAnimationFrame(frame);CLOUD.init();}
-window.__bear3d={get game(){return game;},get scene(){return scene;},get camera(){return camera;},get renderer(){return renderer;},buildAircraft,setAircraftState,apEngage,apArmApp,apAdjust,vspeeds,mass,step,IN,act,startFlight,newGame,AIRCRAFT,progress,save,ENDS,RWYS,setPlane:id=>{progress.plane=id;},setMission:i=>{progress.mission=i;}};
+  camera=new THREE.PerspectiveCamera(60,1,0.5,60000);wire();
+  loadRegion(progress.region||'OPLA').then(()=>{resize();startAttract();buildMenu();show($('#loading'),false);show($('#menu'),true);requestAnimationFrame(frame);CLOUD.init();});}
+window.__bear3d={get game(){return game;},debug:()=>({obst:game&&obstacleH(game.plane.pos.x,game.plane.pos.z),grid:game&&W3.grid.get(gridKey(game.plane.pos.x,game.plane.pos.z)),boxes:game&&(W3.boxes.get(Math.floor(game.plane.pos.x/100)+","+Math.floor(game.plane.pos.z/100))||[]).length,apl:game&&approachLimit(game.plane.pos.x,game.plane.pos.z),onRw:game&&!!onRunway(game.plane.pos.x,game.plane.pos.z,200),pos:game&&[Math.round(game.plane.pos.x),Math.round(game.plane.pos.y),Math.round(game.plane.pos.z)],water:WATER.length,hills:HILLS.length,rivers:RIVERS.length,city:CITY_C.length,region:REGION.icao,meshes:scene.children.length,inW:inWater(geo(40.62,-73.82).x,geo(40.62,-73.82).z)}),planFlight,setPlan:P=>{PLAN=P;},loadRegion,skipToDescent,cycleTime,AIRPORTS,get REGION(){return REGION;},get scene(){return scene;},get camera(){return camera;},get renderer(){return renderer;},buildAircraft,setAircraftState,apEngage,apArmApp,apAdjust,vspeeds,mass,step,IN,act,startFlight,newGame,AIRCRAFT,progress,save,ENDS,RWYS,setPlane:id=>{progress.plane=id;},setMission:i=>{progress.mission=i;}};
 boot();
 })();
